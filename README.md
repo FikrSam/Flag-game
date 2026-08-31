@@ -9,7 +9,8 @@ An interactive, responsive, and minimalist web-based flag-matching geography gam
 1. **Playable Continents**:
    - **Europe** (44 sovereign nations).
    - **Africa** (54 sovereign nations).
-   - *Asia, Americas, Oceania* labeled *Coming Soon*.
+   - **South America** (12 sovereign nations).
+   - *Asia, North America, Oceania* labeled *Coming Soon*.
 2. **Pure Border-Shape Geography Challenge**:
    - Unplaced countries display their authentic geographical boundaries without names or spoilers.
 3. **Flexible Interaction (Drag or Tap Twice)**:

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EUROPE_COUNTRIES } from '../data/europeData';
 import { AFRICA_COUNTRIES } from '../data/africaData';
+import { SOUTH_AMERICA_COUNTRIES } from '../data/southAmericaData';
 import { CONTINENTS } from '../data/continents';
 import { App } from '../App';
 
@@ -44,15 +45,32 @@ describe('Flaggle Basic Geography Game', () => {
       });
     });
 
-    it('has Europe and Africa marked as playable and other continents coming soon', () => {
+    it('has all 12 South American countries with valid vector paths, centroids, and bboxes', () => {
+      expect(SOUTH_AMERICA_COUNTRIES.length).toBe(12);
+
+      SOUTH_AMERICA_COUNTRIES.forEach((country) => {
+        expect(country.id).toBeDefined();
+        expect(country.name).toBeTruthy();
+        expect(country.path.length).toBeGreaterThan(10);
+        expect(country.centroid.length).toBe(2);
+        expect(country.bbox.width).toBeGreaterThan(0);
+        expect(country.bbox.height).toBeGreaterThan(0);
+        expect(country.flagDataUri).toBeTruthy();
+      });
+    });
+
+    it('has Europe, Africa, and South America marked as playable and other continents coming soon', () => {
       const europe = CONTINENTS.find(c => c.id === 'europe');
       expect(europe?.status).toBe('playable');
 
       const africa = CONTINENTS.find(c => c.id === 'africa');
       expect(africa?.status).toBe('playable');
 
-      const otherContinents = CONTINENTS.filter(c => !['europe', 'africa'].includes(c.id));
-      expect(otherContinents.length).toBe(5);
+      const southAmerica = CONTINENTS.find(c => c.id === 'south_america');
+      expect(southAmerica?.status).toBe('playable');
+
+      const otherContinents = CONTINENTS.filter(c => !['europe', 'africa', 'south_america'].includes(c.id));
+      expect(otherContinents.length).toBe(4);
       otherContinents.forEach(c => expect(c.status).toBe('coming_soon'));
     });
   });
@@ -86,6 +104,16 @@ describe('Flaggle Basic Geography Game', () => {
 
       expect(screen.getByText(/Africa/i)).toBeInTheDocument();
       expect(screen.getAllByText(/54/i).length).toBeGreaterThan(0);
+    });
+
+    it('starts South American game on selecting South America', () => {
+      render(<App />);
+
+      const playSABtn = screen.getByText(/Play South America/i);
+      fireEvent.click(playSABtn);
+
+      expect(screen.getByText(/South America/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/12/i).length).toBeGreaterThan(0);
     });
   });
 

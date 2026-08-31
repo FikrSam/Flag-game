@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { EUROPE_COUNTRIES, CONTEXT_LAND_PATHS, MAP_CONFIG } from './data/europeData';
 import { AFRICA_COUNTRIES, AFRICA_CONTEXT_LAND_PATHS, AFRICA_MAP_CONFIG } from './data/africaData';
+import { SOUTH_AMERICA_COUNTRIES, SOUTH_AMERICA_CONTEXT_LAND_PATHS, SOUTH_AMERICA_MAP_CONFIG } from './data/southAmericaData';
 import type { CountryData } from './types/game';
 import { ContinentSelect } from './components/ContinentSelect';
 import { Header } from './components/Header';
@@ -22,6 +23,15 @@ export function App() {
         countries: AFRICA_COUNTRIES,
         contextLandPaths: AFRICA_CONTEXT_LAND_PATHS,
         mapConfig: AFRICA_MAP_CONFIG
+      };
+    }
+    if (activeContinentId === 'south_america') {
+      return {
+        id: 'south_america',
+        name: 'South America',
+        countries: SOUTH_AMERICA_COUNTRIES,
+        contextLandPaths: SOUTH_AMERICA_CONTEXT_LAND_PATHS,
+        mapConfig: SOUTH_AMERICA_MAP_CONFIG
       };
     }
     return {
@@ -47,7 +57,12 @@ export function App() {
 
   // Initialize unplaced flags when continent changes or screen starts
   const initGame = useCallback((continentId: string) => {
-    const data = continentId === 'africa' ? AFRICA_COUNTRIES : EUROPE_COUNTRIES;
+    let data = EUROPE_COUNTRIES;
+    if (continentId === 'africa') {
+      data = AFRICA_COUNTRIES;
+    } else if (continentId === 'south_america') {
+      data = SOUTH_AMERICA_COUNTRIES;
+    }
     const shuffled = [...data].sort(() => Math.random() - 0.5);
     setActiveContinentId(continentId);
     setPlacedCountries(new Set());
