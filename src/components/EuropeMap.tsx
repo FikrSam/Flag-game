@@ -273,15 +273,31 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         }}
       >
         <defs>
-          {/* SVG Patterns for filled country flags (centered on country centroid) */}
+          {/* SVG Patterns for filled country flags (centered on country centroid with EXACT 4:3 aspect ratio, 0% distortion) */}
           {countries.map((country) => {
             const [cx, cy] = country.centroid;
             const halfW = Math.max(cx - country.bbox.x, (country.bbox.x + country.bbox.width) - cx);
             const halfH = Math.max(cy - country.bbox.y, (country.bbox.y + country.bbox.height) - cy);
-            const patW = Math.max(1, Math.round(halfW * 2));
-            const patH = Math.max(1, Math.round(halfH * 2));
-            const patX = Math.round(cx - halfW);
-            const patY = Math.round(cy - halfH);
+            const minW = Math.max(1, halfW * 2);
+            const minH = Math.max(1, halfH * 2);
+
+            const FLAG_ASPECT_RATIO = 4 / 3;
+            let patW: number;
+            let patH: number;
+
+            // Preserve natural 4:3 flag aspect ratio without any stretching or squishing
+            if (minW / minH > FLAG_ASPECT_RATIO) {
+              patW = minW;
+              patH = minW / FLAG_ASPECT_RATIO;
+            } else {
+              patH = minH;
+              patW = minH * FLAG_ASPECT_RATIO;
+            }
+
+            const patX = Math.round(cx - patW / 2);
+            const patY = Math.round(cy - patH / 2);
+            const roundedW = Math.round(patW);
+            const roundedH = Math.round(patH);
 
             return (
               <pattern
@@ -290,17 +306,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 patternUnits="userSpaceOnUse"
                 x={patX}
                 y={patY}
-                width={patW}
-                height={patH}
+                width={roundedW}
+                height={roundedH}
               >
                 <image
                   href={country.flagDataUri}
                   xlinkHref={country.flagDataUri}
                   x={0}
                   y={0}
-                  width={patW}
-                  height={patH}
-                  preserveAspectRatio="none"
+                  width={roundedW}
+                  height={roundedH}
+                  preserveAspectRatio="xMidYMid slice"
                 />
               </pattern>
             );
