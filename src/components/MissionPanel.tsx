@@ -1,6 +1,5 @@
 import React from 'react';
-import type { CountryData } from '../data/europeData';
-import type { GameMode } from '../types/game';
+import type { CountryData, GameMode } from '../types/game';
 import { FlagImage } from './FlagImage';
 import { Eye, MapPin, Sparkles } from 'lucide-react';
 

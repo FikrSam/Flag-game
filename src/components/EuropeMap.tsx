@@ -1,18 +1,26 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { EUROPE_COUNTRIES, CONTEXT_LAND_PATHS, MAP_CONFIG } from '../data/europeData';
+import type { CountryData } from '../types/game';
 import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
-interface EuropeMapProps {
+export interface InteractiveMapProps {
+  countries?: CountryData[];
+  contextLandPaths?: string[];
+  mapConfig?: { viewBox: string; width: number; height: number };
   placedCountries: Set<string>;
   selectedFlagId: string | null;
   highlightedCountryId: string | null;
   onCountryMatch: (countryId: string) => void;
+  continentName?: string;
 }
 
-const MIN_ZOOM = 1.0;
-const MAX_ZOOM = 3.5;
+const MIN_ZOOM = 0.8;
+const MAX_ZOOM = 4.5;
 
-export const EuropeMap: React.FC<EuropeMapProps> = ({
+export const InteractiveMap: React.FC<InteractiveMapProps> = ({
+  countries = EUROPE_COUNTRIES,
+  contextLandPaths = CONTEXT_LAND_PATHS,
+  mapConfig = MAP_CONFIG,
   placedCountries,
   selectedFlagId,
   highlightedCountryId,
@@ -30,13 +38,12 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  // Clamps pan coordinates so map never leaves frame
+  // Smart pan boundaries: expanded 20-25% for extra open canvas freedom
   const clampPan = useCallback((x: number, y: number, currentZoom: number) => {
-    if (currentZoom <= 1.0) {
-      return { x: 0, y: 0 };
-    }
-    const maxOffsetX = (currentZoom - 1) * 420;
-    const maxOffsetY = (currentZoom - 1) * 320;
+    const baseMarginX = 205;
+    const baseMarginY = 175;
+    const maxOffsetX = (Math.max(currentZoom, 1.0) - 1) * 650 + baseMarginX;
+    const maxOffsetY = (Math.max(currentZoom, 1.0) - 1) * 525 + baseMarginY;
 
     return {
       x: Math.min(Math.max(x, -maxOffsetX), maxOffsetX),
@@ -58,14 +65,14 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
     setPan({ x: 0, y: 0 });
   };
 
-  // Granular wheel zoom strictly constrained inside viewport
+  // Granular wheel zoom
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const zoomFactor = e.deltaY < 0 ? 1.04 : 0.96;
     updateZoom(zoom * zoomFactor);
   };
 
-  // Mouse pan handlers: supports dragging anywhere (including on countries)
+  // Mouse pan handlers with smart bounded panning
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 0) {
       setIsPointerDown(true);
@@ -136,7 +143,7 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
   };
 
   // Small microstate countries list
-  const microstateCountries = EUROPE_COUNTRIES.filter(c => c.isMicrostate || ['MT', 'CY', 'LU'].includes(c.id));
+  const microstateCountries = countries.filter(c => c.isMicrostate || ['MT', 'CY', 'LU', 'CV', 'ST', 'SC', 'MU', 'KM', 'SZ', 'LS', 'DJ', 'GM', 'RW', 'BI', 'GQ', 'SL'].includes(c.id));
 
   // "Little countries get a dot: marked with a ring. Scroll to zoom in and the rings go away."
   const showMicrostateRings = zoom <= 1.4;
@@ -144,7 +151,7 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full min-h-[380px] bg-[#090e1a] rounded-lg border border-slate-800 shadow-md overflow-hidden flex items-center justify-center select-none"
+      className="relative w-full h-full min-h-[380px] bg-[#0f182a] rounded-lg shadow-md overflow-hidden flex items-center justify-center select-none"
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -152,28 +159,28 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
       onMouseLeave={handleMouseUp}
       style={{ cursor: isDragging ? 'grabbing' : 'default' }}
       role="region"
-      aria-label="Europe Map"
+      aria-label="Continent Map"
     >
       {/* Zoom controls */}
-      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-md border border-slate-800 shadow-sm">
+      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 bg-[#131f33]/90 backdrop-blur-md p-1 rounded-md border border-slate-700/60 shadow-sm">
         <button
           onClick={handleZoomIn}
           title="Zoom In"
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95"
+          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded transition-colors active:scale-95"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={handleZoomOut}
           title="Zoom Out"
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95"
+          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded transition-colors active:scale-95"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
         <button
           onClick={handleResetZoom}
           title="Reset Zoom"
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95"
+          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded transition-colors active:scale-95"
         >
           <RotateCcw className="w-4 h-4" />
         </button>
@@ -182,7 +189,7 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
       {/* SVG Canvas */}
       <svg
         ref={svgRef}
-        viewBox={MAP_CONFIG.viewBox}
+        viewBox={mapConfig.viewBox}
         className="w-full h-full max-h-full transition-transform duration-75 ease-out"
         style={{
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
@@ -190,66 +197,71 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
         }}
       >
         <defs>
-          <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255, 255, 255, 0.02)" strokeWidth="0.5" />
-          </pattern>
+          {/* SVG Patterns for filled country flags (centered on country centroid) */}
+          {countries.map((country) => {
+            const [cx, cy] = country.centroid;
+            const halfW = Math.max(cx - country.bbox.x, (country.bbox.x + country.bbox.width) - cx);
+            const halfH = Math.max(cy - country.bbox.y, (country.bbox.y + country.bbox.height) - cy);
+            const patW = Math.max(1, Math.round(halfW * 2));
+            const patH = Math.max(1, Math.round(halfH * 2));
+            const patX = Math.round(cx - halfW);
+            const patY = Math.round(cy - halfH);
 
-          {/* SVG Patterns for filled country flags */}
-          {EUROPE_COUNTRIES.map((country) => (
-            <pattern
-              key={`flag-pattern-${country.id}`}
-              id={`flag-pat-${country.id}`}
-              patternUnits="userSpaceOnUse"
-              x={country.bbox.x}
-              y={country.bbox.y}
-              width={country.bbox.width}
-              height={country.bbox.height}
-            >
-              <image
-                href={country.flagDataUri}
-                xlinkHref={country.flagDataUri}
-                x={0}
-                y={0}
-                width={country.bbox.width}
-                height={country.bbox.height}
-                preserveAspectRatio="none"
-              />
-            </pattern>
-          ))}
+            return (
+              <pattern
+                key={`flag-pattern-${country.id}`}
+                id={`flag-pat-${country.id}`}
+                patternUnits="userSpaceOnUse"
+                x={patX}
+                y={patY}
+                width={patW}
+                height={patH}
+              >
+                <image
+                  href={country.flagDataUri}
+                  xlinkHref={country.flagDataUri}
+                  x={0}
+                  y={0}
+                  width={patW}
+                  height={patH}
+                  preserveAspectRatio="none"
+                />
+              </pattern>
+            );
+          })}
         </defs>
 
-        {/* Ocean Background */}
-        <rect width={MAP_CONFIG.width} height={MAP_CONFIG.height} fill="#090e1a" className="map-ocean" />
-        <rect width={MAP_CONFIG.width} height={MAP_CONFIG.height} fill="url(#map-grid)" className="map-ocean pointer-events-none" />
+        {/* Ocean Background (Exact solid dark navy #0f182a) */}
+        <rect width={mapConfig.width} height={mapConfig.height} fill="#0f182a" className="map-ocean" />
 
-        {/* Surrounding Context Landmasses (Fine 0.3px stroke) */}
-        <g className="context-land opacity-25" fill="#131b2e" stroke="#1e293b" strokeWidth="0.3">
-          {CONTEXT_LAND_PATHS.map((pathD, idx) => (
+        {/* Surrounding Context Landmasses (Exact #1e2b45) */}
+        <g className="context-land" fill="#1e2b45" stroke="#263652" strokeWidth="0.4">
+          {contextLandPaths.map((pathD, idx) => (
             <path key={`ctx-${idx}`} d={pathD} className="context-land" />
           ))}
         </g>
 
-        {/* 44 European Country Polygons */}
+        {/* Country Polygons (Exact slate blue #2a3d5e with #3b5175 borders) */}
         <g id="country-polygons">
-          {EUROPE_COUNTRIES.map((country) => {
+          {countries.map((country) => {
             const isPlaced = placedCountries.has(country.id);
             const isHovered = hoveredCountryId === country.id;
             const isDragOver = dragOverCountryId === country.id;
             const isHighlighted = highlightedCountryId === country.id;
 
-            let fill = '#161f36';
-            let stroke = '#2e3d5e';
+            let fill = '#2a3d5e';
+            let stroke = '#3b5175';
             const strokeWidth = 0.5;
 
             if (isPlaced) {
               fill = `url(#flag-pat-${country.id})`;
               stroke = '#22c55e';
             } else if (isDragOver) {
-              fill = '#d97706';
+              fill = '#b45309';
             } else if (isHighlighted) {
               fill = '#78350f';
             } else if (isHovered) {
-              fill = '#0369a1';
+              fill = '#364f78';
             }
 
             return (
@@ -278,7 +290,7 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
 
         {/* Placed Country Name Labels */}
         <g id="country-labels" className="pointer-events-none">
-          {EUROPE_COUNTRIES.filter(c => placedCountries.has(c.id)).map((country) => {
+          {countries.filter(c => placedCountries.has(c.id)).map((country) => {
             const [cx, cy] = country.centroid;
             if (country.isMicrostate) return null;
 
@@ -299,7 +311,7 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
           })}
         </g>
 
-        {/* Microstates: When unplaced, shows target ring. When placed, renders a small flag rectangle with green border */}
+        {/* Microstates: When unplaced, shows subtle ring & dot. When placed, renders a small flag rectangle with green border */}
         <g id="microstate-markers">
           {microstateCountries.map((country) => {
             const isPlaced = placedCountries.has(country.id);
@@ -367,10 +379,10 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
                 <circle
                   cx={cx}
                   cy={cy}
-                  r={8}
-                  fill={isDragOver ? '#f59e0b' : isHighlighted ? '#eab308' : isHovered ? '#0284c7' : 'rgba(22, 31, 54, 0.9)'}
-                  stroke={isHighlighted ? '#facc15' : isHovered ? '#38bdf8' : '#64748b'}
-                  strokeWidth={0.8}
+                  r={6.5}
+                  fill={isDragOver ? '#f59e0b' : isHighlighted ? '#eab308' : isHovered ? '#364f78' : 'rgba(42, 61, 94, 0.5)'}
+                  stroke={isHighlighted ? '#facc15' : isHovered ? '#60a5fa' : '#5a79ad'}
+                  strokeWidth={0.7}
                   className="transition-all duration-150"
                 />
 
@@ -378,8 +390,8 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
                 <circle
                   cx={cx}
                   cy={cy}
-                  r={2}
-                  fill="#e2e8f0"
+                  r={1.6}
+                  fill="#d8e6f8"
                   className="pointer-events-none"
                 />
               </g>
@@ -389,7 +401,7 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
 
         {/* Highlighted Beacon */}
         {highlightedCountryId && (() => {
-          const target = EUROPE_COUNTRIES.find(c => c.id === highlightedCountryId);
+          const target = countries.find(c => c.id === highlightedCountryId);
           if (!target) return null;
           const [cx, cy] = target.centroid;
           return (
@@ -403,3 +415,6 @@ export const EuropeMap: React.FC<EuropeMapProps> = ({
     </div>
   );
 };
+
+// Backward-compatible alias
+export const EuropeMap = InteractiveMap;

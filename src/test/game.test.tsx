@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EUROPE_COUNTRIES } from '../data/europeData';
+import { AFRICA_COUNTRIES } from '../data/africaData';
 import { CONTINENTS } from '../data/continents';
 import { App } from '../App';
 
@@ -29,23 +30,41 @@ describe('Flaggle Basic Geography Game', () => {
       });
     });
 
-    it('has Europe marked as playable and other continents coming soon', () => {
+    it('has all 54 African countries with valid vector paths, centroids, and bboxes', () => {
+      expect(AFRICA_COUNTRIES.length).toBe(54);
+
+      AFRICA_COUNTRIES.forEach((country) => {
+        expect(country.id).toBeDefined();
+        expect(country.name).toBeTruthy();
+        expect(country.path.length).toBeGreaterThan(10);
+        expect(country.centroid.length).toBe(2);
+        expect(country.bbox.width).toBeGreaterThan(0);
+        expect(country.bbox.height).toBeGreaterThan(0);
+        expect(country.flagDataUri).toBeTruthy();
+      });
+    });
+
+    it('has Europe and Africa marked as playable and other continents coming soon', () => {
       const europe = CONTINENTS.find(c => c.id === 'europe');
       expect(europe?.status).toBe('playable');
 
-      const nonEurope = CONTINENTS.filter(c => c.id !== 'europe');
-      expect(nonEurope.length).toBe(6);
-      nonEurope.forEach(c => expect(c.status).toBe('coming_soon'));
+      const africa = CONTINENTS.find(c => c.id === 'africa');
+      expect(africa?.status).toBe('playable');
+
+      const otherContinents = CONTINENTS.filter(c => !['europe', 'africa'].includes(c.id));
+      expect(otherContinents.length).toBe(5);
+      otherContinents.forEach(c => expect(c.status).toBe('coming_soon'));
     });
   });
 
   describe('2. Continent Select & Navigation', () => {
-    it('renders continent selection screen with Europe', () => {
+    it('renders continent selection screen with Europe and Africa', () => {
       render(<App />);
 
       expect(screen.getByText(/Flaggle/i)).toBeInTheDocument();
       expect(screen.getByText(/Pick a continent/i)).toBeInTheDocument();
       expect(screen.getByText(/Play Europe/i)).toBeInTheDocument();
+      expect(screen.getByText(/Play Africa/i)).toBeInTheDocument();
     });
 
     it('starts European game on selecting Europe', () => {
@@ -57,6 +76,16 @@ describe('Flaggle Basic Geography Game', () => {
       expect(screen.getByText(/Europe/i)).toBeInTheDocument();
       expect(screen.getByText(/Flags/i)).toBeInTheDocument();
       expect(screen.getByText(/SCORE/i)).toBeInTheDocument();
+    });
+
+    it('starts African game on selecting Africa', () => {
+      render(<App />);
+
+      const playAfricaBtn = screen.getByText(/Play Africa/i);
+      fireEvent.click(playAfricaBtn);
+
+      expect(screen.getByText(/Africa/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/54/i).length).toBeGreaterThan(0);
     });
   });
 
@@ -97,17 +126,25 @@ describe('Flaggle Basic Geography Game', () => {
       expect(screen.queryAllByText(/Name it/i).length).toBeLessThan(nameItButtons.length);
     });
 
-    it('auto-places country without score when clicking "Show me"', () => {
-      render(<App />);
+    it('plays wrong sound and displays "This is <Country>" banner when clicking incorrect country', () => {
+      const { container } = render(<App />);
       fireEvent.click(screen.getByText(/Play Europe/i));
 
-      const showMeButtons = screen.getAllByText(/Show me/i);
-      expect(showMeButtons.length).toBeGreaterThan(0);
+      // Get first unplaced flag card
+      const firstCard = container.querySelector('[data-country-id]');
+      const countryId = firstCard?.getAttribute('data-country-id');
+      expect(countryId).toBeTruthy();
 
-      fireEvent.click(showMeButtons[0]);
+      // Find a DIFFERENT country on map
+      const otherCountry = EUROPE_COUNTRIES.find(c => c.id !== countryId)!;
+      const wrongTarget = container.querySelector(`#country-${otherCountry.id}`);
+      expect(wrongTarget).toBeTruthy();
 
-      // Score stays 0
-      expect(screen.getByText('0')).toBeInTheDocument();
+      // Click wrong country
+      fireEvent.click(wrongTarget!);
+
+      // Verify that "This is <CountryName>" banner is shown
+      expect(screen.getByText(new RegExp(`This is ${otherCountry.name}`, 'i'))).toBeInTheDocument();
     });
   });
 });

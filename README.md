@@ -4,26 +4,31 @@ An interactive, responsive, and minimalist web-based flag-matching geography gam
 
 ---
 
-## 🎮 How to Play
+## 🎮 Features & Gameplay
 
-1. **Pick a Continent**:
-   - Start with **Europe** (all 44 sovereign nations included). Other continents are labeled *Coming Soon*.
-2. **Pure Border-Shape Challenge**:
-   - Unplaced countries show only their geographical boundary shape without names or spoilers.
-3. **Drag or Tap Twice**:
+1. **Playable Continents**:
+   - **Europe** (44 sovereign nations).
+   - **Africa** (54 sovereign nations).
+   - *Asia, Americas, Oceania* labeled *Coming Soon*.
+2. **Pure Border-Shape Geography Challenge**:
+   - Unplaced countries display their authentic geographical boundaries without names or spoilers.
+3. **Flexible Interaction (Drag or Tap Twice)**:
    - **Drag & Drop**: Drag a flag card from the right-hand dock directly onto its territory on the map.
    - **Tap Twice**: Click/tap a flag card to select it, then click/tap its country on the map.
-4. **Instant In-Border Flag Fills**:
-   - Correctly placed countries are immediately filled with their official national flag and display their name with a green identified border.
-5. **Little Countries & Microstates**:
-   - Small territories (Andorra, Monaco, San Marino, Vatican City, Liechtenstein, Malta) are marked with a subtle target ring at standard zoom.
-   - Zooming in fades out the rings so you can click the magnified landmass directly.
-   - When identified, microstates display a clean, non-repeating mini flag rectangle.
-6. **Stuck Helpers**:
+4. **Centroid-Aligned In-Border Flag Texturing**:
+   - Correctly matched countries are filled with their official national flag, with national emblems (stars, shields, eagles, crescents) centered directly in the visual heart of the nation and bordered with an ultra-fine `0.5px` emerald green outline.
+5. **Microstates & Small Territories**:
+   - Microstates and small island nations (e.g. Andorra, Monaco, San Marino, Cabo Verde, São Tomé, Seychelles, Mauritius, Comoros) display subtle target markers at default view that fade out on zoom.
+   - When identified, microstates render a crisp, non-repeating flag badge.
+6. **Smart Audio & Visual Feedback**:
+   - Synthesized Web Audio API sound effects for selections, correct matches, victory fanfares, and incorrect attempts.
+   - Clicking an incorrect country triggers a wrong sound effect and a temporary top notification pill: **`"This is <CountryName>"`**.
+7. **Helpers & Stuck Assist**:
    - **“Name it”**: Reveals the country name and capital on the flag card.
-   - **“Show me”**: Auto-places the flag onto its location for free (awards 0 points) so you can keep progressing.
-7. **Full-Width Responsive Arena**:
-   - On desktop and tablet displays, the map fills all available space on the left side of the screen, with the country flag dock pinned to the furthest right.
+   - **“Show me”**: Auto-places the flag onto its location for 0 points so you can keep learning and progressing.
+8. **Expansive Canvas & Navigation**:
+   - Open canvas panning and zooming (`0.8x` to `4.5x`) with smart boundary limits preventing loss of the continent.
+   - Drag to pan anywhere across the ocean and landmasses.
 
 ---
 
@@ -32,10 +37,11 @@ An interactive, responsive, and minimalist web-based flag-matching geography gam
 - **Framework**: React 19 + TypeScript
 - **Bundler**: Vite
 - **Styling**: Tailwind CSS v4
-- **Cartography**: Natural Earth 50m TopoJSON via D3 Conic Equal Area projection
+- **Cartography**: Natural Earth 50m TopoJSON via D3 Mercator & Conic projections
 - **Flag Assets**: `flag-icons` (embedded vector SVGs)
 - **Icons**: Lucide React
 - **Testing**: Vitest + React Testing Library
+- **Linting**: Oxlint
 
 ---
 

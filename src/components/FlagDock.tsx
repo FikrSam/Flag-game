@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { CountryData } from '../data/europeData';
+import type { CountryData } from '../types/game';
 import { FlagImage } from './FlagImage';
 import { HelpCircle, Eye, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
@@ -39,9 +39,9 @@ export const FlagDock: React.FC<FlagDockProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0c1220] rounded-lg border border-slate-800 shadow-md overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-[#0f182a] rounded-lg border border-slate-800/80 shadow-md overflow-hidden select-none">
       {/* Header */}
-      <div className="p-3 border-b border-slate-800/80 bg-[#0e1526] flex items-center justify-between">
+      <div className="p-3 border-b border-slate-800/80 bg-[#142036] flex items-center justify-between">
         <h2 className="font-semibold text-xs text-slate-300">
           Flags
         </h2>

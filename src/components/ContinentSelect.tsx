@@ -8,9 +8,9 @@ interface ContinentSelectProps {
 }
 
 export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContinent }) => {
-  const handleSelectEurope = () => {
+  const handleSelect = (continentId: string) => {
     sound.playSelect();
-    onSelectContinent('europe');
+    onSelectContinent(continentId);
   };
 
   return (
@@ -35,7 +35,7 @@ export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContin
               return (
                 <div
                   key={continent.id}
-                  onClick={handleSelectEurope}
+                  onClick={() => handleSelect(continent.id)}
                   className="bg-[#0e1526] hover:bg-[#131d33] border border-sky-600/50 hover:border-sky-500 rounded-lg p-5 cursor-pointer shadow-md transition-all flex flex-col justify-between"
                 >
                   <div>
@@ -55,11 +55,11 @@ export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContin
                   </div>
 
                   <button
-                    onClick={handleSelectEurope}
+                    onClick={() => handleSelect(continent.id)}
                     className="mt-4 w-full py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded shadow-sm transition-colors flex items-center justify-center gap-1.5"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    Play Europe
+                    Play {continent.name}
                   </button>
                 </div>
               );

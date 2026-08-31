@@ -11,10 +11,10 @@ const countriesGeo = (topojson.feature(worldData, worldData.objects.countries) a
 const width = 1000;
 const height = 800;
 
-// High accuracy conic equal area projection tailored for Europe
+// High accuracy conic equal area projection tailored for Europe with 13°E central meridian (0 tilt)
 const projection = d3.geoConicEqualArea()
   .center([13, 53])
-  .rotate([-10, 0])
+  .rotate([-13, 0])
   .parallels([35, 65])
   .scale(1050)
   .translate([width / 2 + 20, height / 2 + 30]);
@@ -233,19 +233,7 @@ for (const cDef of COUNTRY_DEFINITIONS) {
 }
 
 const fileContent = `// Sourced directly from Natural Earth 50m TopoJSON via D3-geo projection
-export interface CountryData {
-  id: string;
-  numeric: string;
-  name: string;
-  capital: string;
-  region: 'Western' | 'Northern' | 'Eastern' | 'Southern' | 'Microstate';
-  funFact: string;
-  flagDataUri: string;
-  path: string;
-  centroid: [number, number];
-  bbox: { x: number; y: number; width: number; height: number };
-  isMicrostate: boolean;
-}
+import type { CountryData } from '../types/game';
 
 export const MAP_CONFIG = {
   viewBox: "0 0 1000 800",
@@ -262,4 +250,4 @@ export type RegionFilter = typeof REGIONS[number];
 `;
 
 fs.writeFileSync(path.resolve('src/data/europeData.ts'), fileContent, 'utf8');
-console.log(`Successfully generated src/data/europeData.ts with ${resultCountries.length} countries with accurate European bounding boxes.`);
+console.log(`Successfully generated src/data/europeData.ts with ${resultCountries.length} countries.`);
