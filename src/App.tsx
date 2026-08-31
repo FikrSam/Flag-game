@@ -174,10 +174,10 @@ export function App() {
         onRestart={handleRestart}
       />
 
-      {/* Main Full-Width Arena: Left = Map, Right = Flags */}
-      <main className="flex-1 w-full h-[calc(100vh-50px)] flex flex-col md:flex-row gap-2.5 p-2.5 overflow-hidden">
-        {/* Left Side: Map fills all available space */}
-        <section className="relative flex-1 h-full min-w-0 flex flex-col" aria-label="Map Canvas">
+      {/* Main Full-Width Arena: Map fills top/left (75% on mobile), Flags at bottom/right */}
+      <main className="flex-1 w-full h-[calc(100vh-46px)] md:h-[calc(100vh-50px)] flex flex-col md:flex-row gap-2 md:gap-2.5 p-1.5 sm:p-2 md:p-2.5 overflow-hidden">
+        {/* Left / Top Side: Map fills all available space */}
+        <section className="relative flex-1 min-h-0 w-full h-full flex flex-col" aria-label="Map Canvas">
           {/* Wrong country notification banner (clean red badge) */}
           {wrongFeedback && (
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all animate-in fade-in slide-in-from-top-1 duration-150">
@@ -199,13 +199,14 @@ export function App() {
           />
         </section>
 
-        {/* Right Side: Flags Dock */}
-        <aside className="w-full md:w-72 lg:w-80 xl:w-96 shrink-0 h-full flex flex-col overflow-hidden" aria-label="Flag Selection">
+        {/* Right / Bottom Side: Flags Dock */}
+        <aside className="w-full h-32 sm:h-36 md:h-full md:w-72 lg:w-80 xl:w-96 shrink-0 flex flex-col overflow-hidden" aria-label="Flag Selection">
           <FlagDock
             unplacedCountries={unplacedCountries}
             selectedFlagId={selectedFlagId}
             onSelectFlag={handleSelectFlag}
             onShowMe={handleShowMe}
+            onDropOnCountry={handleCountryMatch}
           />
         </aside>
       </main>

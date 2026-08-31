@@ -102,6 +102,79 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     setTimeout(() => setIsDragging(false), 50);
   };
 
+  // Multi-touch tracking (pinch-to-zoom & 1-finger pan)
+  const touchStateRef = useRef<{
+    initialDist: number;
+    initialZoom: number;
+    touchStartTime: number;
+    touchStartPos: { x: number; y: number };
+    isPinching: boolean;
+  }>({
+    initialDist: 0,
+    initialZoom: 1,
+    touchStartTime: 0,
+    touchStartPos: { x: 0, y: 0 },
+    isPinching: false
+  });
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      setIsPointerDown(true);
+      setIsDragging(false);
+      setPointerDownPos({ x: t.clientX, y: t.clientY });
+      setDragStart({ x: t.clientX - pan.x, y: t.clientY - pan.y });
+      touchStateRef.current.touchStartTime = e.timeStamp;
+      touchStateRef.current.touchStartPos = { x: t.clientX, y: t.clientY };
+      touchStateRef.current.isPinching = false;
+    } else if (e.touches.length === 2) {
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+      touchStateRef.current.initialDist = dist;
+      touchStateRef.current.initialZoom = zoom;
+      touchStateRef.current.isPinching = true;
+      setIsDragging(true);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1 && !touchStateRef.current.isPinching) {
+      const t = e.touches[0];
+      const dx = t.clientX - touchStateRef.current.touchStartPos.x;
+      const dy = t.clientY - touchStateRef.current.touchStartPos.y;
+      if (!isDragging && Math.hypot(dx, dy) > 5) {
+        setIsDragging(true);
+      }
+      if (isDragging || Math.hypot(dx, dy) > 5) {
+        const rawX = t.clientX - dragStart.x;
+        const rawY = t.clientY - dragStart.y;
+        setPan(clampPan(rawX, rawY, zoom));
+      }
+    } else if (e.touches.length === 2) {
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+      if (touchStateRef.current.initialDist > 0) {
+        const scaleFactor = dist / touchStateRef.current.initialDist;
+        const newZoom = touchStateRef.current.initialZoom * scaleFactor;
+        updateZoom(newZoom);
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length === 0) {
+      setIsPointerDown(false);
+      setTimeout(() => setIsDragging(false), 50);
+      touchStateRef.current.isPinching = false;
+    } else if (e.touches.length === 1) {
+      const t = e.touches[0];
+      setDragStart({ x: t.clientX - pan.x, y: t.clientY - pan.y });
+      touchStateRef.current.isPinching = false;
+    }
+  };
+
   // Drag & Drop handlers from dock
   const handleDragOver = (e: React.DragEvent, countryId: string) => {
     e.preventDefault();
@@ -151,12 +224,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full min-h-[380px] bg-[#0f182a] rounded-lg shadow-md overflow-hidden flex items-center justify-center select-none"
+      className="relative w-full h-full min-h-[280px] bg-[#0f182a] rounded-lg shadow-md overflow-hidden flex items-center justify-center select-none touch-none"
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       style={{ cursor: isDragging ? 'grabbing' : 'default' }}
       role="region"
       aria-label="Continent Map"

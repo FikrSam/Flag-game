@@ -29,19 +29,20 @@ export const Header: React.FC<HeaderProps> = ({
   const percent = Math.round((placedCount / totalCount) * 100) || 0;
 
   return (
-    <header className="w-full bg-[#0f182a] border-b border-slate-800/80 px-4 py-2 flex flex-col gap-1.5 shrink-0 select-none">
-      <div className="flex items-center justify-between gap-4">
+    <header className="w-full bg-[#0f182a] border-b border-slate-800/80 px-2.5 sm:px-4 py-1.5 flex flex-col gap-1 shrink-0 select-none">
+      <div className="flex items-center justify-between gap-2 sm:gap-4">
         {/* Left: Navigation & Title */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <button
             onClick={onBackToContinents}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-100 transition-colors py-1 px-2 rounded-md hover:bg-slate-800"
+            title="Back to continent selection"
+            className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-100 transition-colors py-1 px-1.5 rounded-md hover:bg-slate-800"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Continents</span>
+            <span className="hidden sm:inline">Continents</span>
           </button>
-          <span className="text-slate-700">|</span>
-          <h1 className="text-sm font-bold text-slate-100 tracking-wide">
+          <span className="text-slate-700 hidden sm:inline">|</span>
+          <h1 className="text-xs sm:text-sm font-bold text-slate-100 tracking-wide truncate">
             {continentName}
           </h1>
         </div>

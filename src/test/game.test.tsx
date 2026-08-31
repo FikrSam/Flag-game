@@ -146,5 +146,27 @@ describe('Flaggle Basic Geography Game', () => {
       // Verify that "This is <CountryName>" banner is shown
       expect(screen.getByText(new RegExp(`This is ${otherCountry.name}`, 'i'))).toBeInTheDocument();
     });
+
+    it('places flag correctly on mobile touch interaction', () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByText(/Play Europe/i));
+
+      // Get first card
+      const firstCard = container.querySelector('[data-country-id]');
+      const countryId = firstCard?.getAttribute('data-country-id');
+      expect(countryId).toBeTruthy();
+
+      // Touch flag to select
+      fireEvent.touchStart(firstCard!, { touches: [{ clientX: 100, clientY: 100 }] });
+      fireEvent.touchEnd(firstCard!, { changedTouches: [{ clientX: 100, clientY: 100 }] });
+
+      // Touch matching country on map
+      const targetCountry = container.querySelector(`#country-${countryId}`);
+      expect(targetCountry).toBeTruthy();
+      fireEvent.click(targetCountry!);
+
+      // Placed score updated to 100
+      expect(screen.getByText('100')).toBeInTheDocument();
+    });
   });
 });
