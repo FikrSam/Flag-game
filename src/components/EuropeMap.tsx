@@ -1,0 +1,405 @@
+import React, { useState, useRef, useCallback } from 'react';
+import { EUROPE_COUNTRIES, CONTEXT_LAND_PATHS, MAP_CONFIG } from '../data/europeData';
+import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+
+interface EuropeMapProps {
+  placedCountries: Set<string>;
+  selectedFlagId: string | null;
+  highlightedCountryId: string | null;
+  onCountryMatch: (countryId: string) => void;
+}
+
+const MIN_ZOOM = 1.0;
+const MAX_ZOOM = 3.5;
+
+export const EuropeMap: React.FC<EuropeMapProps> = ({
+  placedCountries,
+  selectedFlagId,
+  highlightedCountryId,
+  onCountryMatch
+}) => {
+  const [zoom, setZoom] = useState<number>(1);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [pointerDownPos, setPointerDownPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [hoveredCountryId, setHoveredCountryId] = useState<string | null>(null);
+  const [dragOverCountryId, setDragOverCountryId] = useState<string | null>(null);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  // Clamps pan coordinates so map never leaves frame
+  const clampPan = useCallback((x: number, y: number, currentZoom: number) => {
+    if (currentZoom <= 1.0) {
+      return { x: 0, y: 0 };
+    }
+    const maxOffsetX = (currentZoom - 1) * 420;
+    const maxOffsetY = (currentZoom - 1) * 320;
+
+    return {
+      x: Math.min(Math.max(x, -maxOffsetX), maxOffsetX),
+      y: Math.min(Math.max(y, -maxOffsetY), maxOffsetY)
+    };
+  }, []);
+
+  const updateZoom = useCallback((newZoom: number) => {
+    const clampedZoom = Math.min(Math.max(newZoom, MIN_ZOOM), MAX_ZOOM);
+    setZoom(clampedZoom);
+    setPan(prev => clampPan(prev.x, prev.y, clampedZoom));
+  }, [clampPan]);
+
+  // Smooth zoom handlers
+  const handleZoomIn = () => updateZoom(zoom * 1.15);
+  const handleZoomOut = () => updateZoom(zoom / 1.15);
+  const handleResetZoom = () => {
+    setZoom(1.0);
+    setPan({ x: 0, y: 0 });
+  };
+
+  // Granular wheel zoom strictly constrained inside viewport
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.04 : 0.96;
+    updateZoom(zoom * zoomFactor);
+  };
+
+  // Mouse pan handlers: supports dragging anywhere (including on countries)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button === 0) {
+      setIsPointerDown(true);
+      setIsDragging(false);
+      setPointerDownPos({ x: e.clientX, y: e.clientY });
+      setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isPointerDown) {
+      const dx = e.clientX - pointerDownPos.x;
+      const dy = e.clientY - pointerDownPos.y;
+      if (!isDragging && Math.hypot(dx, dy) > 4) {
+        setIsDragging(true);
+      }
+      if (isDragging || Math.hypot(dx, dy) > 4) {
+        const rawX = e.clientX - dragStart.x;
+        const rawY = e.clientY - dragStart.y;
+        setPan(clampPan(rawX, rawY, zoom));
+      }
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsPointerDown(false);
+    setTimeout(() => setIsDragging(false), 50);
+  };
+
+  // Drag & Drop handlers from dock
+  const handleDragOver = (e: React.DragEvent, countryId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    if (dragOverCountryId !== countryId) {
+      setDragOverCountryId(countryId);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent, countryId: string) => {
+    e.preventDefault();
+    if (dragOverCountryId === countryId) {
+      setDragOverCountryId(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetCountryId: string) => {
+    e.preventDefault();
+    setDragOverCountryId(null);
+    const droppedFlagId = e.dataTransfer.getData('text/plain') || selectedFlagId;
+    if (droppedFlagId) {
+      onCountryMatch(targetCountryId);
+    }
+  };
+
+  // Click handler (only triggered if not dragging/panning)
+  const handleCountryClick = (countryId: string) => {
+    if (!isDragging && selectedFlagId) {
+      onCountryMatch(countryId);
+    }
+  };
+
+  // Keyboard accessibility
+  const handleKeyDown = (e: React.KeyboardEvent, countryId: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCountryClick(countryId);
+    }
+  };
+
+  // Small microstate countries list
+  const microstateCountries = EUROPE_COUNTRIES.filter(c => c.isMicrostate || ['MT', 'CY', 'LU'].includes(c.id));
+
+  // "Little countries get a dot: marked with a ring. Scroll to zoom in and the rings go away."
+  const showMicrostateRings = zoom <= 1.4;
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full h-full min-h-[380px] bg-[#090e1a] rounded-lg border border-slate-800 shadow-md overflow-hidden flex items-center justify-center select-none"
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      style={{ cursor: isDragging ? 'grabbing' : 'default' }}
+      role="region"
+      aria-label="Europe Map"
+    >
+      {/* Zoom controls */}
+      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-md border border-slate-800 shadow-sm">
+        <button
+          onClick={handleZoomIn}
+          title="Zoom In"
+          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95"
+        >
+          <ZoomIn className="w-4 h-4" />
+        </button>
+        <button
+          onClick={handleZoomOut}
+          title="Zoom Out"
+          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95"
+        >
+          <ZoomOut className="w-4 h-4" />
+        </button>
+        <button
+          onClick={handleResetZoom}
+          title="Reset Zoom"
+          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors active:scale-95"
+        >
+          <RotateCcw className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* SVG Canvas */}
+      <svg
+        ref={svgRef}
+        viewBox={MAP_CONFIG.viewBox}
+        className="w-full h-full max-h-full transition-transform duration-75 ease-out"
+        style={{
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          transformOrigin: '50% 50%'
+        }}
+      >
+        <defs>
+          <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255, 255, 255, 0.02)" strokeWidth="0.5" />
+          </pattern>
+
+          {/* SVG Patterns for filled country flags */}
+          {EUROPE_COUNTRIES.map((country) => (
+            <pattern
+              key={`flag-pattern-${country.id}`}
+              id={`flag-pat-${country.id}`}
+              patternUnits="userSpaceOnUse"
+              x={country.bbox.x}
+              y={country.bbox.y}
+              width={country.bbox.width}
+              height={country.bbox.height}
+            >
+              <image
+                href={country.flagDataUri}
+                xlinkHref={country.flagDataUri}
+                x={0}
+                y={0}
+                width={country.bbox.width}
+                height={country.bbox.height}
+                preserveAspectRatio="none"
+              />
+            </pattern>
+          ))}
+        </defs>
+
+        {/* Ocean Background */}
+        <rect width={MAP_CONFIG.width} height={MAP_CONFIG.height} fill="#090e1a" className="map-ocean" />
+        <rect width={MAP_CONFIG.width} height={MAP_CONFIG.height} fill="url(#map-grid)" className="map-ocean pointer-events-none" />
+
+        {/* Surrounding Context Landmasses (Fine 0.3px stroke) */}
+        <g className="context-land opacity-25" fill="#131b2e" stroke="#1e293b" strokeWidth="0.3">
+          {CONTEXT_LAND_PATHS.map((pathD, idx) => (
+            <path key={`ctx-${idx}`} d={pathD} className="context-land" />
+          ))}
+        </g>
+
+        {/* 44 European Country Polygons */}
+        <g id="country-polygons">
+          {EUROPE_COUNTRIES.map((country) => {
+            const isPlaced = placedCountries.has(country.id);
+            const isHovered = hoveredCountryId === country.id;
+            const isDragOver = dragOverCountryId === country.id;
+            const isHighlighted = highlightedCountryId === country.id;
+
+            let fill = '#161f36';
+            let stroke = '#2e3d5e';
+            const strokeWidth = 0.5;
+
+            if (isPlaced) {
+              fill = `url(#flag-pat-${country.id})`;
+              stroke = '#22c55e';
+            } else if (isDragOver) {
+              fill = '#d97706';
+            } else if (isHighlighted) {
+              fill = '#78350f';
+            } else if (isHovered) {
+              fill = '#0369a1';
+            }
+
+            return (
+              <path
+                key={country.id}
+                id={`country-${country.id}`}
+                d={country.path}
+                fill={fill}
+                stroke={stroke}
+                strokeWidth={strokeWidth}
+                tabIndex={0}
+                role="button"
+                aria-label={isPlaced ? `${country.name}, placed` : 'Country location'}
+                className="cursor-pointer focus:outline-none transition-colors duration-100"
+                onMouseEnter={() => setHoveredCountryId(country.id)}
+                onMouseLeave={() => setHoveredCountryId(null)}
+                onClick={() => handleCountryClick(country.id)}
+                onKeyDown={(e) => handleKeyDown(e, country.id)}
+                onDragOver={(e) => handleDragOver(e, country.id)}
+                onDragLeave={(e) => handleDragLeave(e, country.id)}
+                onDrop={(e) => handleDrop(e, country.id)}
+              />
+            );
+          })}
+        </g>
+
+        {/* Placed Country Name Labels */}
+        <g id="country-labels" className="pointer-events-none">
+          {EUROPE_COUNTRIES.filter(c => placedCountries.has(c.id)).map((country) => {
+            const [cx, cy] = country.centroid;
+            if (country.isMicrostate) return null;
+
+            return (
+              <text
+                key={`label-${country.id}`}
+                x={cx}
+                y={cy + 2.5}
+                textAnchor="middle"
+                fill="#ffffff"
+                fontSize="7"
+                fontWeight="700"
+                className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] select-none"
+              >
+                {country.name}
+              </text>
+            );
+          })}
+        </g>
+
+        {/* Microstates: When unplaced, shows target ring. When placed, renders a small flag rectangle with green border */}
+        <g id="microstate-markers">
+          {microstateCountries.map((country) => {
+            const isPlaced = placedCountries.has(country.id);
+            const isHovered = hoveredCountryId === country.id;
+            const isDragOver = dragOverCountryId === country.id;
+            const isHighlighted = highlightedCountryId === country.id;
+            const [cx, cy] = country.centroid;
+
+            // When placed, always display crisp non-repeating flag rectangle
+            if (isPlaced) {
+              const rectW = 15;
+              const rectH = 11;
+              return (
+                <g
+                  key={`micro-flag-${country.id}`}
+                  className="cursor-pointer group"
+                  onClick={() => handleCountryClick(country.id)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${country.name}, placed flag`}
+                >
+                  <image
+                    href={country.flagDataUri}
+                    xlinkHref={country.flagDataUri}
+                    x={cx - rectW / 2}
+                    y={cy - rectH / 2}
+                    width={rectW}
+                    height={rectH}
+                    preserveAspectRatio="none"
+                  />
+                  <rect
+                    x={cx - rectW / 2}
+                    y={cy - rectH / 2}
+                    width={rectW}
+                    height={rectH}
+                    rx={1}
+                    fill="none"
+                    stroke="#22c55e"
+                    strokeWidth={0.9}
+                    className="pointer-events-none"
+                  />
+                </g>
+              );
+            }
+
+            // When unplaced, show target ring at standard zoom
+            if (!showMicrostateRings) return null;
+
+            return (
+              <g
+                key={`ring-${country.id}`}
+                className="cursor-pointer"
+                tabIndex={0}
+                role="button"
+                aria-label="Small country target ring"
+                onClick={() => handleCountryClick(country.id)}
+                onKeyDown={(e) => handleKeyDown(e, country.id)}
+                onDragOver={(e) => handleDragOver(e, country.id)}
+                onDragLeave={(e) => handleDragLeave(e, country.id)}
+                onDrop={(e) => handleDrop(e, country.id)}
+                onMouseEnter={() => setHoveredCountryId(country.id)}
+                onMouseLeave={() => setHoveredCountryId(null)}
+              >
+                {/* Outer Target Ring */}
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={8}
+                  fill={isDragOver ? '#f59e0b' : isHighlighted ? '#eab308' : isHovered ? '#0284c7' : 'rgba(22, 31, 54, 0.9)'}
+                  stroke={isHighlighted ? '#facc15' : isHovered ? '#38bdf8' : '#64748b'}
+                  strokeWidth={0.8}
+                  className="transition-all duration-150"
+                />
+
+                {/* Inner Dot */}
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={2}
+                  fill="#e2e8f0"
+                  className="pointer-events-none"
+                />
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Highlighted Beacon */}
+        {highlightedCountryId && (() => {
+          const target = EUROPE_COUNTRIES.find(c => c.id === highlightedCountryId);
+          if (!target) return null;
+          const [cx, cy] = target.centroid;
+          return (
+            <g transform={`translate(${cx}, ${cy})`} className="pointer-events-none animate-pulse">
+              <circle cx={0} cy={0} r={14} fill="none" stroke="#facc15" strokeWidth={1.5} />
+              <circle cx={0} cy={0} r={4} fill="#facc15" />
+            </g>
+          );
+        })()}
+      </svg>
+    </div>
+  );
+};
