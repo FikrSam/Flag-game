@@ -1,4 +1,4 @@
-# FlagQuest 🌍
+# Flaggle 🌍
 
 An interactive, responsive, and minimalist web-based flag-matching geography game.
 

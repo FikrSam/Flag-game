@@ -19,7 +19,7 @@ export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContin
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            FlagQuest
+            Flaggle
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
             Pick a continent, then drag each flag onto the country it belongs to.

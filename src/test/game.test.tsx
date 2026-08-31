@@ -9,7 +9,7 @@ vi.mock('canvas-confetti', () => ({
   default: vi.fn(),
 }));
 
-describe('FlagQuest Basic Geography Game', () => {
+describe('Flaggle Basic Geography Game', () => {
   beforeEach(() => {
     localStorage.clear();
   });
@@ -43,7 +43,7 @@ describe('FlagQuest Basic Geography Game', () => {
     it('renders continent selection screen with Europe', () => {
       render(<App />);
 
-      expect(screen.getByText(/FlagQuest/i)).toBeInTheDocument();
+      expect(screen.getByText(/Flaggle/i)).toBeInTheDocument();
       expect(screen.getByText(/Pick a continent/i)).toBeInTheDocument();
       expect(screen.getByText(/Play Europe/i)).toBeInTheDocument();
     });

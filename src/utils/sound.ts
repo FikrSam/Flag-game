@@ -6,7 +6,7 @@ class SoundEngine {
 
   constructor() {
     // Load mute preference
-    const saved = localStorage.getItem('flagquest_muted');
+    const saved = localStorage.getItem('flaggle_muted');
     this.isMuted = saved === 'true';
   }
 
@@ -24,7 +24,7 @@ class SoundEngine {
 
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
-    localStorage.setItem('flagquest_muted', String(this.isMuted));
+    localStorage.setItem('flaggle_muted', String(this.isMuted));
     return this.isMuted;
   }
 
