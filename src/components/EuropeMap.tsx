@@ -215,11 +215,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     }
   };
 
-  // Small microstate countries list
+  // Microstate countries list (marked with rings & target dots for easy targeting)
   const microstateCountries = countries.filter(c => c.isMicrostate || ['MT', 'CY', 'LU', 'CV', 'ST', 'SC', 'MU', 'KM', 'SZ', 'LS', 'DJ', 'GM', 'RW', 'BI', 'GQ', 'SL'].includes(c.id));
-
-  // "Little countries get a dot: marked with a ring. Scroll to zoom in and the rings go away."
-  const showMicrostateRings = zoom <= 1.4;
 
   return (
     <div
@@ -454,9 +451,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               );
             }
 
-            // When unplaced, show target ring at standard zoom
-            if (!showMicrostateRings) return null;
-
+            // When unplaced, always show target ring (visible across all zoom levels)
             return (
               <g
                 key={`ring-${country.id}`}

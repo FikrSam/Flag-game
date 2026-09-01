@@ -215,33 +215,29 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                     onSelectFlag(country.id);
                   }
                 }}
-                className={`relative group flex flex-col w-20 min-w-[80px] sm:w-24 sm:min-w-[96px] md:w-auto shrink-0 md:shrink rounded-lg border transition-all cursor-pointer overflow-hidden shadow-sm focus:outline-none justify-between ${
+                className={`relative group flex flex-col w-20 min-w-[80px] sm:w-24 sm:min-w-[96px] md:w-auto shrink-0 md:shrink rounded-lg border transition-all cursor-pointer overflow-hidden shadow-sm focus:outline-none ${
                   isSelected
                     ? 'border-sky-400 ring-2 ring-sky-400/90 bg-[#16223d] shadow-md shadow-sky-950/50 scale-[1.03] z-10'
                     : 'border-slate-800/90 bg-[#11182a] hover:bg-[#151f36] hover:border-slate-700 opacity-80 hover:opacity-100'
                 }`}
               >
-                {/* Flag Thumbnail */}
-                <div className="relative w-full aspect-[4/3] bg-slate-950 flex items-center justify-center overflow-hidden border-b border-slate-800/60 shrink-0">
+                {/* Flag Thumbnail Tile */}
+                <div className="relative w-full aspect-[4/3] bg-slate-950 flex items-center justify-center overflow-hidden">
                   <FlagImage countryCode={country.id} countryName={isNamed ? country.name : ''} className="w-full h-full object-cover" />
 
                   {isSelected && (
-                    <div className="absolute top-1 right-1 bg-sky-600 text-white rounded-full p-0.5 shadow">
+                    <div className="absolute top-1 right-1 bg-sky-600 text-white rounded-full p-0.5 shadow-md z-10">
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
                   )}
-                </div>
 
-                {/* Country Name Tag or Status */}
-                <div className="px-1.5 py-1 text-center truncate">
-                  {isNamed ? (
-                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-100 truncate block">
-                      {country.name}
-                    </span>
-                  ) : (
-                    <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium truncate block">
-                      {isSelected ? 'Selected' : 'Flag'}
-                    </span>
+                  {/* If Named: Translucent Bottom Tag */}
+                  {isNamed && (
+                    <div className="absolute inset-x-0 bottom-0 bg-slate-950/90 backdrop-blur-xs py-0.5 px-1 text-center border-t border-slate-700/60 z-10">
+                      <span className="text-[10px] font-bold text-white truncate block leading-tight">
+                        {country.name}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>

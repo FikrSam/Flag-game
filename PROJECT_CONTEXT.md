@@ -102,7 +102,7 @@ const patY = Math.round(cy - patH / 2);
   - Fill: `url(#flag-pat-${country.id})`
   - Border stroke: Emerald green `#22c55e` (`0.6px`).
 - **Microstates & Small Territories**:
-  - Outer target ring: `stroke="#7e9cc2"`, `fill="rgba(42, 61, 94, 0.6)"`, `r={6.5}`.
+  - Outer target ring: `stroke="#7e9cc2"`, `fill="rgba(42, 61, 94, 0.6)"`, `r={6.5}` (remains permanently visible across all zoom levels for easy targeting).
   - Inner dot: `fill="#e2e8f0"`, `r={1.8}`.
   - Placed badge: Crisp `15×11px` single-image SVG flag with green border `#22c55e` (`0.9px`).
 - **Incorrect Country Notification**:
