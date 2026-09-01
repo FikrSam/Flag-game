@@ -110,8 +110,7 @@ const patY = Math.round(cy - patH / 2);
   - **Unassisted Correct Placement**: **100 points** awarded per country.
   - **"Name It" Hint Used**: **70 points** awarded (30% point deduction to discourage hint overuse and reinforce memory).
   - **"Show Me" Auto-Placement**: **0 points** awarded (resets active streak to 0).
-  - **Consecutive Streaks**: Tracks `currentStreak` and `maxStreak`. Consecutive correct answers without mistakes or "Show Me" increment the streak. Any wrong drop or "Show Me" resets `currentStreak` to 0.
-  - **Playful Victory Screen Breakdown**: Dual confetti burst, clean vector `<Logo />` header, hero score highlight banner with gold stars, 2x2 playful stat mini-cards (Streak, Time, Show Me, Name Hints), and high-contrast primary action button (`bg-[#f1f1f1] text-[#101010]`).
+  - **Reference Victory Screen Breakdown**: Top-right dismiss button (`IconX`), circular flag badge (`#1c1c1c`) with attached checkmark sub-badge, bold uppercase `{CONTINENT} COMPLETE` title, fine ornamental divider with center dot (`— • —`), big hero fraction `44 / 44` with `FLAGS MATCHED` label & dynamic contextual message, horizontal 4-column stats box (Score, Best Streak, Time, Hints Used), and high-contrast action buttons (`Play Again` and `← Choose Another Region`).
 
 ---
 

@@ -158,3 +158,20 @@ export const IconTarget: React.FC<TablerIconProps> = ({ size = 24, strokeWidth =
   </svg>
 );
 
+export const IconX: React.FC<TablerIconProps> = ({ size = 24, strokeWidth = 2, className = '', ...props }) => (
+  <svg {...defaultProps} width={size} height={size} strokeWidth={strokeWidth} className={`tabler-icon tabler-icon-x ${className}`} {...props}>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M18 6l-12 12" />
+    <path d="M6 6l12 12" />
+  </svg>
+);
+
+export const IconFlag: React.FC<TablerIconProps> = ({ size = 24, strokeWidth = 2, className = '', ...props }) => (
+  <svg {...defaultProps} width={size} height={size} strokeWidth={strokeWidth} className={`tabler-icon tabler-icon-flag ${className}`} {...props}>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z" />
+    <path d="M5 21v-7" />
+  </svg>
+);
+
+
