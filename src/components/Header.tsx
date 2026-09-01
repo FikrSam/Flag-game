@@ -1,5 +1,6 @@
-import React from 'react';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { sound } from '../utils/sound';
 
 interface HeaderProps {
   continentName: string;
@@ -20,6 +21,13 @@ export const Header: React.FC<HeaderProps> = ({
   onBackToContinents,
   onRestart
 }) => {
+  const [isMuted, setIsMuted] = useState(sound.getIsMuted());
+
+  const handleToggleSound = () => {
+    const nextMuted = sound.toggleMute();
+    setIsMuted(nextMuted);
+  };
+
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
@@ -67,6 +75,16 @@ export const Header: React.FC<HeaderProps> = ({
             <span>SCORE</span>
             <span className="text-[#38bdf8] font-bold font-mono">{score.toLocaleString()}</span>
           </div>
+
+          {/* Sound Toggle */}
+          <button
+            onClick={handleToggleSound}
+            title={isMuted ? "Unmute sound" : "Mute sound"}
+            aria-label={isMuted ? "Unmute sound" : "Mute sound"}
+            className="p-1 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#222222] rounded-md transition-colors"
+          >
+            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5" />}
+          </button>
 
           {/* Restart */}
           <button

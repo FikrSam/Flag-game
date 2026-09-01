@@ -147,18 +147,21 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 6. Sound Engine & Touch Event Reliability (`src/utils/sound.ts`, `src/App.tsx`)
+## 6. Sound Engine & Touch Event Reliability (`src/utils/sound.ts`, `src/App.tsx`, `src/components/Header.tsx`)
 
-1. **Web Audio API Auto-Unlock**:
-   - Registered listeners for `['click', 'touchstart', 'touchend', 'pointerdown', 'keydown']` to automatically instantiate and resume `AudioContext` on user interaction.
-   - Every sound playback method calls `this.unlock()`, handling `AudioContext.resume()` safely and preventing dropped audio on mobile browsers.
-2. **Synthetic Event & Double-Tap Debouncing**:
+1. **Desktop & Mobile Web Audio Architecture (`executeSound`)**:
+   - Registered global interaction capture listeners on both `window` and `document` (`['click', 'mousedown', 'pointerdown', 'touchstart', 'touchend', 'keydown']`) to auto-instantiate and resume `AudioContext`.
+   - `executeSound()` handles asynchronous `ctx.resume()` promises: if the AudioContext was suspended (common in desktop Chrome/Safari autoplay policies), audio node scheduling waits for `ctx.resume()` to resolve before evaluating `ctx.currentTime`, ensuring zero dropped audio frames.
+   - Enhanced gain and frequency curves for rich, audible playback on laptop/desktop speakers and mobile devices.
+2. **Sound Controls in Header**:
+   - Header contains an interactive sound toggle (`Volume2` / `VolumeX`) with visual state feedback and local storage persistence.
+3. **Synthetic Event & Double-Tap Debouncing**:
    - `handleCountryMatch` tracks timestamp and country ID with `lastMatchRef`.
    - Rapid double invocations (<250ms) from mobile touch + synthetic mouse clicks are safely debounced, preventing double tap sounds and erroneous mismatch sounds.
-3. **Sound Library**:
-   - `playSelect()`: High-frequency soft sine click.
+4. **Sound Library**:
+   - `playSelect()`: High-frequency soft sine click (520Hz -> 980Hz).
    - `playCorrect(streak)`: Major chord arpeggio (adjusts root based on streak).
-   - `playIncorrect()`: Gentle lowpass-filtered descending sawtooth buzz.
+   - `playIncorrect()`: Gentle lowpass-filtered descending sawtooth buzz (180Hz -> 110Hz).
    - `playReveal()`: Ascending pentatonic chime.
    - `playVictory()`: Triumphant fanfare melody with canvas confetti.
 
