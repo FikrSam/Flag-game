@@ -1,0 +1,156 @@
+# AI Memory & Architectural Changelog: Flaggle 🌍
+
+> **Note for Future AI Agents**: This file serves as your persistent context, memory, architectural blueprint, and development log for **Flaggle**. Whenever continuing work or beginning a new session on this repository, review this document first to maintain system integrity and understand past design decisions.
+
+---
+
+## 1. Project Overview & Core Mission
+
+**Flaggle** is a minimalist, responsive, and tactile web-based geography game where players match official national flags onto authentic vector country shapes without names or geographical spoilers until successfully identified.
+
+- **Primary Repository**: `git@github.com:FikrSam/Flag-game.git`
+- **Branches**: `main` (production), `master` (synchronized mirror)
+- **Tech Stack**:
+  - **Framework**: React 19 + TypeScript (Strict mode)
+  - **Styling**: Tailwind CSS v4 + Lucide React icons
+  - **Cartography**: D3-geo (`d3.geoMercator`) with Natural Earth 50m TopoJSON
+  - **Audio Engine**: Synthesized Web Audio API (zero external mp3/wav dependencies)
+  - **Testing**: Vitest + React Testing Library (100% passing suites)
+  - **Linter**: Oxlint (0 warnings, 0 errors policy)
+
+---
+
+## 2. Playable Continents & Dataset Architecture
+
+All geospatial datasets are pre-processed offline via TypeScript generation scripts in `scripts/` from `node_modules/world-atlas/countries-50m.json` and compiled into static TypeScript files in `src/data/`:
+
+| Continent | Sovereign Nations | Dataset File | Script Generator | Projection Used |
+| :--- | :--- | :--- | :--- | :--- |
+| **Europe** | 44 | `src/data/europeData.ts` | `scripts/generate-europe-dataset.ts` | D3 Mercator / Conic center `13°E` |
+| **Africa** | 54 | `src/data/africaData.ts` | `scripts/generate-africa-dataset.ts` | D3 Mercator center `[18, 2]`, scale `400` |
+| **South America** | 12 | `src/data/southAmericaData.ts` | `scripts/generate-south-america-dataset.ts` | D3 Mercator center `[-60, -22]`, scale `550` |
+
+### Continent Definition Schema (`CountryData` in `src/types/game.ts`)
+```typescript
+export interface CountryData {
+  id: string;            // ISO 2-letter code (e.g. "FR", "DZ", "BR")
+  numeric: string;       // Natural Earth 3-digit ISO (e.g. "250", "012", "076")
+  name: string;          // Country name (e.g. "France", "Algeria", "Brazil")
+  capital: string;       // Capital city (e.g. "Paris", "Algiers", "Brasília")
+  region: string;        // Sub-region or "Microstate"
+  funFact: string;       // Educational fun fact
+  flagDataUri: string;   // Embedded SVG Data URI / public SVG path
+  path: string;          // SVG <path d="..."> vector boundary
+  centroid: [number, number]; // [cx, cy] visual center on SVG canvas
+  bbox: { x: number; y: number; width: number; height: number };
+  isMicrostate?: boolean;
+}
+```
+
+---
+
+## 3. Critical Cartographic Rules & Geometric Transforms
+
+### A. Un-Skewed Mercator Projections
+- **No Equator-Straddling Conic Projections**: Conic projections curve parallels across the equator, tilting northern and southern nations diagonally. Always use **`d3.geoMercator()`** for continents that span across or near the equator (e.g. Africa and South America) to ensure straight horizontal parallels and vertical meridians.
+
+### B. Outlying Territory Filtering
+- Natural Earth includes distant sub-Antarctic or Pacific territories that distort continental bounding boxes if unfiltered:
+  - **South Africa**: Prince Edward Islands at `-46.9°S` are filtered to keep continental bounds (`avgLat >= -36`).
+  - **Chile**: Easter Island (Rapa Nui) at `-109°W` is filtered to keep continental Andean spine bounds (`avgLon >= -82`).
+  - **Ecuador**: Galápagos Islands at `-90°W` are filtered to keep mainland bounds.
+
+### C. Zero-Distortion 4:3 Aspect Ratio Flag Texturing
+SVG flags inside country boundaries must **never be stretched or sheared**:
+```typescript
+// Symmetrically centered on country centroid [cx, cy] with exact 4:3 aspect ratio
+const [cx, cy] = country.centroid;
+const halfW = Math.max(cx - country.bbox.x, (country.bbox.x + country.bbox.width) - cx);
+const halfH = Math.max(cy - country.bbox.y, (country.bbox.y + country.bbox.height) - cy);
+const minW = Math.max(1, halfW * 2);
+const minH = Math.max(1, halfH * 2);
+
+const FLAG_ASPECT_RATIO = 4 / 3;
+let patW: number;
+let patH: number;
+
+if (minW / minH > FLAG_ASPECT_RATIO) {
+  patW = minW;
+  patH = minW / FLAG_ASPECT_RATIO;
+} else {
+  patH = minH;
+  patW = minH * FLAG_ASPECT_RATIO;
+}
+
+const patX = Math.round(cx - patW / 2);
+const patY = Math.round(cy - patH / 2);
+```
+- Image element uses `preserveAspectRatio="xMidYMid slice"` to guarantee that emblems (e.g. Argentina Sun of May, Algeria crescent & star, Egypt Eagle, Morocco star) are **100% circular, un-skewed, and centered in the heart of each nation**.
+
+---
+
+## 4. Visual System & Color Palette
+
+- **Ocean & Background**: Solid dark navy `#0f182a` with app wrapper `#070b14`.
+- **Surrounding Context Land**: Dark muted navy `#1a253b` with fine `#334460` border (`0.4px`).
+- **Unplaced Countries**:
+  - Fill: Slate blue `#2a3d5e`
+  - Border stroke: Crisp lightened slate steel blue `#6b82a6` (`0.5px`).
+- **Hover State**: Fill `#364f78`, Border `#93c5fd` (`0.5px`).
+- **Drag-Over State**: Fill `#b45309`, Border `#f59e0b`.
+- **Placed / Completed Countries**:
+  - Fill: `url(#flag-pat-${country.id})`
+  - Border stroke: Emerald green `#22c55e` (`0.6px`).
+- **Microstates & Small Territories**:
+  - Outer target ring: `stroke="#7e9cc2"`, `fill="rgba(42, 61, 94, 0.6)"`, `r={6.5}`.
+  - Inner dot: `fill="#e2e8f0"`, `r={1.8}`.
+  - Placed badge: Crisp `15×11px` single-image SVG flag with green border `#22c55e` (`0.9px`).
+- **Incorrect Country Notification**:
+  - Floating top-center red pill badge: `bg-rose-950/95 border-rose-600/80 text-rose-100 font-semibold shadow-xl rounded-md`.
+  - Auto-dismisses after 1.2s.
+
+---
+
+## 5. Mobile & Touch Ergonomics
+
+1. **75%+ Screen Height for Map Arena**:
+   - Uses `h-[100dvh]` to account for dynamic mobile browser address bars.
+   - On mobile (`< md`), map container gets `flex-1 min-h-0 w-full` (>75% viewport), while the flag dock is a compact horizontal bottom carousel (`h-32 sm:h-36`).
+2. **Gesture Disambiguation in Flag Dock**:
+   - Horizontal movement ($|\Delta x| > |\Delta y|$): Scrolls smoothly through the flag cards carousel.
+   - Upward movement ($\Delta y < -14\text{px}$ towards map): Triggers touch drag-and-drop with floating ghost preview.
+   - Quick tap: Selects flag card with bright sky-blue highlight and auto-scrolls it into view (`scrollIntoView`).
+3. **Map Multi-Touch Controls**:
+   - 1-finger pan with momentum and soft boundary clamping.
+   - 2-finger pinch-to-zoom centered on pinch focal point (`0.8x` to `4.5x`).
+   - `touch-none` prevents accidental browser pull-to-refresh or page bouncing.
+
+---
+
+## 6. Sound Engine (`src/utils/sound.ts`)
+
+Synthesized offline sound effects using Web Audio API:
+- `playSelect()`: High-frequency soft sine click.
+- `playCorrect(streak)`: Major chord arpeggio (adjusts root based on streak).
+- `playIncorrect()`: Gentle lowpass-filtered descending sawtooth buzz.
+- `playReveal()`: Ascending pentatonic chime.
+- `playVictory()`: Triumphant fanfare melody with canvas confetti.
+
+---
+
+## 7. Testing, Build & Deployment Protocol
+
+Always ensure these verification steps pass before pushing:
+```bash
+# 1. Run all unit tests
+npm test
+
+# 2. Compile production TypeScript and bundle
+npm run build
+
+# 3. Verify zero lint errors/warnings
+npm run lint
+
+# 4. Push to remote branches
+git push origin main && git push origin main:master
+```

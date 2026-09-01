@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { CountryData } from '../types/game';
 import { FlagImage } from './FlagImage';
 import { HelpCircle, Eye, Check } from 'lucide-react';
@@ -31,6 +31,17 @@ export const FlagDock: React.FC<FlagDockProps> = ({
   } | null>(null);
 
   const touchStartRef = useRef<{ x: number; y: number; countryId: string; time: number } | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll selected flag card into view on mobile / desktop
+  useEffect(() => {
+    if (selectedFlagId && scrollContainerRef.current) {
+      const activeCard = scrollContainerRef.current.querySelector(`[data-country-id="${selectedFlagId}"]`);
+      if (activeCard && typeof activeCard.scrollIntoView === 'function') {
+        activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [selectedFlagId]);
 
   const handleNameIt = (e: React.MouseEvent | React.TouchEvent, countryId: string) => {
     e.stopPropagation();
@@ -51,7 +62,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
     onSelectFlag(countryId);
   };
 
-  // Mobile Touch Drag handlers
+  // Mobile Touch Drag handlers (differentiating horizontal swipe vs upward drag onto map)
   const handleTouchStart = (e: React.TouchEvent, countryId: string) => {
     const touch = e.touches[0];
     touchStartRef.current = {
@@ -67,19 +78,27 @@ export const FlagDock: React.FC<FlagDockProps> = ({
     const touch = e.touches[0];
     const dx = touch.clientX - touchStartRef.current.x;
     const dy = touch.clientY - touchStartRef.current.y;
-    const dist = Math.hypot(dx, dy);
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
 
-    if (dist > 8) {
-      if (!touchDrag?.isDragging) {
+    // If moving upwards towards the map or strongly vertical: activate drag-and-drop
+    if (!touchDrag?.isDragging) {
+      if (dy < -14 || (absY > 16 && absY > absX * 0.9)) {
         sound.playSelect();
         onSelectFlag(touchStartRef.current.countryId);
+        setTouchDrag({
+          countryId: touchStartRef.current.countryId,
+          currentX: touch.clientX,
+          currentY: touch.clientY,
+          isDragging: true
+        });
       }
-      setTouchDrag({
-        countryId: touchStartRef.current.countryId,
+    } else {
+      setTouchDrag(prev => prev ? {
+        ...prev,
         currentX: touch.clientX,
-        currentY: touch.clientY,
-        isDragging: true
-      });
+        currentY: touch.clientY
+      } : null);
     }
   };
 
@@ -98,7 +117,6 @@ export const FlagDock: React.FC<FlagDockProps> = ({
       let matchedTargetId: string | null = null;
 
       for (const el of elements) {
-        // Match country polygon id e.g. "country-FR" or data attribute
         if (el.id && el.id.startsWith('country-')) {
           matchedTargetId = el.id.replace('country-', '');
           break;
@@ -119,7 +137,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
         onDropOnCountry(matchedTargetId);
       }
     } else if (dist < 10 && duration < 350) {
-      // Tap selection
+      // Quick tap selection
       sound.playSelect();
       onSelectFlag(countryId);
     }
@@ -142,8 +160,11 @@ export const FlagDock: React.FC<FlagDockProps> = ({
         </span>
       </div>
 
-      {/* Flag List: Horizontal scrolling on mobile, 2-column grid on desktop */}
-      <div className="flex-1 p-1.5 md:p-2.5 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto">
+      {/* Flag List: Horizontal scrolling carousel on mobile, 2-column grid on desktop */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 p-1.5 md:p-2.5 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto overscroll-contain"
+      >
         <div className="flex flex-row md:grid md:grid-cols-2 gap-1.5 md:gap-2 h-full md:h-auto items-stretch">
           {unplacedCountries.map((country) => {
             const isSelected = selectedFlagId === country.id;
@@ -179,7 +200,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                     : 'border-slate-800 hover:border-slate-700'
                 }`}
               >
-                {/* Flag Thumbnail (compact on mobile) */}
+                {/* Flag Thumbnail */}
                 <div className="relative w-full aspect-[4/3] max-h-12 md:max-h-none bg-slate-950 flex items-center justify-center overflow-hidden border-b border-slate-800/60 shrink-0">
                   <FlagImage countryCode={country.id} countryName={isNamed ? country.name : ''} className="w-full h-full object-cover" />
 

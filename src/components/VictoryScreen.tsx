@@ -4,6 +4,7 @@ import { RotateCcw, ArrowLeft } from 'lucide-react';
 import { sound } from '../utils/sound';
 
 interface VictoryScreenProps {
+  continentName?: string;
   score: number;
   timeElapsed: number;
   totalCountries: number;
@@ -12,6 +13,7 @@ interface VictoryScreenProps {
 }
 
 export const VictoryScreen: React.FC<VictoryScreenProps> = ({
+  continentName = 'Continent',
   score,
   timeElapsed,
   totalCountries,
@@ -41,7 +43,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
         </div>
 
         <h2 className="text-xl font-bold text-white tracking-tight">
-          Europe Mastered!
+          {continentName} Mastered!
         </h2>
         <p className="text-xs text-slate-400 mt-1">
           You matched all {totalCountries} flags onto their correct locations.

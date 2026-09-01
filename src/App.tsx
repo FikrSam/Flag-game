@@ -175,9 +175,9 @@ export function App() {
     return <ContinentSelect onSelectContinent={handleSelectContinent} />;
   }
 
-  // Active Game View (Full width on any display)
+  // Active Game View (Full width on any display, mobile dynamic viewport height)
   return (
-    <div className="h-screen w-screen bg-[#070b14] text-slate-100 flex flex-col overflow-hidden">
+    <div className="h-[100dvh] w-screen max-w-full bg-[#070b14] text-slate-100 flex flex-col overflow-hidden">
       {/* Minimal Header */}
       <Header
         continentName={activeContinentData.name}
@@ -190,7 +190,7 @@ export function App() {
       />
 
       {/* Main Full-Width Arena: Map fills top/left (75% on mobile), Flags at bottom/right */}
-      <main className="flex-1 w-full h-[calc(100vh-46px)] md:h-[calc(100vh-50px)] flex flex-col md:flex-row gap-2 md:gap-2.5 p-1.5 sm:p-2 md:p-2.5 overflow-hidden">
+      <main className="flex-1 w-full h-[calc(100dvh-46px)] md:h-[calc(100dvh-50px)] min-h-0 flex flex-col md:flex-row gap-1.5 sm:gap-2 md:gap-2.5 p-1.5 sm:p-2 md:p-2.5 overflow-hidden">
         {/* Left / Top Side: Map fills all available space */}
         <section className="relative flex-1 min-h-0 w-full h-full flex flex-col" aria-label="Map Canvas">
           {/* Wrong country notification banner (clean red badge) */}
@@ -229,6 +229,7 @@ export function App() {
       {/* Victory Modal */}
       {isVictory && (
         <VictoryScreen
+          continentName={activeContinentData.name}
           score={score}
           timeElapsed={timeElapsed}
           totalCountries={activeContinentData.countries.length}

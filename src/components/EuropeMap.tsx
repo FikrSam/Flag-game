@@ -327,13 +327,14 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         <rect width={mapConfig.width} height={mapConfig.height} fill="#0f182a" className="map-ocean" />
 
         {/* Surrounding Context Landmasses (Exact #1e2b45) */}
-        <g className="context-land" fill="#1e2b45" stroke="#263652" strokeWidth="0.4">
+        {/* Surrounding Context Landmasses (Subtle background land) */}
+        <g className="context-land" fill="#1a253b" stroke="#334460" strokeWidth="0.4">
           {contextLandPaths.map((pathD, idx) => (
             <path key={`ctx-${idx}`} d={pathD} className="context-land" />
           ))}
         </g>
 
-        {/* Country Polygons (Exact slate blue #2a3d5e with #3b5175 borders) */}
+        {/* Country Polygons (Slate blue #2a3d5e with crisp lighter #6b82a6 borders) */}
         <g id="country-polygons">
           {countries.map((country) => {
             const isPlaced = placedCountries.has(country.id);
@@ -342,18 +343,22 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             const isHighlighted = highlightedCountryId === country.id;
 
             let fill = '#2a3d5e';
-            let stroke = '#3b5175';
-            const strokeWidth = 0.5;
+            let stroke = '#6b82a6';
+            let strokeWidth = 0.5;
 
             if (isPlaced) {
               fill = `url(#flag-pat-${country.id})`;
               stroke = '#22c55e';
+              strokeWidth = 0.6;
             } else if (isDragOver) {
               fill = '#b45309';
+              stroke = '#f59e0b';
             } else if (isHighlighted) {
               fill = '#78350f';
+              stroke = '#facc15';
             } else if (isHovered) {
               fill = '#364f78';
+              stroke = '#93c5fd';
             }
 
             return (
@@ -472,9 +477,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   cx={cx}
                   cy={cy}
                   r={6.5}
-                  fill={isDragOver ? '#f59e0b' : isHighlighted ? '#eab308' : isHovered ? '#364f78' : 'rgba(42, 61, 94, 0.5)'}
-                  stroke={isHighlighted ? '#facc15' : isHovered ? '#60a5fa' : '#5a79ad'}
-                  strokeWidth={0.7}
+                  fill={isDragOver ? '#f59e0b' : isHighlighted ? '#eab308' : isHovered ? '#364f78' : 'rgba(42, 61, 94, 0.6)'}
+                  stroke={isHighlighted ? '#facc15' : isHovered ? '#93c5fd' : '#7e9cc2'}
+                  strokeWidth={0.8}
                   className="transition-all duration-150"
                 />
 
@@ -482,8 +487,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 <circle
                   cx={cx}
                   cy={cy}
-                  r={1.6}
-                  fill="#d8e6f8"
+                  r={1.8}
+                  fill="#e2e8f0"
                   className="pointer-events-none"
                 />
               </g>
