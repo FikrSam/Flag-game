@@ -80,7 +80,7 @@ describe('Flaggle Basic Geography Game', () => {
       render(<App />);
 
       expect(screen.getByText(/Flaggle/i)).toBeInTheDocument();
-      expect(screen.getByText(/Pick a continent/i)).toBeInTheDocument();
+      expect(screen.getByText(/Master world geography/i)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Play Europe/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Play Africa/i })).toBeInTheDocument();
     });
@@ -245,14 +245,14 @@ describe('Flaggle Basic Geography Game', () => {
     it('renders all 3 informational cards and continent silhouettes on home screen', () => {
       render(<App />);
 
-      expect(screen.getByText(/Drag, or tap twice/i)).toBeInTheDocument();
-      expect(screen.getByText(/Little countries get a dot/i)).toBeInTheDocument();
-      expect(screen.getByText(/Stuck on one\?/i)).toBeInTheDocument();
+      expect(screen.getByText(/Dual Interaction Modes/i)).toBeInTheDocument();
+      expect(screen.getByText(/Microstate Radar/i)).toBeInTheDocument();
+      expect(screen.getByText(/Smart Training Assist/i)).toBeInTheDocument();
 
       // Check taglines
-      expect(screen.getByText(/From the Atlas to the Cape/i)).toBeInTheDocument();
-      expect(screen.getByText(/Reykjavík to the Urals/i)).toBeInTheDocument();
-      expect(screen.getByText(/The Andes and the Amazon/i)).toBeInTheDocument();
+      expect(screen.getByText(/From the Mediterranean to Cape Agulhas/i)).toBeInTheDocument();
+      expect(screen.getByText(/From Reykjavík to the Caucasus/i)).toBeInTheDocument();
+      expect(screen.getByText(/The Andes, Patagonia & the Amazon Basin/i)).toBeInTheDocument();
     });
   });
 });

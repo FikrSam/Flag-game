@@ -155,21 +155,27 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 7. Home Screen & Continent Selection Design
+## 7. Home Screen & Continent Selection Design (Unique Flaggle Identity)
 
-- **Typography & Hero**:
-  - Header with `A GEOGRAPHY DRILL` tracking-widest tag and bold `Flaggle` title.
-  - Dynamically computed flag count subtitle (`110 flags are in play today`).
-- **Continent Cards**:
-  - Crisp SVG continent silhouette preview with custom theme accents (Africa amber, Europe sky cyan, South America emerald, locked muted slate).
-  - Pill badges (`54 flags`, `44 flags`, `12 flags`, `COMING SOON`).
-  - Geography taglines (e.g. *"From the Atlas to the Cape"*, *"Reykjavík to the Urals"*, *"The Andes and the Amazon"*).
-- **Feature & Guidance Grid**:
-  - 3 guidance tiles at the bottom explaining double tap/drag, microstate target dots, and "Name It" / "Show Me" mechanics.
+- **Brand Header & Live Telemetry**:
+  - Live pulsing status pill: `Interactive Cartography Drill • 3 Continents Active`.
+  - Gradient title typography: `Flaggle` in electric sky/white gradient with cartography subtitle.
+  - Live metric chips: `110 Nations in Play`, `Vector Border Maps`, `Synthesized Audio`.
+- **Interactive Region Filtering**:
+  - Filter tabs: `All Regions (7)`, `Playable Now (3)`, `Upcoming (4)`.
+- **Bespoke Continent Cards**:
+  - Glassmorphic card styling with ambient colored glow matching each continent's theme.
+  - Coordinate grid background in the silhouette viewer.
+  - Rich territorial details (e.g. *44 Sovereign Nations • 6 Microstates*).
+  - Prominent CTA buttons with directional icon (`Play Region →`).
+- **Feature Bento Grid**:
+  - `Dual Interaction Modes`: Mouse & touch drag & drop or tap twice.
+  - `Microstate Radar`: Permanent target rings across all zoom levels.
+  - `Smart Training Assist`: Non-scoring guidance via `Name It` and `Show Me`.
 
 ---
 
-## 7. Testing, Build & Deployment Protocol
+## 8. Testing, Build & Deployment Protocol
 
 Always ensure these verification steps pass before pushing:
 ```bash
