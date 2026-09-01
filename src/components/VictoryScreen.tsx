@@ -9,6 +9,9 @@ interface VictoryScreenProps {
   score: number;
   timeElapsed: number;
   totalCountries: number;
+  maxStreak?: number;
+  showMeCount?: number;
+  nameItCount?: number;
   onPlayAgain: () => void;
   onSelectContinent: () => void;
 }
@@ -18,6 +21,9 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   score,
   timeElapsed,
   totalCountries,
+  maxStreak = 0,
+  showMeCount = 0,
+  nameItCount = 0,
   onPlayAgain,
   onSelectContinent
 }) => {
@@ -51,20 +57,46 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
           You matched all {totalCountries} flags onto their correct locations.
         </p>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-2 my-5 text-left text-xs">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-2 my-4 w-full text-left text-xs">
+          {/* Final Score */}
           <div className="bg-[#111111] p-2.5 rounded-lg border border-[#2b2b2b]">
             <span className="text-[10px] text-[#9ca3af] uppercase font-semibold">Final Score</span>
             <div className="text-sm font-bold text-[#38bdf8] font-mono mt-0.5">
               {score.toLocaleString()}
             </div>
           </div>
+
+          {/* Best Streak */}
           <div className="bg-[#111111] p-2.5 rounded-lg border border-[#2b2b2b]">
-            <span className="text-[10px] text-[#9ca3af] uppercase font-semibold">Total Time</span>
-            <div className="text-sm font-bold text-[#f8fafc] font-mono mt-0.5">
-              {formatTime(timeElapsed)}
+            <span className="text-[10px] text-[#9ca3af] uppercase font-semibold">Best Streak</span>
+            <div className="text-sm font-bold text-amber-400 font-mono mt-0.5 flex items-center gap-1">
+              <span>🔥</span>
+              <span>{maxStreak} in a row</span>
             </div>
           </div>
+
+          {/* Show Me Used */}
+          <div className="bg-[#111111] p-2.5 rounded-lg border border-[#2b2b2b]">
+            <span className="text-[10px] text-[#9ca3af] uppercase font-semibold">Show Me Used</span>
+            <div className={`text-sm font-bold font-mono mt-0.5 ${showMeCount === 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              {showMeCount === 0 ? '0 (Master!)' : `${showMeCount} countries`}
+            </div>
+          </div>
+
+          {/* Name It Hints */}
+          <div className="bg-[#111111] p-2.5 rounded-lg border border-[#2b2b2b]">
+            <span className="text-[10px] text-[#9ca3af] uppercase font-semibold">Name It Hints</span>
+            <div className="text-sm font-bold text-[#d1d5db] font-mono mt-0.5">
+              {nameItCount === 0 ? '0 hints' : `${nameItCount} (-30% pts)`}
+            </div>
+          </div>
+        </div>
+
+        {/* Total Time Banner */}
+        <div className="w-full bg-[#141414] py-1.5 px-3 rounded-lg border border-[#262626] mb-4 flex items-center justify-between text-xs text-[#9ca3af]">
+          <span>Total Time</span>
+          <span className="text-white font-bold font-mono">{formatTime(timeElapsed)}</span>
         </div>
 
         {/* Actions */}

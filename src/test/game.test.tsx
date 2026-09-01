@@ -239,6 +239,55 @@ describe('Flaggle Basic Geography Game', () => {
       // Score should still only be 100, not double scored or errored
       expect(screen.getByText('100')).toBeInTheDocument();
     });
+
+    it('deducts 30% points (awards 70 pts) when placing a flag after using Name It hint', () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+
+      const firstCard = container.querySelector('[data-country-id]');
+      const countryId = firstCard?.getAttribute('data-country-id');
+
+      // Click "Name it" hint
+      const nameItButton = screen.getByText(/Name it/i);
+      fireEvent.click(nameItButton);
+
+      // Now place the flag
+      const targetCountry = container.querySelector(`#country-${countryId}`);
+      fireEvent.click(targetCountry!);
+
+      // Score should be 70 (30 point deduction from 100)
+      expect(screen.getByText('70')).toBeInTheDocument();
+    });
+
+    it('builds streak on consecutive correct placements and resets on error', () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+
+      // 1st correct match
+      const firstCard = container.querySelector('[data-country-id]');
+      const countryId1 = firstCard?.getAttribute('data-country-id');
+      const target1 = container.querySelector(`#country-${countryId1}`);
+      fireEvent.click(target1!);
+
+      // 2nd correct match
+      const secondCard = container.querySelector('[data-country-id]');
+      const countryId2 = secondCard?.getAttribute('data-country-id');
+      const target2 = container.querySelector(`#country-${countryId2}`);
+      fireEvent.click(target2!);
+
+      // Streak badge of 2 should be rendered in header
+      expect(screen.getByTestId('streak-badge')).toHaveTextContent('2');
+
+      // Make a mistake: click an unplaced country that does not match current flag
+      const thirdCard = container.querySelector('[data-country-id]');
+      const countryId3 = thirdCard?.getAttribute('data-country-id');
+      const otherCountry = EUROPE_COUNTRIES.find(c => c.id !== countryId3 && c.id !== countryId1 && c.id !== countryId2)!;
+      const wrongTarget = container.querySelector(`#country-${otherCountry.id}`);
+      fireEvent.click(wrongTarget!);
+
+      // Notification shown
+      expect(screen.getByText(new RegExp(`This is ${otherCountry.name}`, 'i'))).toBeInTheDocument();
+    });
   });
 
   describe('4. Home Screen Reference Design & Features', () => {

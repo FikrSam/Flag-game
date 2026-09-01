@@ -8,6 +8,7 @@ interface HeaderProps {
   placedCount: number;
   totalCount: number;
   score: number;
+  streak?: number;
   timeElapsed: number;
   onBackToContinents: () => void;
   onRestart: () => void;
@@ -18,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   placedCount,
   totalCount,
   score,
+  streak = 0,
   timeElapsed,
   onBackToContinents,
   onRestart
@@ -58,13 +60,21 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right: Stats & Controls */}
-        <div className="flex items-center gap-4 text-xs">
+        <div className="flex items-center gap-3 sm:gap-4 text-xs">
           {/* Progress */}
           <div className="text-[#d1d5db] font-medium">
             <span className="text-[#f8fafc] font-bold">{placedCount}</span>
             <span className="text-[#6b7280]"> / </span>
             <span>{totalCount}</span>
           </div>
+
+          {/* Live Streak */}
+          {streak > 1 && (
+            <div data-testid="streak-badge" className="flex items-center gap-1 text-amber-400 font-bold font-mono px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-500/30">
+              <span className="text-xs">🔥</span>
+              <span>{streak}</span>
+            </div>
+          )}
 
           {/* Time */}
           <div className="hidden sm:flex items-center gap-1 text-[#9ca3af] font-mono">

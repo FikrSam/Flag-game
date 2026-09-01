@@ -104,13 +104,13 @@ const patY = Math.round(cy - patH / 2);
   - Muted Text / Labels: `#9ca3af` / `#a1a1aa`
   - Secondary Text: `#d1d5db` / `#e5e7eb`
   - Lightest Headings & Active Text: `#ffffff` / `#f8fafc`
-- **Validation & Gameplay Colors**:
-  - **Correct Placement**: Emerald green `#22c55e` border stroke (`0.7px`) on placed countries & microstates; `bg-emerald-950/90 text-emerald-300 border-emerald-600/60` badge on victory; `text-emerald-400` tag on revealed flags.
-  - **Incorrect Placement**: Vivid rose floating banner `bg-rose-950/95 border-rose-500 text-rose-100 text-xs font-semibold rounded-lg shadow-2xl backdrop-blur-md`.
-  - **Interactive Assist**: `Show Me` icon highlight in `#fbbf24` (amber-400); selection ring in `#38bdf8` (sky).
-  - **Telemetry & Controls**: Score counter and progress bar in `#38bdf8`; primary continent play buttons in `bg-sky-600 hover:bg-sky-500 text-white`.
-- **Placed Countries on Map**:
-  - Pure, un-skewed flag vector fill with crisp `#22c55e` emerald border and zero text overlays.
+- **Scoring & Geography Learning Rules**:
+  - **Unassisted Correct Placement**: **100 points** awarded per country.
+  - **"Name It" Hint Used**: **70 points** awarded (30% point deduction to discourage hint overuse and reinforce memory).
+  - **"Show Me" Auto-Placement**: **0 points** awarded (resets active streak to 0).
+  - **Consecutive Streaks**: Tracks `currentStreak` and `maxStreak`. Consecutive correct answers without mistakes or "Show Me" increment the streak (with pitch-escalating audio arpeggios). Any wrong drop or "Show Me" resets `currentStreak` to 0.
+  - **Live Streak Badge**: Rendered in the top sticky Header (`Header.tsx`) with flame icon `🔥 {streak}` when streak > 1.
+  - **Victory Screen Breakdown**: Displays Final Score, Total Time, Best Streak (`🔥 {maxStreak}` in a row), "Show Me" count (`X countries` or `0 (Master!)`), and "Name It" count (`Y (-30% pts)`).
 
 ---
 

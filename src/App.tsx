@@ -48,6 +48,9 @@ export function App() {
   const [unplacedCountries, setUnplacedCountries] = useState<CountryData[]>([]);
   const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
   const [namedCountryIds, setNamedCountryIds] = useState<Set<string>>(new Set());
+  const [showMeCountryIds, setShowMeCountryIds] = useState<Set<string>>(new Set());
+  const [currentStreak, setCurrentStreak] = useState<number>(0);
+  const [maxStreak, setMaxStreak] = useState<number>(0);
   const [highlightedCountryId, setHighlightedCountryId] = useState<string | null>(null);
   const [wrongFeedback, setWrongFeedback] = useState<string | null>(null);
   const [score, setScore] = useState<number>(0);
@@ -70,6 +73,9 @@ export function App() {
     setUnplacedCountries(shuffled);
     setSelectedFlagId(shuffled[0]?.id || null);
     setNamedCountryIds(new Set());
+    setShowMeCountryIds(new Set());
+    setCurrentStreak(0);
+    setMaxStreak(0);
     setHighlightedCountryId(null);
     setWrongFeedback(null);
     setScore(0);
@@ -137,12 +143,20 @@ export function App() {
     const isMatch = selectedFlagId === targetCountryId;
 
     if (isMatch) {
-      sound.playCorrect(1);
+      // Increment streak
+      const nextStreak = currentStreak + 1;
+      setCurrentStreak(nextStreak);
+      setMaxStreak(prev => Math.max(prev, nextStreak));
+      sound.playCorrect(nextStreak);
       setWrongFeedback(null);
+
+      // Scoring: 100 pts without Name It hint, 70 pts (30% deduction) if Name It was used
+      const isNamed = namedCountryIds.has(targetCountryId);
+      const pointsEarned = isNamed ? 70 : 100;
+      setScore(prev => prev + pointsEarned);
 
       const nextPlaced = new Set(placedCountries).add(targetCountryId);
       setPlacedCountries(nextPlaced);
-      setScore(prev => prev + 100);
 
       const remaining = unplacedCountries.filter(c => c.id !== targetCountryId);
       setUnplacedCountries(remaining);
@@ -152,7 +166,9 @@ export function App() {
         setIsVictory(true);
       }
     } else {
+      // Break streak on mistake
       sound.playIncorrect();
+      setCurrentStreak(0);
       const clickedCountry = activeContinentData.countries.find(c => c.id === targetCountryId);
       if (clickedCountry) {
         if (feedbackTimerRef.current) {
@@ -164,11 +180,13 @@ export function App() {
         }, 1200);
       }
     }
-  }, [selectedFlagId, placedCountries, unplacedCountries, activeContinentData.countries]);
+  }, [selectedFlagId, placedCountries, unplacedCountries, activeContinentData.countries, currentStreak, namedCountryIds]);
 
-  // "Show me" action: places flag automatically for 0 points
+  // "Show me" action: places flag automatically for 0 points & breaks streak
   const handleShowMe = useCallback((countryId: string) => {
     sound.playReveal();
+    setCurrentStreak(0);
+    setShowMeCountryIds(prev => new Set(prev).add(countryId));
 
     // Pulse highlight on map briefly
     setHighlightedCountryId(countryId);
@@ -202,6 +220,7 @@ export function App() {
         placedCount={placedCountries.size}
         totalCount={activeContinentData.countries.length}
         score={score}
+        streak={currentStreak}
         timeElapsed={timeElapsed}
         onBackToContinents={() => setScreen('continent_select')}
         onRestart={handleRestart}
@@ -254,6 +273,9 @@ export function App() {
           score={score}
           timeElapsed={timeElapsed}
           totalCountries={activeContinentData.countries.length}
+          maxStreak={maxStreak}
+          showMeCount={showMeCountryIds.size}
+          nameItCount={namedCountryIds.size}
           onPlayAgain={handleRestart}
           onSelectContinent={() => setScreen('continent_select')}
         />
