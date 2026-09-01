@@ -111,18 +111,27 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 5. Mobile & Touch Ergonomics
+## 5. Mobile-First Layout & Touch Ergonomics
 
-1. **75%+ Screen Height for Map Arena**:
-   - Uses `h-[100dvh]` to account for dynamic mobile browser address bars.
-   - On mobile (`< md`), map container gets `flex-1 min-h-0 w-full` (>75% viewport), while the flag dock is a compact horizontal bottom carousel (`h-32 sm:h-36`).
-2. **Gesture Disambiguation in Flag Dock**:
-   - Horizontal movement ($|\Delta x| > |\Delta y|$): Scrolls smoothly through the flag cards carousel.
-   - Upward movement ($\Delta y < -14\text{px}$ towards map): Triggers touch drag-and-drop with floating ghost preview.
-   - Quick tap: Selects flag card with bright sky-blue highlight and auto-scrolls it into view (`scrollIntoView`).
-3. **Map Multi-Touch Controls**:
-   - 1-finger pan with momentum and soft boundary clamping.
-   - 2-finger pinch-to-zoom centered on pinch focal point (`0.8x` to `4.5x`).
+1. **Balanced Mobile-First Viewport Hierarchy**:
+   - Uses `h-[100dvh]` and `viewport-fit=cover` to eliminate URL bar jump/clipping on iOS Safari and Android Chrome.
+   - **Hierarchy**:
+     1. Minimal sticky top header (`h-11`) with back navigation, category, progress, score, and restart.
+     2. Primary map arena (`flex-1 min-h-[220px]`) sized naturally without excessive void.
+     3. Horizontal flag carousel (`h-24` to `h-28`) with auto-scrolling active card.
+     4. Shared global action bar (`[ Name It ]` `[ Show Me ]`) operating on the currently selected flag.
+2. **Shared Global Action Controls**:
+   - Eliminated redundant, clipped individual buttons inside every flag card.
+   - Single pair of ergonomic action buttons (`[ ❓ Name It ]` `[ 👁️ Show Me ]`) dynamically bound to the selected flag.
+   - Reveals the active country name upon click and updates automatically as players swipe between flags.
+3. **Touch Carousel Swiping & Gesture Disambiguation**:
+   - Carousel container uses `touch-action: pan-x` with `-webkit-overflow-scrolling: touch` and `overscroll-contain`.
+   - Horizontal dragging swipes **ONLY** the carousel without dragging the entire webpage vertically.
+   - Upward dragging towards the map canvas triggers the floating ghost preview for direct drag-and-drop placement.
+   - Direct card tap selects the flag immediately with a vibrant sky-blue ring and checkmark.
+4. **Map Multi-Touch Controls**:
+   - 1-finger pan with soft boundary clamping.
+   - 2-finger pinch-to-zoom centered on pinch coordinates (`0.8x` to `4.5x`).
    - `touch-none` prevents accidental browser pull-to-refresh or page bouncing.
 
 ---

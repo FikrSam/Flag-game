@@ -1,13 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import type { CountryData } from '../types/game';
 import { FlagImage } from './FlagImage';
 import { HelpCircle, Eye, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
 
-interface FlagDockProps {
+export interface FlagDockProps {
   unplacedCountries: CountryData[];
   selectedFlagId: string | null;
+  namedCountryIds: Set<string>;
   onSelectFlag: (countryId: string) => void;
+  onNameIt: (countryId: string) => void;
   onShowMe: (countryId: string) => void;
   onDropOnCountry?: (countryId: string) => void;
 }
@@ -15,14 +17,16 @@ interface FlagDockProps {
 export const FlagDock: React.FC<FlagDockProps> = ({
   unplacedCountries,
   selectedFlagId,
+  namedCountryIds,
   onSelectFlag,
+  onNameIt,
   onShowMe,
   onDropOnCountry
 }) => {
-  // Track country IDs that have had their name revealed via "Name it"
-  const [namedCountryIds, setNamedCountryIds] = useState<Set<string>>(new Set());
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<{ x: number; y: number; countryId: string; time: number } | null>(null);
 
-  // Touch drag state
+  // Touch drag state (when dragging vertically upwards onto the map canvas)
   const [touchDrag, setTouchDrag] = useState<{
     countryId: string;
     currentX: number;
@@ -30,10 +34,11 @@ export const FlagDock: React.FC<FlagDockProps> = ({
     isDragging: boolean;
   } | null>(null);
 
-  const touchStartRef = useRef<{ x: number; y: number; countryId: string; time: number } | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // Find currently active country from selectedFlagId
+  const selectedCountry = unplacedCountries.find(c => c.id === selectedFlagId) || unplacedCountries[0];
+  const isCurrentFlagNamed = selectedCountry ? namedCountryIds.has(selectedCountry.id) : false;
 
-  // Auto-scroll selected flag card into view on mobile / desktop
+  // Auto-scroll selected flag card into horizontal view
   useEffect(() => {
     if (selectedFlagId && scrollContainerRef.current) {
       const activeCard = scrollContainerRef.current.querySelector(`[data-country-id="${selectedFlagId}"]`);
@@ -43,18 +48,18 @@ export const FlagDock: React.FC<FlagDockProps> = ({
     }
   }, [selectedFlagId]);
 
-  const handleNameIt = (e: React.MouseEvent | React.TouchEvent, countryId: string) => {
-    e.stopPropagation();
-    sound.playSelect();
-    setNamedCountryIds(prev => new Set(prev).add(countryId));
+  // Shared Action Handlers
+  const handleTriggerNameIt = () => {
+    if (!selectedCountry) return;
+    onNameIt(selectedCountry.id);
   };
 
-  const handleShowMe = (e: React.MouseEvent | React.TouchEvent, countryId: string) => {
-    e.stopPropagation();
-    onShowMe(countryId);
+  const handleTriggerShowMe = () => {
+    if (!selectedCountry) return;
+    onShowMe(selectedCountry.id);
   };
 
-  // HTML5 Desktop Drag handlers
+  // HTML5 Desktop Drag
   const handleDragStart = (e: React.DragEvent, countryId: string) => {
     e.dataTransfer.setData('text/plain', countryId);
     e.dataTransfer.effectAllowed = 'copyMove';
@@ -62,7 +67,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
     onSelectFlag(countryId);
   };
 
-  // Mobile Touch Drag handlers (differentiating horizontal swipe vs upward drag onto map)
+  // Mobile Touch Handlers: Native horizontal carousel scrolling, upward drag-to-map
   const handleTouchStart = (e: React.TouchEvent, countryId: string) => {
     const touch = e.touches[0];
     touchStartRef.current = {
@@ -78,12 +83,10 @@ export const FlagDock: React.FC<FlagDockProps> = ({
     const touch = e.touches[0];
     const dx = touch.clientX - touchStartRef.current.x;
     const dy = touch.clientY - touchStartRef.current.y;
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
 
-    // If moving upwards towards the map or strongly vertical: activate drag-and-drop
+    // Only activate drag-and-drop if moving significantly upward towards the map
     if (!touchDrag?.isDragging) {
-      if (dy < -14 || (absY > 16 && absY > absX * 0.9)) {
+      if (dy < -25 && Math.abs(dy) > Math.abs(dx) * 1.2) {
         sound.playSelect();
         onSelectFlag(touchStartRef.current.countryId);
         setTouchDrag({
@@ -102,9 +105,9 @@ export const FlagDock: React.FC<FlagDockProps> = ({
     }
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchEnd = (e: React.TouchEvent, countryId: string) => {
     if (!touchStartRef.current) return;
-    const { countryId, time, x: startX, y: startY } = touchStartRef.current;
+    const { time, x: startX, y: startY } = touchStartRef.current;
     const touch = e.changedTouches[0];
     const dx = touch.clientX - startX;
     const dy = touch.clientY - startY;
@@ -136,8 +139,8 @@ export const FlagDock: React.FC<FlagDockProps> = ({
       if (matchedTargetId && onDropOnCountry) {
         onDropOnCountry(matchedTargetId);
       }
-    } else if (dist < 10 && duration < 350) {
-      // Quick tap selection
+    } else if (dist < 12 && duration < 400) {
+      // Tap selection
       sound.playSelect();
       onSelectFlag(countryId);
     }
@@ -149,23 +152,41 @@ export const FlagDock: React.FC<FlagDockProps> = ({
   const draggingCountry = touchDrag ? unplacedCountries.find(c => c.id === touchDrag.countryId) : null;
 
   return (
-    <div className="flex flex-col h-full bg-[#0f182a] rounded-lg border border-slate-800/80 shadow-md overflow-hidden select-none">
-      {/* Header */}
-      <div className="px-2.5 py-1.5 md:p-3 border-b border-slate-800/80 bg-[#142036] flex items-center justify-between shrink-0">
-        <h2 className="font-semibold text-[11px] md:text-xs text-slate-300">
-          Flags
-        </h2>
-        <span className="text-[10px] md:text-[11px] text-slate-400 font-medium">
-          {unplacedCountries.length} left
-        </span>
+    <div className="flex flex-col h-full bg-[#0f182a] rounded-lg md:rounded-xl border border-slate-800/80 shadow-md overflow-hidden select-none">
+      {/* Top Header: Title, remaining count, and selection feedback */}
+      <div className="px-3 py-1.5 md:p-3 border-b border-slate-800/80 bg-[#131f36] flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <h2 className="font-bold text-xs sm:text-sm text-slate-200">
+            Flags
+          </h2>
+          <span className="px-1.5 py-0.5 bg-slate-800/90 text-slate-400 font-semibold text-[10px] rounded-full">
+            {unplacedCountries.length} left
+          </span>
+        </div>
+
+        {selectedCountry && (
+          <div className="text-[11px] text-slate-300 font-medium truncate max-w-[150px] sm:max-w-[200px]">
+            {isCurrentFlagNamed ? (
+              <span className="text-emerald-400 font-semibold flex items-center gap-1 truncate">
+                <Check className="w-3 h-3 shrink-0" /> {selectedCountry.name}
+              </span>
+            ) : (
+              <span className="text-sky-400">Tap country on map</span>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Flag List: Horizontal scrolling carousel on mobile, 2-column grid on desktop */}
+      {/* Flag Carousel: Smooth horizontal scrolling on mobile, 2-column grid on desktop */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 p-1.5 md:p-2.5 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto overscroll-contain"
+        className="flex-1 p-2 md:p-3 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto overscroll-contain"
+        style={{
+          touchAction: 'pan-x',
+          WebkitOverflowScrolling: 'touch'
+        }}
       >
-        <div className="flex flex-row md:grid md:grid-cols-2 gap-1.5 md:gap-2 h-full md:h-auto items-stretch">
+        <div className="flex flex-row md:grid md:grid-cols-2 gap-2 md:gap-2.5 h-full md:h-auto items-stretch">
           {unplacedCountries.map((country) => {
             const isSelected = selectedFlagId === country.id;
             const isNamed = namedCountryIds.has(country.id);
@@ -178,11 +199,11 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                 tabIndex={0}
                 role="button"
                 aria-pressed={isSelected}
-                aria-label={`Flag card. ${isNamed ? country.name : 'Unknown country'}`}
+                aria-label={`Flag card. ${isNamed ? country.name : 'Unknown flag'}`}
                 onDragStart={(e) => handleDragStart(e, country.id)}
                 onTouchStart={(e) => handleTouchStart(e, country.id)}
                 onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
+                onTouchEnd={(e) => handleTouchEnd(e, country.id)}
                 onClick={() => {
                   sound.playSelect();
                   onSelectFlag(country.id);
@@ -194,68 +215,34 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                     onSelectFlag(country.id);
                   }
                 }}
-                className={`relative group flex flex-col w-24 min-w-[96px] md:w-auto shrink-0 md:shrink bg-[#111728] hover:bg-[#161f36] rounded-md border transition-all cursor-grab active:cursor-grabbing overflow-hidden shadow-sm focus:outline-none focus:ring-1 focus:ring-sky-400 justify-between ${
+                className={`relative group flex flex-col w-20 min-w-[80px] sm:w-24 sm:min-w-[96px] md:w-auto shrink-0 md:shrink rounded-lg border transition-all cursor-pointer overflow-hidden shadow-sm focus:outline-none justify-between ${
                   isSelected
-                    ? 'border-sky-500 ring-1 ring-sky-500 bg-[#162038]'
-                    : 'border-slate-800 hover:border-slate-700'
+                    ? 'border-sky-400 ring-2 ring-sky-400/90 bg-[#16223d] shadow-md shadow-sky-950/50 scale-[1.03] z-10'
+                    : 'border-slate-800/90 bg-[#11182a] hover:bg-[#151f36] hover:border-slate-700 opacity-80 hover:opacity-100'
                 }`}
               >
                 {/* Flag Thumbnail */}
-                <div className="relative w-full aspect-[4/3] max-h-12 md:max-h-none bg-slate-950 flex items-center justify-center overflow-hidden border-b border-slate-800/60 shrink-0">
+                <div className="relative w-full aspect-[4/3] bg-slate-950 flex items-center justify-center overflow-hidden border-b border-slate-800/60 shrink-0">
                   <FlagImage countryCode={country.id} countryName={isNamed ? country.name : ''} className="w-full h-full object-cover" />
 
                   {isSelected && (
-                    <div className="absolute inset-0 bg-sky-950/30 backdrop-blur-[1px] flex items-center justify-center">
-                      <span className="bg-sky-600 text-white text-[9px] md:text-[10px] font-semibold px-1 py-0.5 rounded-sm shadow flex items-center gap-0.5">
-                        <Check className="w-2.5 h-2.5 stroke-[2.5]" /> Selected
-                      </span>
+                    <div className="absolute top-1 right-1 bg-sky-600 text-white rounded-full p-0.5 shadow">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
                   )}
                 </div>
 
-                {/* Card Body */}
-                <div className="p-1 md:p-1.5 flex flex-col justify-between gap-1 text-[10px] md:text-[11px] flex-1">
-                  {/* Name or helper status */}
-                  <div className="min-h-[14px] md:min-h-[16px] flex items-center justify-between">
-                    {isNamed ? (
-                      <span className="font-semibold text-slate-200 text-[10px] md:text-[11px] truncate">
-                        {country.name}
-                      </span>
-                    ) : (
-                      <span className="text-slate-500 text-[9px] md:text-[10px] truncate">
-                        {isSelected ? 'Tap map' : 'Drag / Tap'}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Actions: "Name it" & "Show me" */}
-                  <div className="flex items-center justify-between pt-0.5 md:pt-1 border-t border-slate-800/60 gap-1 text-[9px] md:text-[10px]">
-                    {!isNamed ? (
-                      <button
-                        onClick={(e) => handleNameIt(e, country.id)}
-                        onTouchEnd={(e) => handleNameIt(e, country.id)}
-                        title="Reveal country name"
-                        className="text-slate-400 hover:text-sky-300 hover:bg-slate-800 px-1 py-0.5 rounded flex items-center gap-0.5 transition-colors"
-                      >
-                        <HelpCircle className="w-2.5 h-2.5" />
-                        <span className="hidden sm:inline">Name it</span>
-                        <span className="sm:hidden">Name</span>
-                      </button>
-                    ) : (
-                      <span className="text-[9px] md:text-[10px] text-slate-500 truncate">{country.capital}</span>
-                    )}
-
-                    <button
-                      onClick={(e) => handleShowMe(e, country.id)}
-                      onTouchEnd={(e) => handleShowMe(e, country.id)}
-                      title="Place automatically (0 points)"
-                      className="text-amber-400/90 hover:text-amber-300 hover:bg-amber-500/10 px-1 py-0.5 rounded flex items-center gap-0.5 transition-colors ml-auto"
-                    >
-                      <Eye className="w-2.5 h-2.5" />
-                      <span className="hidden sm:inline">Show me</span>
-                      <span className="sm:hidden">Show</span>
-                    </button>
-                  </div>
+                {/* Country Name Tag or Status */}
+                <div className="px-1.5 py-1 text-center truncate">
+                  {isNamed ? (
+                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-100 truncate block">
+                      {country.name}
+                    </span>
+                  ) : (
+                    <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium truncate block">
+                      {isSelected ? 'Selected' : 'Flag'}
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -263,19 +250,50 @@ export const FlagDock: React.FC<FlagDockProps> = ({
         </div>
       </div>
 
+      {/* Global Shared Action Controls: Single pair of buttons operating on the selected flag */}
+      <div className="p-2 sm:p-2.5 border-t border-slate-800/90 bg-[#10182b] flex items-center gap-2 shrink-0">
+        <button
+          onClick={handleTriggerNameIt}
+          disabled={!selectedCountry}
+          title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name"}
+          className={`flex-1 h-10 px-3 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
+            isCurrentFlagNamed
+              ? 'bg-emerald-950/80 border border-emerald-600/70 text-emerald-300'
+              : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-750 text-slate-100 border border-slate-700 hover:border-slate-600'
+          }`}
+        >
+          <HelpCircle className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+          <span className="truncate">
+            {isCurrentFlagNamed
+              ? `${selectedCountry?.name}`
+              : 'Name It'}
+          </span>
+        </button>
+
+        <button
+          onClick={handleTriggerShowMe}
+          disabled={!selectedCountry}
+          title="Place this flag on the map (0 points)"
+          className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-amber-500/20 hover:bg-amber-500/30 active:bg-amber-500/35 text-amber-300 border border-amber-500/50 hover:border-amber-500/70 transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Eye className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span>Show Me</span>
+        </button>
+      </div>
+
       {/* Floating Ghost Drag Preview on Touch Devices */}
       {touchDrag?.isDragging && draggingCountry && (
         <div
-          className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 shadow-2xl rounded-md border-2 border-sky-400 bg-slate-900/95 p-1 flex items-center gap-1.5 backdrop-blur-md"
+          className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 shadow-2xl rounded-lg border-2 border-sky-400 bg-slate-900/95 p-1 flex items-center gap-2 backdrop-blur-md"
           style={{
             left: `${touchDrag.currentX}px`,
-            top: `${touchDrag.currentY - 35}px`
+            top: `${touchDrag.currentY - 40}px`
           }}
         >
-          <div className="w-10 h-7 rounded overflow-hidden shadow">
+          <div className="w-12 h-9 rounded overflow-hidden shadow">
             <FlagImage countryCode={draggingCountry.id} countryName="" className="w-full h-full object-cover" />
           </div>
-          <span className="text-white text-xs font-bold pr-1">Drop on Map</span>
+          <span className="text-white text-xs font-bold pr-1.5">Drop on Map</span>
         </div>
       )}
     </div>

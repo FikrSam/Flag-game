@@ -142,16 +142,42 @@ describe('Flaggle Basic Geography Game', () => {
       expect(screen.getByText('100')).toBeInTheDocument();
     });
 
-    it('reveals country name when clicking "Name it"', () => {
-      render(<App />);
+    it('reveals country name when clicking shared "Name it" button', () => {
+      const { container } = render(<App />);
       fireEvent.click(screen.getByText(/Play Europe/i));
 
-      const nameItButtons = screen.getAllByText(/Name it/i);
-      expect(nameItButtons.length).toBeGreaterThan(0);
+      // Get first card and its country ID
+      const firstCard = container.querySelector('[data-country-id]');
+      const firstCountryId = firstCard?.getAttribute('data-country-id');
+      const countryObj = EUROPE_COUNTRIES.find(c => c.id === firstCountryId)!;
 
-      fireEvent.click(nameItButtons[0]);
+      // Click shared "Name it" button
+      const nameItButton = screen.getByText(/Name it/i);
+      expect(nameItButton).toBeInTheDocument();
 
-      expect(screen.queryAllByText(/Name it/i).length).toBeLessThan(nameItButtons.length);
+      fireEvent.click(nameItButton);
+
+      // Verify that the revealed country name is now present in the card
+      expect(firstCard).toHaveTextContent(countryObj.name);
+    });
+
+    it('places selected flag automatically when clicking shared "Show me" button', () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByText(/Play Europe/i));
+
+      // Get first card and its country ID
+      const firstCard = container.querySelector('[data-country-id]');
+      const firstCountryId = firstCard?.getAttribute('data-country-id');
+
+      // Click shared "Show me" button
+      const showMeButton = screen.getByText(/Show Me/i);
+      expect(showMeButton).toBeInTheDocument();
+
+      fireEvent.click(showMeButton);
+
+      // Verify that target country is now placed on the map
+      const targetCountry = container.querySelector(`#country-${firstCountryId}`);
+      expect(targetCountry?.getAttribute('fill')).toContain(`url(#flag-pat-${firstCountryId})`);
     });
 
     it('plays wrong sound and displays "This is <Country>" banner when clicking incorrect country', () => {

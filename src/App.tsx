@@ -47,6 +47,7 @@ export function App() {
   const [placedCountries, setPlacedCountries] = useState<Set<string>>(new Set());
   const [unplacedCountries, setUnplacedCountries] = useState<CountryData[]>([]);
   const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
+  const [namedCountryIds, setNamedCountryIds] = useState<Set<string>>(new Set());
   const [highlightedCountryId, setHighlightedCountryId] = useState<string | null>(null);
   const [wrongFeedback, setWrongFeedback] = useState<string | null>(null);
   const [score, setScore] = useState<number>(0);
@@ -68,6 +69,7 @@ export function App() {
     setPlacedCountries(new Set());
     setUnplacedCountries(shuffled);
     setSelectedFlagId(shuffled[0]?.id || null);
+    setNamedCountryIds(new Set());
     setHighlightedCountryId(null);
     setWrongFeedback(null);
     setScore(0);
@@ -110,6 +112,12 @@ export function App() {
   const handleSelectFlag = (countryId: string) => {
     setSelectedFlagId(countryId);
   };
+
+  // "Name it" action: reveals name of country
+  const handleNameIt = useCallback((countryId: string) => {
+    sound.playSelect();
+    setNamedCountryIds(prev => new Set(prev).add(countryId));
+  }, []);
 
   // Match interaction (drag drop or tap twice)
   const handleCountryMatch = useCallback((targetCountryId: string) => {
@@ -189,10 +197,10 @@ export function App() {
         onRestart={handleRestart}
       />
 
-      {/* Main Full-Width Arena: Map fills top/left (75% on mobile), Flags at bottom/right */}
-      <main className="flex-1 w-full h-[calc(100dvh-46px)] md:h-[calc(100dvh-50px)] min-h-0 flex flex-col md:flex-row gap-1.5 sm:gap-2 md:gap-2.5 p-1.5 sm:p-2 md:p-2.5 overflow-hidden">
-        {/* Left / Top Side: Map fills all available space */}
-        <section className="relative flex-1 min-h-0 w-full h-full flex flex-col" aria-label="Map Canvas">
+      {/* Main Full-Width Arena: Map fills top/left, Flags Carousel + Global Controls at bottom/right */}
+      <main className="flex-1 w-full h-[calc(100dvh-44px)] md:h-[calc(100dvh-50px)] min-h-0 flex flex-col md:flex-row gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 md:p-3 overflow-hidden">
+        {/* Left / Top Side: Map fills available space naturally */}
+        <section className="relative flex-1 min-h-[220px] w-full h-full flex flex-col overflow-hidden rounded-lg md:rounded-xl border border-slate-800/80 shadow-md" aria-label="Map Canvas">
           {/* Wrong country notification banner (clean red badge) */}
           {wrongFeedback && (
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all animate-in fade-in slide-in-from-top-1 duration-150">
@@ -214,12 +222,14 @@ export function App() {
           />
         </section>
 
-        {/* Right / Bottom Side: Flags Dock */}
-        <aside className="w-full h-32 sm:h-36 md:h-full md:w-72 lg:w-80 xl:w-96 shrink-0 flex flex-col overflow-hidden" aria-label="Flag Selection">
+        {/* Right / Bottom Side: Flags Dock with Carousel & Shared Controls */}
+        <aside className="w-full h-44 sm:h-48 md:h-full md:w-72 lg:w-80 xl:w-96 shrink-0 flex flex-col overflow-hidden" aria-label="Flag Selection">
           <FlagDock
             unplacedCountries={unplacedCountries}
             selectedFlagId={selectedFlagId}
+            namedCountryIds={namedCountryIds}
             onSelectFlag={handleSelectFlag}
+            onNameIt={handleNameIt}
             onShowMe={handleShowMe}
             onDropOnCountry={handleCountryMatch}
           />
