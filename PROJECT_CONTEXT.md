@@ -9,12 +9,12 @@
 **Flaggle** is a minimalist, responsive, and tactile web-based geography game where players match official national flags onto authentic vector country shapes without names or geographical spoilers until successfully identified.
 
 - **Primary Repository**: `git@github.com:FikrSam/Flag-game.git`
-- **Branches**: `main` (production), `master` (synchronized mirror)
+- **Branches**: `main` (production), `dev` (development)
 - **Tech Stack**:
   - **Framework**: React 19 + TypeScript (Strict mode)
-  - **Styling**: Tailwind CSS v4 + Lucide React icons
+  - **Styling**: Tailwind CSS v4
+  - **Icons**: Standalone Tabler SVG suite (`src/components/TablerIcons.tsx`)
   - **Cartography**: D3-geo (`d3.geoMercator`) with Natural Earth 50m TopoJSON
-  - **Audio Engine**: Synthesized Web Audio API (zero external mp3/wav dependencies)
   - **Testing**: Vitest + React Testing Library (100% passing suites)
   - **Linter**: Oxlint (0 warnings, 0 errors policy)
 

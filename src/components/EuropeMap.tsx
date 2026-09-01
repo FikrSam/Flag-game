@@ -480,5 +480,3 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   );
 };
 
-// Backward-compatible alias
-export const EuropeMap = InteractiveMap;
