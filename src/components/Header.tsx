@@ -29,20 +29,20 @@ export const Header: React.FC<HeaderProps> = ({
   const percent = Math.round((placedCount / totalCount) * 100) || 0;
 
   return (
-    <header className="w-full bg-[#0f182a] border-b border-slate-800/80 px-2.5 sm:px-4 py-1.5 flex flex-col gap-1 shrink-0 select-none">
+    <header className="w-full bg-[#141414] border-b border-[#242424] px-2.5 sm:px-4 py-1.5 flex flex-col gap-1 shrink-0 select-none">
       <div className="flex items-center justify-between gap-2 sm:gap-4">
         {/* Left: Navigation & Title */}
         <div className="flex items-center gap-1.5 sm:gap-3">
           <button
             onClick={onBackToContinents}
             title="Back to continent selection"
-            className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-100 transition-colors py-1 px-1.5 rounded-md hover:bg-slate-800"
+            className="flex items-center gap-1 text-xs text-[#888888] hover:text-[#f1f1f1] transition-colors py-1 px-1.5 rounded-md hover:bg-[#222222]"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Continents</span>
           </button>
-          <span className="text-slate-700 hidden sm:inline">|</span>
-          <h1 className="text-xs sm:text-sm font-bold text-slate-100 tracking-wide truncate">
+          <span className="text-[#333333] hidden sm:inline">|</span>
+          <h1 className="text-xs sm:text-sm font-bold text-[#f1f1f1] tracking-wide truncate">
             {continentName}
           </h1>
         </div>
@@ -50,29 +50,29 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Right: Stats & Controls */}
         <div className="flex items-center gap-4 text-xs">
           {/* Progress */}
-          <div className="text-slate-300 font-medium">
-            <span className="text-white font-bold">{placedCount}</span>
-            <span className="text-slate-500"> / </span>
+          <div className="text-[#cccccc] font-medium">
+            <span className="text-[#f1f1f1] font-bold">{placedCount}</span>
+            <span className="text-[#666666]"> / </span>
             <span>{totalCount}</span>
           </div>
 
           {/* Time */}
-          <div className="hidden sm:flex items-center gap-1 text-slate-400 font-mono">
+          <div className="hidden sm:flex items-center gap-1 text-[#888888] font-mono">
             <span>TIME</span>
-            <span className="text-white font-bold">{formatTime(timeElapsed)}</span>
+            <span className="text-[#f1f1f1] font-bold">{formatTime(timeElapsed)}</span>
           </div>
 
           {/* Score */}
-          <div className="flex items-center gap-1 text-slate-400">
+          <div className="flex items-center gap-1 text-[#888888]">
             <span>SCORE</span>
-            <span className="text-sky-400 font-bold font-mono">{score.toLocaleString()}</span>
+            <span className="text-[#38bdf8] font-bold font-mono">{score.toLocaleString()}</span>
           </div>
 
           {/* Restart */}
           <button
             onClick={onRestart}
             title="Restart game"
-            className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-md transition-colors"
+            className="p-1 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#222222] rounded-md transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
@@ -80,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-slate-800/80 h-1 rounded-sm overflow-hidden">
+      <div className="w-full bg-[#242424] h-1 rounded-sm overflow-hidden">
         <div
           className="h-full bg-sky-500 transition-all duration-300 ease-out"
           style={{ width: `${percent}%` }}

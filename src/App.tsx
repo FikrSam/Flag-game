@@ -195,7 +195,7 @@ export function App() {
 
   // Active Game View (Full width on any display, mobile dynamic viewport height)
   return (
-    <div className="h-[100dvh] w-screen max-w-full bg-[#070b14] text-slate-100 flex flex-col overflow-hidden">
+    <div className="h-[100dvh] w-screen max-w-full bg-[#101010] text-[#f1f1f1] flex flex-col overflow-hidden">
       {/* Minimal Header */}
       <Header
         continentName={activeContinentData.name}
@@ -210,11 +210,11 @@ export function App() {
       {/* Main Full-Width Arena: Map fills top/left, Flags Carousel + Global Controls at bottom/right */}
       <main className="flex-1 w-full h-[calc(100dvh-44px)] md:h-[calc(100dvh-50px)] min-h-0 flex flex-col md:flex-row gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 md:p-3 overflow-hidden">
         {/* Left / Top Side: Map fills available space naturally */}
-        <section className="relative flex-1 min-h-[220px] w-full h-full flex flex-col overflow-hidden rounded-lg md:rounded-xl border border-slate-800/80 shadow-md" aria-label="Map Canvas">
-          {/* Wrong country notification banner (clean red badge) */}
+        <section className="relative flex-1 min-h-[220px] w-full h-full flex flex-col overflow-hidden rounded-lg md:rounded-xl border border-[#242424] shadow-md bg-[#101010]" aria-label="Map Canvas">
+          {/* Wrong country notification banner */}
           {wrongFeedback && (
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all animate-in fade-in slide-in-from-top-1 duration-150">
-              <div className="px-4 py-1.5 bg-rose-950/95 border border-rose-600/80 text-rose-100 text-xs font-semibold rounded-md shadow-xl backdrop-blur-md">
+              <div className="px-4 py-1.5 bg-[#1c1c1c]/95 border border-[#38bdf8]/50 text-[#f1f1f1] text-xs font-semibold rounded-md shadow-xl backdrop-blur-md">
                 {wrongFeedback}
               </div>
             </div>

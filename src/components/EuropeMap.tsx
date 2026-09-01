@@ -222,7 +222,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full min-h-[280px] bg-[#0f182a] rounded-lg shadow-md overflow-hidden flex items-center justify-center select-none touch-none"
+      className="relative w-full h-full min-h-[280px] bg-[#101010] rounded-lg shadow-md overflow-hidden flex items-center justify-center select-none touch-none"
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -236,25 +236,25 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       aria-label="Continent Map"
     >
       {/* Zoom controls */}
-      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 bg-[#131f33]/90 backdrop-blur-md p-1 rounded-md border border-slate-700/60 shadow-sm">
+      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 bg-[#181818]/90 backdrop-blur-md p-1 rounded-md border border-[#282828] shadow-sm">
         <button
           onClick={handleZoomIn}
           title="Zoom In"
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded transition-colors active:scale-95"
+          className="p-1.5 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#242424] rounded transition-colors active:scale-95"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={handleZoomOut}
           title="Zoom Out"
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded transition-colors active:scale-95"
+          className="p-1.5 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#242424] rounded transition-colors active:scale-95"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
         <button
           onClick={handleResetZoom}
           title="Reset Zoom"
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded transition-colors active:scale-95"
+          className="p-1.5 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#242424] rounded transition-colors active:scale-95"
         >
           <RotateCcw className="w-4 h-4" />
         </button>
@@ -321,18 +321,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           })}
         </defs>
 
-        {/* Ocean Background (Exact solid dark navy #0f182a) */}
-        <rect width={mapConfig.width} height={mapConfig.height} fill="#0f182a" className="map-ocean" />
+        {/* Ocean Background (Exact neutral dark #101010) */}
+        <rect width={mapConfig.width} height={mapConfig.height} fill="#101010" className="map-ocean" />
 
-        {/* Surrounding Context Landmasses (Exact #1e2b45) */}
-        {/* Surrounding Context Landmasses (Subtle background land) */}
-        <g className="context-land" fill="#1a253b" stroke="#334460" strokeWidth="0.4">
+        {/* Surrounding Context Landmasses (Subtle neutral dark land #181818) */}
+        <g className="context-land" fill="#181818" stroke="#262626" strokeWidth="0.4">
           {contextLandPaths.map((pathD, idx) => (
             <path key={`ctx-${idx}`} d={pathD} className="context-land" />
           ))}
         </g>
 
-        {/* Country Polygons (Slate blue #2a3d5e with crisp lighter #6b82a6 borders) */}
+        {/* Country Polygons (Neutral charcoal #222222 with clean #383838 borders) */}
         <g id="country-polygons">
           {countries.map((country) => {
             const isPlaced = placedCountries.has(country.id);
@@ -340,8 +339,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             const isDragOver = dragOverCountryId === country.id;
             const isHighlighted = highlightedCountryId === country.id;
 
-            let fill = '#1c283d';
-            let stroke = '#475569';
+            let fill = '#222222';
+            let stroke = '#383838';
             let strokeWidth = 0.5;
 
             if (isPlaced) {
@@ -349,10 +348,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               stroke = '#38bdf8';
               strokeWidth = 0.6;
             } else if (isDragOver || isHighlighted) {
-              fill = '#1e3a5f';
+              fill = '#2a2a2a';
               stroke = '#38bdf8';
             } else if (isHovered) {
-              fill = '#263852';
+              fill = '#2e2e2e';
               stroke = '#38bdf8';
             }
 
@@ -470,8 +469,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   cx={cx}
                   cy={cy}
                   r={6.5}
-                  fill={isDragOver || isHighlighted ? '#1e3a5f' : isHovered ? '#263852' : 'rgba(28, 40, 61, 0.7)'}
-                  stroke={isHighlighted || isHovered ? '#38bdf8' : '#64748b'}
+                  fill={isDragOver || isHighlighted ? '#2a2a2a' : isHovered ? '#2e2e2e' : 'rgba(34, 34, 34, 0.8)'}
+                  stroke={isHighlighted || isHovered ? '#38bdf8' : '#555555'}
                   strokeWidth={0.8}
                   className="transition-all duration-150"
                 />
@@ -481,7 +480,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   cx={cx}
                   cy={cy}
                   r={1.8}
-                  fill="#f8fafc"
+                  fill="#f1f1f1"
                   className="pointer-events-none"
                 />
               </g>

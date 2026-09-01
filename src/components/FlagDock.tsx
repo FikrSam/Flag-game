@@ -152,44 +152,44 @@ export const FlagDock: React.FC<FlagDockProps> = ({
   const draggingCountry = touchDrag ? unplacedCountries.find(c => c.id === touchDrag.countryId) : null;
 
   return (
-    <div className="flex flex-col h-full bg-[#0f182a] rounded-lg md:rounded-xl border border-slate-800/80 shadow-md overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-[#141414] rounded-lg md:rounded-xl border border-[#242424] shadow-md overflow-hidden select-none">
       {/* Top Header: Title, remaining count, and selection feedback (Order 1 on all screens) */}
-      <div className="px-3 py-1.5 md:p-3 border-b border-slate-800/80 bg-[#131f36] flex items-center justify-between shrink-0 order-1">
+      <div className="px-3 py-1.5 md:p-3 border-b border-[#242424] bg-[#181818] flex items-center justify-between shrink-0 order-1">
         <div className="flex items-center gap-2">
-          <h2 className="font-bold text-xs sm:text-sm text-slate-200">
+          <h2 className="font-bold text-xs sm:text-sm text-[#f1f1f1]">
             Flags
           </h2>
-          <span className="px-1.5 py-0.5 bg-slate-800/90 text-slate-400 font-semibold text-[10px] rounded-full">
+          <span className="px-1.5 py-0.5 bg-[#222222] text-[#888888] font-semibold text-[10px] rounded-full">
             {unplacedCountries.length} left
           </span>
         </div>
 
         {selectedCountry && (
-          <div className="text-[11px] text-slate-300 font-medium truncate max-w-[150px] sm:max-w-[200px]">
+          <div className="text-[11px] text-[#cccccc] font-medium truncate max-w-[150px] sm:max-w-[200px]">
             {isCurrentFlagNamed ? (
-              <span className="text-sky-300 font-semibold flex items-center gap-1 truncate">
+              <span className="text-[#38bdf8] font-semibold flex items-center gap-1 truncate">
                 <Check className="w-3 h-3 shrink-0" /> {selectedCountry.name}
               </span>
             ) : (
-              <span className="text-sky-400">Tap country on map</span>
+              <span className="text-[#38bdf8]">Tap country on map</span>
             )}
           </div>
         )}
       </div>
 
       {/* Global Shared Action Controls: Top on desktop (order-2), Bottom on mobile (order-3) */}
-      <div className="p-2 sm:p-2.5 border-t md:border-t-0 md:border-b border-slate-800/90 bg-[#10182b] flex items-center gap-2 shrink-0 order-3 md:order-2">
+      <div className="p-2 sm:p-2.5 border-t md:border-t-0 md:border-b border-[#242424] bg-[#161616] flex items-center gap-2 shrink-0 order-3 md:order-2">
         <button
           onClick={handleTriggerNameIt}
           disabled={!selectedCountry}
           title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name"}
           className={`flex-1 h-10 px-3 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
             isCurrentFlagNamed
-              ? 'bg-sky-950/80 border border-sky-500/60 text-sky-300'
-              : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-750 text-slate-100 border border-slate-700 hover:border-slate-600'
+              ? 'bg-[#162638] border border-[#38bdf8]/60 text-[#38bdf8]'
+              : 'bg-[#222222] hover:bg-[#2a2a2a] text-[#f1f1f1] border border-[#2e2e2e]'
           }`}
         >
-          <HelpCircle className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+          <HelpCircle className="w-3.5 h-3.5 text-[#38bdf8] shrink-0" />
           <span className="truncate">
             {isCurrentFlagNamed
               ? `${selectedCountry?.name}`
@@ -201,9 +201,9 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           onClick={handleTriggerShowMe}
           disabled={!selectedCountry}
           title="Place this flag on the map (0 points)"
-          className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-slate-800 hover:bg-slate-700 active:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-[#222222] hover:bg-[#2a2a2a] text-[#f1f1f1] border border-[#2e2e2e] transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Eye className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+          <Eye className="w-3.5 h-3.5 text-[#38bdf8] shrink-0" />
           <span>Show Me</span>
         </button>
       </div>
@@ -248,24 +248,24 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                 }}
                 className={`relative group flex flex-col w-20 min-w-[80px] sm:w-24 sm:min-w-[96px] md:w-auto shrink-0 md:shrink rounded-lg border transition-all cursor-pointer overflow-hidden shadow-sm focus:outline-none ${
                   isSelected
-                    ? 'border-sky-400 ring-2 ring-sky-400/90 bg-[#16223d] shadow-md shadow-sky-950/50 scale-[1.03] z-10'
-                    : 'border-slate-800/90 bg-[#11182a] hover:bg-[#151f36] hover:border-slate-700 opacity-80 hover:opacity-100'
+                    ? 'border-[#38bdf8] ring-2 ring-[#38bdf8]/80 bg-[#222222] shadow-md shadow-black/60 scale-[1.03] z-10'
+                    : 'border-[#282828] bg-[#181818] hover:bg-[#202020] hover:border-[#383838] opacity-85 hover:opacity-100'
                 }`}
               >
                 {/* Flag Thumbnail Tile */}
-                <div className="relative w-full aspect-[4/3] bg-slate-950 flex items-center justify-center overflow-hidden">
+                <div className="relative w-full aspect-[4/3] bg-[#101010] flex items-center justify-center overflow-hidden">
                   <FlagImage countryCode={country.id} countryName={isNamed ? country.name : ''} className="w-full h-full object-cover" />
 
                   {isSelected && (
-                    <div className="absolute top-1 right-1 bg-sky-600 text-white rounded-full p-0.5 shadow-md z-10">
+                    <div className="absolute top-1 right-1 bg-sky-600 text-[#f1f1f1] rounded-full p-0.5 shadow-md z-10">
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
                   )}
 
                   {/* If Named: Translucent Bottom Tag */}
                   {isNamed && (
-                    <div className="absolute inset-x-0 bottom-0 bg-slate-950/90 backdrop-blur-xs py-0.5 px-1 text-center border-t border-slate-700/60 z-10">
-                      <span className="text-[10px] font-bold text-white truncate block leading-tight">
+                    <div className="absolute inset-x-0 bottom-0 bg-[#101010]/95 backdrop-blur-xs py-0.5 px-1 text-center border-t border-[#2a2a2a] z-10">
+                      <span className="text-[10px] font-bold text-[#f1f1f1] truncate block leading-tight">
                         {country.name}
                       </span>
                     </div>
@@ -280,7 +280,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
       {/* Floating Ghost Drag Preview on Touch Devices */}
       {touchDrag?.isDragging && draggingCountry && (
         <div
-          className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 shadow-2xl rounded-lg border-2 border-sky-400 bg-slate-900/95 p-1 flex items-center gap-2 backdrop-blur-md"
+          className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 shadow-2xl rounded-lg border-2 border-[#38bdf8] bg-[#141414]/95 p-1 flex items-center gap-2 backdrop-blur-md"
           style={{
             left: `${touchDrag.currentX}px`,
             top: `${touchDrag.currentY - 40}px`
@@ -289,7 +289,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           <div className="w-12 h-9 rounded overflow-hidden shadow">
             <FlagImage countryCode={draggingCountry.id} countryName="" className="w-full h-full object-cover" />
           </div>
-          <span className="text-white text-xs font-bold pr-1.5">Drop on Map</span>
+          <span className="text-[#f1f1f1] text-xs font-bold pr-1.5">Drop on Map</span>
         </div>
       )}
     </div>

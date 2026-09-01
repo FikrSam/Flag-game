@@ -89,27 +89,28 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 4. Visual System & Monotonous Palette (Single Sky-Blue Accent)
+## 4. Visual System & Monotonous Black/White Scale (Single Sky-Blue Accent)
 
-- **Philosophy**: Strict monotonous dark slate/zinc foundation across all views with **exactly ONE accent color (`#38bdf8` / `sky-500`)**. No emojis, no rainbow gradients, and no colorful glowing blobs.
-- **Ocean & Base Background**: Deep dark navy `#070b14` / `#0f182a`.
-- **Surrounding Context Land**: Muted slate `#141d2e` with fine `#1e293b` border (`0.4px`).
-- **Unplaced Countries**:
-  - Fill: Deep slate `#1c283d`
-  - Border stroke: Muted steel slate `#475569` (`0.5px`).
-- **Hover State**: Fill `#263852`, Border `#38bdf8` (`0.5px`).
-- **Drag-Over & Highlight State**: Fill `#1e3a5f`, Border `#38bdf8`.
-- **Placed / Completed Countries**:
-  - Fill: `url(#flag-pat-${country.id})` (flag artwork inside country boundary).
-  - Border stroke: Unified accent `#38bdf8` (`0.6px`).
-- **Microstates & Small Territories**:
-  - Outer target ring: `stroke="#64748b"`, `fill="rgba(28, 40, 61, 0.7)"`, `r={6.5}` (hover/highlight `stroke="#38bdf8"`).
-  - Inner dot: `fill="#f8fafc"`, `r={1.8}`.
-  - Placed badge: Crisp `15×11px` flag with accent border `#38bdf8` (`0.9px`).
-- **Score, Badges & Interactive Controls**:
-  - All interactive highlights, progress indicators, selection outlines, and scores strictly utilize the unified **`#38bdf8` (Sky Blue)** accent.
+- **Philosophy**: Pure grayscale palette (`#101010` darkest to `#f1f1f1` lightest) across all application views with **exactly ONE accent color (`#38bdf8` / Sky Blue)**.
+- **Grayscale Architecture**:
+  - Darkest Base / Canvas: `#101010`
+  - Cards, Shell & Dock: `#141414` / `#161616` / `#181818`
+  - Structural Borders & Dividers: `#222222` / `#242424` / `#282828`
+  - Interactive Surfaces & Button Defaults: `#202020` / `#222222` (hover `#2a2a2a`)
+  - Surrounding Context Land: `#181818` (stroke `#262626`)
+  - Unplaced Countries: Fill `#222222`, Border `#383838` (0.5px)
+  - Hover & Active Territory State: Fill `#2e2e2e`, Border `#38bdf8`
+  - Muted Text / Labels: `#888888` / `#666666`
+  - Secondary Text: `#cccccc`
+  - Lightest Headings & Active Text: `#f1f1f1`
+- **Single Accent Color (`#38bdf8`)**:
+  - Placed country border: `#38bdf8` (0.6px).
+  - Microstate rings, selection outlines & beacons: `#38bdf8`.
+  - Flag selection glow ring & checkmark: `#38bdf8`.
+  - Header Score & Progress Bar: `#38bdf8`.
+  - Primary Play action buttons: `bg-sky-600 hover:bg-sky-500 text-[#f1f1f1]`.
 - **Incorrect Country Feedback**:
-  - Floating top-center pill badge: `bg-rose-950/95 border-rose-600/80 text-rose-100 font-semibold shadow-xl rounded-md` (auto-dismisses after 1.2s).
+  - Clean floating pill badge: `bg-[#1c1c1c]/95 border-[#38bdf8]/50 text-[#f1f1f1] text-xs font-semibold rounded-md shadow-xl`.
 
 ---
 
