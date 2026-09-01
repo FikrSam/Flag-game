@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { RotateCcw, ArrowLeft } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { Logo } from './Logo';
 
 interface VictoryScreenProps {
   continentName?: string;
@@ -37,7 +38,8 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-[#0d0d0d]/85 backdrop-blur-sm flex items-center justify-center p-4 select-none animate-fade-in">
-      <div className="bg-[#181818] border border-[#333333] rounded-lg p-6 max-w-sm w-full shadow-2xl text-center">
+      <div className="bg-[#181818] border border-[#333333] rounded-lg p-6 max-w-sm w-full shadow-2xl text-center flex flex-col items-center">
+        <Logo size={40} className="mb-2.5" />
         <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-950/90 text-emerald-300 text-[11px] font-bold mb-2 border border-emerald-600/60">
           Complete
         </div>

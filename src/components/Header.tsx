@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { Logo } from './Logo';
 
 interface HeaderProps {
   continentName: string;
@@ -40,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="w-full bg-[#181818] border-b border-[#333333] px-2.5 sm:px-4 py-1.5 flex flex-col gap-1 shrink-0 select-none">
       <div className="flex items-center justify-between gap-2 sm:gap-4">
         {/* Left: Navigation & Title */}
-        <div className="flex items-center gap-1.5 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
           <button
             onClick={onBackToContinents}
             title="Back to continent selection"
@@ -50,6 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden sm:inline">Continents</span>
           </button>
           <span className="text-[#404040] hidden sm:inline">|</span>
+          <Logo size={20} className="hidden sm:inline-flex" />
           <h1 className="text-xs sm:text-sm font-bold text-[#f8fafc] tracking-wide truncate">
             {continentName}
           </h1>

@@ -2,6 +2,7 @@ import React from 'react';
 import { CONTINENTS } from '../data/continents';
 import { CONTINENT_SILHOUETTES } from '../data/continentSilhouettes';
 import { sound } from '../utils/sound';
+import { Logo } from './Logo';
 
 interface ContinentSelectProps {
   onSelectContinent: (continentId: string) => void;
@@ -23,9 +24,12 @@ export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContin
 
         {/* Minimal Header */}
         <header className="text-center flex flex-col items-center max-w-xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
-            Flaggle
-          </h1>
+          <div className="flex items-center gap-3 mb-2">
+            <Logo size={36} />
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              Flaggle
+            </h1>
+          </div>
           <p className="text-xs sm:text-sm text-[#a1a1aa] leading-relaxed">
             Drag each flag onto its matching border on the map, or tap to place. {totalPlayableFlags} countries currently available.
           </p>

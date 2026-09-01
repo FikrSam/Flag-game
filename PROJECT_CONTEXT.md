@@ -179,7 +179,20 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 8. Testing, Build & Deployment Protocol
+## 8. Brand Identity, Custom Logo & Favicon (`public/favicon.svg`, `src/components/Logo.tsx`)
+
+- **Bespoke Vector Mark**:
+  - Precision dark rounded tile (`#141414` with `#333333` border).
+  - Fine-line globe meridian and equator grid (`#4a4a4a` / `#333333`).
+  - Anchored white flagpole with electric Sky Blue (`#38bdf8`) geometric pennant fold and mast finial.
+- **Site Favicon**:
+  - Standalone high-contrast vector `public/favicon.svg` linked via `<link rel="icon" type="image/svg+xml" href="/favicon.svg" />`.
+- **Component Integration**:
+  - `<Logo />` displayed in Home Landing (`ContinentSelect.tsx`), In-Game Header (`Header.tsx`), and Victory Modal (`VictoryScreen.tsx`).
+
+---
+
+## 9. Testing, Build & Deployment Protocol
 
 Always ensure these verification steps pass before pushing:
 ```bash
