@@ -1,6 +1,6 @@
-# AI Memory & Architectural Changelog: Flaggle 🌍
+# Project Context & Architecture Blueprint: Flaggle 🌍
 
-> **Note for Future AI Agents**: This file serves as your persistent context, memory, architectural blueprint, and development log for **Flaggle**. Whenever continuing work or beginning a new session on this repository, review this document first to maintain system integrity and understand past design decisions.
+> **Developer & AI Context Reference**: This document serves as the persistent context, architectural blueprint, and technical changelog for **Flaggle**. Whenever working on or extending this repository, refer to this document to maintain consistency with cartographic projections, color palettes, flag aspect ratios, and interaction mechanics.
 
 ---
 
