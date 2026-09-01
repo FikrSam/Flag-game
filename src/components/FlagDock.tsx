@@ -217,7 +217,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           WebkitOverflowScrolling: 'touch'
         }}
       >
-        <div className="flex flex-row md:grid md:grid-cols-2 gap-2 md:gap-2.5 h-full md:h-auto items-stretch">
+        <div className="flex flex-row md:grid md:grid-cols-2 gap-2 md:gap-2.5 items-center md:items-stretch">
           {unplacedCountries.map((country) => {
             const isSelected = selectedFlagId === country.id;
             const isNamed = namedCountryIds.has(country.id);
@@ -246,31 +246,33 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                     onSelectFlag(country.id);
                   }
                 }}
-                className={`relative group flex flex-col w-20 min-w-[80px] sm:w-24 sm:min-w-[96px] md:w-auto shrink-0 md:shrink rounded-lg border transition-all cursor-pointer overflow-hidden shadow-sm focus:outline-none ${
+                className={`relative group aspect-[4/3] w-20 min-w-[80px] sm:w-24 sm:min-w-[96px] md:w-auto shrink-0 md:shrink rounded-lg border transition-all cursor-pointer overflow-hidden shadow-sm focus:outline-none flex items-center justify-center bg-[#101010] ${
                   isSelected
-                    ? 'border-[#38bdf8] ring-2 ring-[#38bdf8]/80 bg-[#222222] shadow-md shadow-black/60 scale-[1.03] z-10'
-                    : 'border-[#282828] bg-[#181818] hover:bg-[#202020] hover:border-[#383838] opacity-85 hover:opacity-100'
+                    ? 'border-[#38bdf8] ring-2 ring-[#38bdf8]/80 shadow-md shadow-black/60 scale-[1.03] z-10'
+                    : 'border-[#282828] hover:border-[#383838] opacity-85 hover:opacity-100'
                 }`}
               >
-                {/* Flag Thumbnail Tile */}
-                <div className="relative w-full aspect-[4/3] bg-[#101010] flex items-center justify-center overflow-hidden">
-                  <FlagImage countryCode={country.id} countryName={isNamed ? country.name : ''} className="w-full h-full object-cover" />
+                {/* Full Card Flag Image */}
+                <FlagImage
+                  countryCode={country.id}
+                  countryName={isNamed ? country.name : ''}
+                  className="w-full h-full object-cover"
+                />
 
-                  {isSelected && (
-                    <div className="absolute top-1 right-1 bg-sky-600 text-[#f1f1f1] rounded-full p-0.5 shadow-md z-10">
-                      <Check className="w-2.5 h-2.5 stroke-[3]" />
-                    </div>
-                  )}
+                {isSelected && (
+                  <div className="absolute top-1 right-1 bg-sky-600 text-[#f1f1f1] rounded-full p-0.5 shadow-md z-10">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                  </div>
+                )}
 
-                  {/* If Named: Translucent Bottom Tag */}
-                  {isNamed && (
-                    <div className="absolute inset-x-0 bottom-0 bg-[#101010]/95 backdrop-blur-xs py-0.5 px-1 text-center border-t border-[#2a2a2a] z-10">
-                      <span className="text-[10px] font-bold text-[#f1f1f1] truncate block leading-tight">
-                        {country.name}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                {/* If Named: Translucent Bottom Tag */}
+                {isNamed && (
+                  <div className="absolute inset-x-0 bottom-0 bg-[#101010]/95 backdrop-blur-xs py-0.5 px-1 text-center border-t border-[#2a2a2a] z-10">
+                    <span className="text-[10px] font-bold text-[#f1f1f1] truncate block leading-tight">
+                      {country.name}
+                    </span>
+                  </div>
+                )}
               </div>
             );
           })}

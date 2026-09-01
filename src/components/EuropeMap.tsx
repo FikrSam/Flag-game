@@ -379,29 +379,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           })}
         </g>
 
-        {/* Placed Country Name Labels */}
-        <g id="country-labels" className="pointer-events-none">
-          {countries.filter(c => placedCountries.has(c.id)).map((country) => {
-            const [cx, cy] = country.centroid;
-            if (country.isMicrostate) return null;
-
-            return (
-              <text
-                key={`label-${country.id}`}
-                x={cx}
-                y={cy + 2.5}
-                textAnchor="middle"
-                fill="#f8fafc"
-                fontSize="7"
-                fontWeight="700"
-                className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] select-none"
-              >
-                {country.name}
-              </text>
-            );
-          })}
-        </g>
-
         {/* Microstates: When unplaced, shows subtle ring & dot. When placed, renders a small flag rectangle with single accent border */}
         <g id="microstate-markers">
           {microstateCountries.map((country) => {

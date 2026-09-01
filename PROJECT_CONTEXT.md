@@ -104,11 +104,13 @@ const patY = Math.round(cy - patH / 2);
   - Secondary Text: `#cccccc`
   - Lightest Headings & Active Text: `#f1f1f1`
 - **Single Accent Color (`#38bdf8`)**:
-  - Placed country border: `#38bdf8` (0.6px).
+  - Placed country border: `#38bdf8` (0.6px, clean artwork fill with no overlapping text).
   - Microstate rings, selection outlines & beacons: `#38bdf8`.
   - Flag selection glow ring & checkmark: `#38bdf8`.
   - Header Score & Progress Bar: `#38bdf8`.
   - Primary Play action buttons: `bg-sky-600 hover:bg-sky-500 text-[#f1f1f1]`.
+- **Placed Countries on Map**:
+  - Pure, un-skewed flag vector fill without superimposed text labels or name text overlay for a clean, sharp aesthetic.
 - **Incorrect Country Feedback**:
   - Clean floating pill badge: `bg-[#1c1c1c]/95 border-[#38bdf8]/50 text-[#f1f1f1] text-xs font-semibold rounded-md shadow-xl`.
 
@@ -123,13 +125,16 @@ const patY = Math.round(cy - patH / 2);
      2. Primary map arena (`flex-1 min-h-[220px]`) sized naturally without excessive void.
      3. Horizontal flag carousel (`h-24` to `h-28`) with auto-scrolling active card.
      4. Shared global action bar (`[ Name It ]` `[ Show Me ]`) operating on the currently selected flag.
-2. **Shared Global Action Controls**:
+2. **Flag Card Geometry (Zero Bottom Dead Space)**:
+   - Flag cards are exact `aspect-[4/3]` units directly wrapping `<FlagImage className="w-full h-full object-cover">`.
+   - Eliminates nested height mismatch and vertical stretching so there is zero bottom or side dead whitespace.
+3. **Shared Global Action Controls**:
    - Eliminated redundant, clipped individual buttons inside every flag card.
    - Single pair of ergonomic action buttons (`[ ❓ Name It ]` `[ 👁️ Show Me ]`) dynamically bound to the selected flag.
    - **Desktop**: Positioned at the top of the sidebar (`md:order-2`) directly below the header and above the flag grid for immediate access without long mouse travel.
    - **Mobile**: Positioned in the bottom dock (`order-3`) for natural thumb ergonomics.
    - Reveals the active country name upon click and updates automatically as players swipe between flags.
-3. **Touch Carousel Swiping & Gesture Disambiguation**:
+4. **Touch Carousel Swiping & Gesture Disambiguation**:
    - Carousel container uses `touch-action: pan-x` with `-webkit-overflow-scrolling: touch` and `overscroll-contain`.
    - Horizontal dragging swipes **ONLY** the carousel without dragging the entire webpage vertically.
    - Upward dragging towards the map canvas triggers the floating ghost preview for direct drag-and-drop placement.
