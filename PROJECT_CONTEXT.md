@@ -155,23 +155,18 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 7. Home Screen & Continent Selection Design (Unique Flaggle Identity)
+## 7. Home Screen & Continent Selection Design (Minimalist Design)
 
-- **Brand Header & Live Telemetry**:
-  - Live pulsing status pill: `Interactive Cartography Drill • 3 Continents Active`.
-  - Gradient title typography: `Flaggle` in electric sky/white gradient with cartography subtitle.
-  - Live metric chips: `110 Nations in Play`, `Vector Border Maps`, `Synthesized Audio`.
-- **Interactive Region Filtering**:
-  - Filter tabs: `All Regions (7)`, `Playable Now (3)`, `Upcoming (4)`.
-- **Bespoke Continent Cards**:
-  - Glassmorphic card styling with ambient colored glow matching each continent's theme.
-  - Coordinate grid background in the silhouette viewer.
-  - Rich territorial details (e.g. *44 Sovereign Nations • 6 Microstates*).
-  - Prominent CTA buttons with directional icon (`Play Region →`).
-- **Feature Bento Grid**:
-  - `Dual Interaction Modes`: Mouse & touch drag & drop or tap twice.
-  - `Microstate Radar`: Permanent target rings across all zoom levels.
-  - `Smart Training Assist`: Non-scoring guidance via `Name It` and `Show Me`.
+- **Clean Typography & Layout**:
+  - Crisp solid white header `Flaggle` with concise subtitle.
+  - No emojis, gradients, or badge clutter.
+- **Continent Cards**:
+  - Clean dark containers (`#0d1424`) with muted slate border definition.
+  - Vector continent silhouettes in subtle slate (`#64748b` for playable, `#334155` for locked).
+  - Clear nation count and description (e.g. *44 countries • Includes 6 microstates*).
+  - Solid, clean `Play <Continent>` action button (`bg-sky-600`) and subtle `Coming soon` for locked continents.
+- **Instructional Footer**:
+  - 3 clean, simple text cards covering Dual Controls, Microstate Target Rings, and Hints/Assistance.
 
 ---
 

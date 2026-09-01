@@ -80,7 +80,7 @@ describe('Flaggle Basic Geography Game', () => {
       render(<App />);
 
       expect(screen.getByText(/Flaggle/i)).toBeInTheDocument();
-      expect(screen.getByText(/Master world geography/i)).toBeInTheDocument();
+      expect(screen.getByText(/Drag each flag onto its matching border/i)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Play Europe/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Play Africa/i })).toBeInTheDocument();
     });
@@ -245,14 +245,14 @@ describe('Flaggle Basic Geography Game', () => {
     it('renders all 3 informational cards and continent silhouettes on home screen', () => {
       render(<App />);
 
-      expect(screen.getByText(/Dual Interaction Modes/i)).toBeInTheDocument();
-      expect(screen.getByText(/Microstate Radar/i)).toBeInTheDocument();
-      expect(screen.getByText(/Smart Training Assist/i)).toBeInTheDocument();
+      expect(screen.getByText(/Dual Controls/i)).toBeInTheDocument();
+      expect(screen.getByText(/Microstate Rings/i)).toBeInTheDocument();
+      expect(screen.getByText(/Hints & Assistance/i)).toBeInTheDocument();
 
-      // Check taglines
-      expect(screen.getByText(/From the Mediterranean to Cape Agulhas/i)).toBeInTheDocument();
-      expect(screen.getByText(/From Reykjavík to the Caucasus/i)).toBeInTheDocument();
-      expect(screen.getByText(/The Andes, Patagonia & the Amazon Basin/i)).toBeInTheDocument();
+      // Check descriptions
+      expect(screen.getByText(/Continental & island nations/i)).toBeInTheDocument();
+      expect(screen.getByText(/Includes 6 microstates/i)).toBeInTheDocument();
+      expect(screen.getByText(/Andes, Amazon & Patagonia/i)).toBeInTheDocument();
     });
   });
 });
