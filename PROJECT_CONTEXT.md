@@ -91,7 +91,7 @@ const patY = Math.round(cy - patH / 2);
 
 ## 4. Visual System & High-Contrast Palette (Correct/Incorrect Feedback & Max 8px Radius)
 
-- **Philosophy**: High-contrast dark grayscale foundation (`#0d0d0d` to `#ffffff`) with dedicated semantic colors for gameplay validation: **Emerald Green (`#22c55e`)** for correct placement, **Vivid Rose (`#f43f5e`)** for incorrect placement/notifications, and **Sky Blue (`#38bdf8`)** for interactive selection and progress telemetry.
+- **Philosophy**: High-contrast dark grayscale foundation (`#0d0d0d` to `#ffffff`) with dedicated semantic colors for gameplay validation: **Emerald Green (`#22c55e`)** for correct placement, **Vivid Rose (`#f43f5e`)** for incorrect placement/notifications, **Warm Gold/Amber (`#fbbf24`)** for streaks & assistance, and **Electric Indigo (`#6366f1` / `#818cf8`)** as the primary playful accent for interactive selection, play buttons, and progress telemetry.
 - **Border Radius Rule**: Strict maximum border-radius of **8px (`rounded-lg`)** site-wide (no `rounded-xl`, `rounded-2xl`, etc.).
 - **Grayscale Architecture (High Contrast)**:
   - Dark Base / Canvas: `#0d0d0d`
@@ -110,7 +110,7 @@ const patY = Math.round(cy - patH / 2);
   - **"Show Me" Auto-Placement**: **0 points** awarded (resets active streak to 0).
   - **Consecutive Streaks**: Tracks `currentStreak` and `maxStreak`. Consecutive correct answers without mistakes or "Show Me" increment the streak. Any wrong drop or "Show Me" resets `currentStreak` to 0.
   - **Live Streak Badge**: Rendered in the top sticky Header (`Header.tsx`) with Tabler `IconFlame` when streak > 1.
-  - **Victory Screen Breakdown**: Displays Final Score, Total Time, Best Streak (`{maxStreak} in a row`), "Show Me" count (`X countries` or `0 (Master!)`), and "Name It" count (`Y (-30% pts)`).
+  - **Playful Victory Screen Breakdown**: Dual confetti burst, floating trophy header, flawless master/victory status pill, hero score highlight banner with gold stars, 2x2 playful stat mini-cards (Streak, Time, Show Me, Name Hints), and bouncy primary/secondary action buttons.
 
 ---
 

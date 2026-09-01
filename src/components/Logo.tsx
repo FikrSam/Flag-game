@@ -35,12 +35,12 @@ export const Logo: React.FC<LogoProps> = ({
         {/* Mast */}
         <line x1="36" y1="72" x2="36" y2="22" stroke="#ffffff" strokeWidth="3.5" strokeLinecap="round" />
 
-        {/* Geometric Flag Pennant */}
-        <path d="M37 24 L74 34 L66 48 L37 42 Z" fill="#38bdf8" stroke="#38bdf8" strokeWidth="1" strokeLinejoin="round" />
-        <path d="M37 33 L55 38 L37 42 Z" fill="#0284c7" />
+        {/* Geometric Flag Pennant in Electric Indigo Accent */}
+        <path d="M37 24 L74 34 L66 48 L37 42 Z" fill="#6366f1" stroke="#6366f1" strokeWidth="1" strokeLinejoin="round" />
+        <path d="M37 33 L55 38 L37 42 Z" fill="#4338ca" />
 
         {/* Mast Pin Finial */}
-        <circle cx="36" cy="22" r="3.5" fill="#38bdf8" stroke="#ffffff" strokeWidth="1.5" />
+        <circle cx="36" cy="22" r="3.5" fill="#818cf8" stroke="#ffffff" strokeWidth="1.5" />
       </svg>
 
       {showText && (

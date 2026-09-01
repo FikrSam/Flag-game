@@ -77,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Score */}
           <div className="flex items-center gap-1 text-[#9ca3af]">
             <span>SCORE</span>
-            <span className="text-[#38bdf8] font-bold font-mono">{score.toLocaleString()}</span>
+            <span className="text-[#818cf8] font-bold font-mono">{score.toLocaleString()}</span>
           </div>
 
           {/* Restart */}
@@ -94,7 +94,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Progress Bar */}
       <div className="w-full bg-[#2a2a2a] h-1 rounded-sm overflow-hidden">
         <div
-          className="h-full bg-sky-500 transition-all duration-300 ease-out"
+          className="h-full bg-indigo-500 transition-all duration-300 ease-out"
           style={{ width: `${percent}%` }}
         />
       </div>

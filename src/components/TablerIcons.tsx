@@ -125,3 +125,36 @@ export const IconTrophy: React.FC<TablerIconProps> = ({ size = 24, strokeWidth =
     <path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
   </svg>
 );
+
+export const IconClock: React.FC<TablerIconProps> = ({ size = 24, strokeWidth = 2, className = '', ...props }) => (
+  <svg {...defaultProps} width={size} height={size} strokeWidth={strokeWidth} className={`tabler-icon tabler-icon-clock ${className}`} {...props}>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+    <path d="M12 7v5l3 3" />
+  </svg>
+);
+
+export const IconStar: React.FC<TablerIconProps> = ({ size = 24, strokeWidth = 2, className = '', ...props }) => (
+  <svg {...defaultProps} width={size} height={size} strokeWidth={strokeWidth} className={`tabler-icon tabler-icon-star ${className}`} {...props}>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
+  </svg>
+);
+
+export const IconMedal: React.FC<TablerIconProps> = ({ size = 24, strokeWidth = 2, className = '', ...props }) => (
+  <svg {...defaultProps} width={size} height={size} strokeWidth={strokeWidth} className={`tabler-icon tabler-icon-medal ${className}`} {...props}>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M12 4v3m-4 -3v6m8 -6v6" />
+    <path d="M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z" />
+  </svg>
+);
+
+export const IconTarget: React.FC<TablerIconProps> = ({ size = 24, strokeWidth = 2, className = '', ...props }) => (
+  <svg {...defaultProps} width={size} height={size} strokeWidth={strokeWidth} className={`tabler-icon tabler-icon-target ${className}`} {...props}>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+    <path d="M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0" />
+    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+  </svg>
+);
+
