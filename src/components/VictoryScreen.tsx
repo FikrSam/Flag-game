@@ -38,7 +38,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 select-none animate-fade-in">
       <div className="bg-[#0e1526] border border-slate-700/80 rounded-lg p-6 max-w-sm w-full shadow-2xl text-center">
-        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[11px] font-semibold mb-2 border border-emerald-700/60">
+        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-sky-950 text-sky-300 text-[11px] font-semibold mb-2 border border-sky-600/50">
           Complete
         </div>
 
@@ -53,7 +53,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
         <div className="grid grid-cols-2 gap-2 my-5 text-left text-xs">
           <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
             <span className="text-[10px] text-slate-400 uppercase font-semibold">Final Score</span>
-            <div className="text-sm font-bold text-amber-400 font-mono mt-0.5">
+            <div className="text-sm font-bold text-sky-400 font-mono mt-0.5">
               {score.toLocaleString()}
             </div>
           </div>

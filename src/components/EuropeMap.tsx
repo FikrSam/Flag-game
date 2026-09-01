@@ -340,23 +340,20 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             const isDragOver = dragOverCountryId === country.id;
             const isHighlighted = highlightedCountryId === country.id;
 
-            let fill = '#2a3d5e';
-            let stroke = '#6b82a6';
+            let fill = '#1c283d';
+            let stroke = '#475569';
             let strokeWidth = 0.5;
 
             if (isPlaced) {
               fill = `url(#flag-pat-${country.id})`;
-              stroke = '#22c55e';
+              stroke = '#38bdf8';
               strokeWidth = 0.6;
-            } else if (isDragOver) {
-              fill = '#b45309';
-              stroke = '#f59e0b';
-            } else if (isHighlighted) {
-              fill = '#78350f';
-              stroke = '#facc15';
+            } else if (isDragOver || isHighlighted) {
+              fill = '#1e3a5f';
+              stroke = '#38bdf8';
             } else if (isHovered) {
-              fill = '#364f78';
-              stroke = '#93c5fd';
+              fill = '#263852';
+              stroke = '#38bdf8';
             }
 
             return (
@@ -395,7 +392,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 x={cx}
                 y={cy + 2.5}
                 textAnchor="middle"
-                fill="#ffffff"
+                fill="#f8fafc"
                 fontSize="7"
                 fontWeight="700"
                 className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] select-none"
@@ -406,7 +403,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           })}
         </g>
 
-        {/* Microstates: When unplaced, shows subtle ring & dot. When placed, renders a small flag rectangle with green border */}
+        {/* Microstates: When unplaced, shows subtle ring & dot. When placed, renders a small flag rectangle with single accent border */}
         <g id="microstate-markers">
           {microstateCountries.map((country) => {
             const isPlaced = placedCountries.has(country.id);
@@ -444,7 +441,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     height={rectH}
                     rx={1}
                     fill="none"
-                    stroke="#22c55e"
+                    stroke="#38bdf8"
                     strokeWidth={0.9}
                     className="pointer-events-none"
                   />
@@ -473,8 +470,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   cx={cx}
                   cy={cy}
                   r={6.5}
-                  fill={isDragOver ? '#f59e0b' : isHighlighted ? '#eab308' : isHovered ? '#364f78' : 'rgba(42, 61, 94, 0.6)'}
-                  stroke={isHighlighted ? '#facc15' : isHovered ? '#93c5fd' : '#7e9cc2'}
+                  fill={isDragOver || isHighlighted ? '#1e3a5f' : isHovered ? '#263852' : 'rgba(28, 40, 61, 0.7)'}
+                  stroke={isHighlighted || isHovered ? '#38bdf8' : '#64748b'}
                   strokeWidth={0.8}
                   className="transition-all duration-150"
                 />
@@ -484,7 +481,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   cx={cx}
                   cy={cy}
                   r={1.8}
-                  fill="#e2e8f0"
+                  fill="#f8fafc"
                   className="pointer-events-none"
                 />
               </g>
@@ -499,8 +496,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           const [cx, cy] = target.centroid;
           return (
             <g transform={`translate(${cx}, ${cy})`} className="pointer-events-none animate-pulse">
-              <circle cx={0} cy={0} r={14} fill="none" stroke="#facc15" strokeWidth={1.5} />
-              <circle cx={0} cy={0} r={4} fill="#facc15" />
+              <circle cx={0} cy={0} r={14} fill="none" stroke="#38bdf8" strokeWidth={1.5} />
+              <circle cx={0} cy={0} r={4} fill="#38bdf8" />
             </g>
           );
         })()}

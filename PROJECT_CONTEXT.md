@@ -89,25 +89,27 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 4. Visual System & Color Palette
+## 4. Visual System & Monotonous Palette (Single Sky-Blue Accent)
 
-- **Ocean & Background**: Solid dark navy `#0f182a` with app wrapper `#070b14`.
-- **Surrounding Context Land**: Dark muted navy `#1a253b` with fine `#334460` border (`0.4px`).
+- **Philosophy**: Strict monotonous dark slate/zinc foundation across all views with **exactly ONE accent color (`#38bdf8` / `sky-500`)**. No emojis, no rainbow gradients, and no colorful glowing blobs.
+- **Ocean & Base Background**: Deep dark navy `#070b14` / `#0f182a`.
+- **Surrounding Context Land**: Muted slate `#141d2e` with fine `#1e293b` border (`0.4px`).
 - **Unplaced Countries**:
-  - Fill: Slate blue `#2a3d5e`
-  - Border stroke: Crisp lightened slate steel blue `#6b82a6` (`0.5px`).
-- **Hover State**: Fill `#364f78`, Border `#93c5fd` (`0.5px`).
-- **Drag-Over State**: Fill `#b45309`, Border `#f59e0b`.
+  - Fill: Deep slate `#1c283d`
+  - Border stroke: Muted steel slate `#475569` (`0.5px`).
+- **Hover State**: Fill `#263852`, Border `#38bdf8` (`0.5px`).
+- **Drag-Over & Highlight State**: Fill `#1e3a5f`, Border `#38bdf8`.
 - **Placed / Completed Countries**:
-  - Fill: `url(#flag-pat-${country.id})`
-  - Border stroke: Emerald green `#22c55e` (`0.6px`).
+  - Fill: `url(#flag-pat-${country.id})` (flag artwork inside country boundary).
+  - Border stroke: Unified accent `#38bdf8` (`0.6px`).
 - **Microstates & Small Territories**:
-  - Outer target ring: `stroke="#7e9cc2"`, `fill="rgba(42, 61, 94, 0.6)"`, `r={6.5}` (remains permanently visible across all zoom levels for easy targeting).
-  - Inner dot: `fill="#e2e8f0"`, `r={1.8}`.
-  - Placed badge: Crisp `15×11px` single-image SVG flag with green border `#22c55e` (`0.9px`).
-- **Incorrect Country Notification**:
-  - Floating top-center red pill badge: `bg-rose-950/95 border-rose-600/80 text-rose-100 font-semibold shadow-xl rounded-md`.
-  - Auto-dismisses after 1.2s.
+  - Outer target ring: `stroke="#64748b"`, `fill="rgba(28, 40, 61, 0.7)"`, `r={6.5}` (hover/highlight `stroke="#38bdf8"`).
+  - Inner dot: `fill="#f8fafc"`, `r={1.8}`.
+  - Placed badge: Crisp `15×11px` flag with accent border `#38bdf8` (`0.9px`).
+- **Score, Badges & Interactive Controls**:
+  - All interactive highlights, progress indicators, selection outlines, and scores strictly utilize the unified **`#38bdf8` (Sky Blue)** accent.
+- **Incorrect Country Feedback**:
+  - Floating top-center pill badge: `bg-rose-950/95 border-rose-600/80 text-rose-100 font-semibold shadow-xl rounded-md` (auto-dismisses after 1.2s).
 
 ---
 

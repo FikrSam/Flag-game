@@ -167,7 +167,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
         {selectedCountry && (
           <div className="text-[11px] text-slate-300 font-medium truncate max-w-[150px] sm:max-w-[200px]">
             {isCurrentFlagNamed ? (
-              <span className="text-emerald-400 font-semibold flex items-center gap-1 truncate">
+              <span className="text-sky-300 font-semibold flex items-center gap-1 truncate">
                 <Check className="w-3 h-3 shrink-0" /> {selectedCountry.name}
               </span>
             ) : (
@@ -185,7 +185,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name"}
           className={`flex-1 h-10 px-3 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
             isCurrentFlagNamed
-              ? 'bg-emerald-950/80 border border-emerald-600/70 text-emerald-300'
+              ? 'bg-sky-950/80 border border-sky-500/60 text-sky-300'
               : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-750 text-slate-100 border border-slate-700 hover:border-slate-600'
           }`}
         >
@@ -201,9 +201,9 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           onClick={handleTriggerShowMe}
           disabled={!selectedCountry}
           title="Place this flag on the map (0 points)"
-          className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-amber-500/20 hover:bg-amber-500/30 active:bg-amber-500/35 text-amber-300 border border-amber-500/50 hover:border-amber-500/70 transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-slate-800 hover:bg-slate-700 active:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Eye className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <Eye className="w-3.5 h-3.5 text-sky-400 shrink-0" />
           <span>Show Me</span>
         </button>
       </div>

@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Score */}
           <div className="flex items-center gap-1 text-slate-400">
             <span>SCORE</span>
-            <span className="text-amber-400 font-bold font-mono">{score.toLocaleString()}</span>
+            <span className="text-sky-400 font-bold font-mono">{score.toLocaleString()}</span>
           </div>
 
           {/* Restart */}
