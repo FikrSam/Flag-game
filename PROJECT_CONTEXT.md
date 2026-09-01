@@ -99,7 +99,8 @@ const patY = Math.round(cy - patH / 2);
   - Interactive Surfaces & Button Defaults: `#202020` / `#222222` (hover `#2a2a2a`)
   - Surrounding Context Land: `#181818` (stroke `#262626`)
   - Unplaced Countries: Fill `#222222`, Border `#383838` (0.5px)
-  - Hover & Active Territory State: Fill `#2e2e2e`, Border `#38bdf8`
+  - Hover State: Fill `#383838`, Border `#383838` (clean area-only highlight with zero border clipping artifacts)
+  - Drag-Over & Assist Highlight State: Fill `#4a4a4a`, Border `#383838`
   - Muted Text / Labels: `#888888` / `#666666`
   - Secondary Text: `#cccccc`
   - Lightest Headings & Active Text: `#f1f1f1`

@@ -348,11 +348,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               stroke = '#38bdf8';
               strokeWidth = 0.6;
             } else if (isDragOver || isHighlighted) {
-              fill = '#2a2a2a';
-              stroke = '#38bdf8';
+              fill = '#4a4a4a';
             } else if (isHovered) {
-              fill = '#2e2e2e';
-              stroke = '#38bdf8';
+              fill = '#383838';
             }
 
             return (
@@ -446,8 +444,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   cx={cx}
                   cy={cy}
                   r={6.5}
-                  fill={isDragOver || isHighlighted ? '#2a2a2a' : isHovered ? '#2e2e2e' : 'rgba(34, 34, 34, 0.8)'}
-                  stroke={isHighlighted || isHovered ? '#38bdf8' : '#555555'}
+                  fill={isDragOver || isHighlighted ? '#4a4a4a' : isHovered ? '#383838' : 'rgba(34, 34, 34, 0.8)'}
+                  stroke="#555555"
                   strokeWidth={0.8}
                   className="transition-all duration-150"
                 />
