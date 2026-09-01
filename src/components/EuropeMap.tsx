@@ -222,7 +222,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full min-h-[280px] bg-[#101010] rounded-lg shadow-md overflow-hidden flex items-center justify-center select-none touch-none"
+      className="relative w-full h-full min-h-[280px] bg-[#0d0d0d] rounded-lg shadow-md overflow-hidden flex items-center justify-center select-none touch-none"
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -236,25 +236,25 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       aria-label="Continent Map"
     >
       {/* Zoom controls */}
-      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 bg-[#181818]/90 backdrop-blur-md p-1 rounded-md border border-[#282828] shadow-sm">
+      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 bg-[#181818]/90 backdrop-blur-md p-1 rounded-md border border-[#333333] shadow-sm">
         <button
           onClick={handleZoomIn}
           title="Zoom In"
-          className="p-1.5 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#242424] rounded transition-colors active:scale-95"
+          className="p-1.5 text-[#9ca3af] hover:text-white hover:bg-[#282828] rounded transition-colors active:scale-95"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={handleZoomOut}
           title="Zoom Out"
-          className="p-1.5 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#242424] rounded transition-colors active:scale-95"
+          className="p-1.5 text-[#9ca3af] hover:text-white hover:bg-[#282828] rounded transition-colors active:scale-95"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
         <button
           onClick={handleResetZoom}
           title="Reset Zoom"
-          className="p-1.5 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#242424] rounded transition-colors active:scale-95"
+          className="p-1.5 text-[#9ca3af] hover:text-white hover:bg-[#282828] rounded transition-colors active:scale-95"
         >
           <RotateCcw className="w-4 h-4" />
         </button>
