@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { EUROPE_COUNTRIES, CONTEXT_LAND_PATHS, MAP_CONFIG } from '../data/europeData';
 import type { CountryData } from '../types/game';
-import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { IconZoomIn, IconZoomOut, IconRotateClockwise } from './TablerIcons';
 
 export interface InteractiveMapProps {
   countries?: CountryData[];
@@ -242,21 +242,21 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           title="Zoom In"
           className="p-1.5 text-[#9ca3af] hover:text-white hover:bg-[#282828] rounded transition-colors active:scale-95"
         >
-          <ZoomIn className="w-4 h-4" />
+          <IconZoomIn size={16} strokeWidth={2} />
         </button>
         <button
           onClick={handleZoomOut}
           title="Zoom Out"
           className="p-1.5 text-[#9ca3af] hover:text-white hover:bg-[#282828] rounded transition-colors active:scale-95"
         >
-          <ZoomOut className="w-4 h-4" />
+          <IconZoomOut size={16} strokeWidth={2} />
         </button>
         <button
           onClick={handleResetZoom}
           title="Reset Zoom"
           className="p-1.5 text-[#9ca3af] hover:text-white hover:bg-[#282828] rounded transition-colors active:scale-95"
         >
-          <RotateCcw className="w-4 h-4" />
+          <IconRotateClockwise size={16} strokeWidth={2} />
         </button>
       </div>
 

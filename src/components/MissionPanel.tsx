@@ -1,7 +1,7 @@
 import React from 'react';
 import type { CountryData, GameMode } from '../types/game';
 import { FlagImage } from './FlagImage';
-import { Eye, MapPin, Sparkles } from 'lucide-react';
+import { IconEye, IconMapPin, IconSparkles } from './TablerIcons';
 
 interface MissionPanelProps {
   country: CountryData | null;
@@ -48,7 +48,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
             {isChallenge ? (
               <>
                 <div className="flex items-center gap-2 text-[#17324d]">
-                  <Sparkles className="size-4 text-[#b67a16]" />
+                  <IconSparkles size={16} className="text-[#b67a16]" />
                   <span className="text-sm font-bold">Trust your memory</span>
                 </div>
                 <p className="mt-1.5 text-xs leading-relaxed text-[#637382]">Click a country to place the flag. A wrong try reveals the answer, so every turn teaches something.</p>
@@ -72,7 +72,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
                   : 'cursor-not-allowed border-[#dfe4e1] bg-[#f2f3f0] text-[#9aa5a6]'
               }`}
             >
-              {hasActiveHint ? <MapPin className="size-4" /> : <Eye className="size-4" />}
+              {hasActiveHint ? <IconMapPin size={16} /> : <IconEye size={16} />}
               {hasActiveHint ? 'Map pin active' : `Use a map pin · ${hintsRemaining} left`}
             </button>
           )}
@@ -82,7 +82,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
       ) : (
         <div className="grid flex-1 place-items-center p-8 text-center">
           <div>
-            <MapPin className="mx-auto size-8 text-[#315f52]" />
+            <IconMapPin size={32} className="mx-auto text-[#315f52]" />
             <p className="mt-3 font-serif text-xl font-bold text-[#17324d]">Route complete</p>
           </div>
         </div>

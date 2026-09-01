@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { IconArrowLeft, IconRotateClockwise, IconVolume, IconVolumeOff, IconFlame } from './TablerIcons';
 import { sound } from '../utils/sound';
 import { Logo } from './Logo';
 
@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Back to continent selection"
             className="flex items-center gap-1 text-xs text-[#9ca3af] hover:text-[#f8fafc] transition-colors py-1 px-1.5 rounded-md hover:bg-[#282828]"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <IconArrowLeft size={15} strokeWidth={2} />
             <span className="hidden sm:inline">Continents</span>
           </button>
           <span className="text-[#404040] hidden sm:inline">|</span>
@@ -68,10 +68,10 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{totalCount}</span>
           </div>
 
-          {/* Live Streak */}
+          {/* Live Streak (Tabler Flame Icon) */}
           {streak > 1 && (
             <div data-testid="streak-badge" className="flex items-center gap-1 text-amber-400 font-bold font-mono px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-500/30">
-              <span className="text-xs">🔥</span>
+              <IconFlame size={14} strokeWidth={2.5} className="text-amber-400 shrink-0" />
               <span>{streak}</span>
             </div>
           )}
@@ -95,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
             aria-label={isMuted ? "Unmute sound" : "Mute sound"}
             className="p-1 text-[#9ca3af] hover:text-[#f8fafc] hover:bg-[#282828] rounded-md transition-colors"
           >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5" />}
+            {isMuted ? <IconVolumeOff size={15} strokeWidth={2} className="text-rose-400" /> : <IconVolume size={15} strokeWidth={2} />}
           </button>
 
           {/* Restart */}
@@ -104,7 +104,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Restart game"
             className="p-1 text-[#9ca3af] hover:text-[#f8fafc] hover:bg-[#282828] rounded-md transition-colors"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <IconRotateClockwise size={15} strokeWidth={2} />
           </button>
         </div>
       </div>

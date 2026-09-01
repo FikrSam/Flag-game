@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { RotateCcw, ArrowLeft } from 'lucide-react';
+import { IconRotateClockwise, IconArrowLeft, IconFlame } from './TablerIcons';
 import { sound } from '../utils/sound';
 import { Logo } from './Logo';
 
@@ -71,7 +71,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
           <div className="bg-[#111111] p-2.5 rounded-lg border border-[#2b2b2b]">
             <span className="text-[10px] text-[#9ca3af] uppercase font-semibold">Best Streak</span>
             <div className="text-sm font-bold text-amber-400 font-mono mt-0.5 flex items-center gap-1">
-              <span>🔥</span>
+              <IconFlame size={14} strokeWidth={2.5} className="text-amber-400 shrink-0" />
               <span>{maxStreak} in a row</span>
             </div>
           </div>
@@ -100,19 +100,19 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-full">
           <button
             onClick={onPlayAgain}
             className="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5 active:scale-95"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <IconRotateClockwise size={15} strokeWidth={2} />
             Play Again
           </button>
           <button
             onClick={onSelectContinent}
             className="w-full py-2 px-4 bg-[#242424] hover:bg-[#2c2c2c] text-[#d1d5db] hover:text-white rounded-lg border border-[#383838] text-xs font-medium transition-colors flex items-center justify-center gap-1"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <IconArrowLeft size={15} strokeWidth={2} />
             Choose Another Continent
           </button>
         </div>

@@ -179,7 +179,7 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 8. Brand Identity, Custom Logo & Favicon (`public/favicon.svg`, `src/components/Logo.tsx`)
+## 8. Brand Identity, Custom Logo, Favicon & Tabler Icons (`public/favicon.svg`, `src/components/Logo.tsx`, `src/components/TablerIcons.tsx`)
 
 - **Bespoke Vector Mark**:
   - Precision dark rounded tile (`#141414` with `#333333` border).
@@ -187,6 +187,8 @@ const patY = Math.round(cy - patH / 2);
   - Anchored white flagpole with electric Sky Blue (`#38bdf8`) geometric pennant fold and mast finial.
 - **Site Favicon**:
   - Standalone high-contrast vector `public/favicon.svg` linked via `<link rel="icon" type="image/svg+xml" href="/favicon.svg" />`.
+- **Complete Tabler Icon System (`src/components/TablerIcons.tsx`)**:
+  - 100% of icons site-wide use Tabler vector icons: `IconFlame` (for streaks, zero emojis), `IconArrowLeft`, `IconRotateClockwise`, `IconVolume`, `IconVolumeOff`, `IconZoomIn`, `IconZoomOut`, `IconCheck`, `IconHelp`, `IconEye`, `IconMapPin`, and `IconSparkles`.
 - **Component Integration**:
   - `<Logo />` displayed in Home Landing (`ContinentSelect.tsx`), In-Game Header (`Header.tsx`), and Victory Modal (`VictoryScreen.tsx`).
 

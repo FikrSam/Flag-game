@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import type { CountryData } from '../types/game';
 import { FlagImage } from './FlagImage';
-import { HelpCircle, Eye, Check } from 'lucide-react';
+import { IconHelp, IconEye, IconCheck } from './TablerIcons';
 import { sound } from '../utils/sound';
 
 export interface FlagDockProps {
@@ -168,7 +168,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           <div className="text-[11px] text-[#e5e7eb] font-medium truncate max-w-[150px] sm:max-w-[200px]">
             {isCurrentFlagNamed ? (
               <span className="text-emerald-400 font-semibold flex items-center gap-1 truncate">
-                <Check className="w-3 h-3 shrink-0" /> {selectedCountry.name}
+                <IconCheck size={13} strokeWidth={2.5} className="shrink-0" /> {selectedCountry.name}
               </span>
             ) : (
               <span className="text-[#38bdf8]">Tap country on map</span>
@@ -190,9 +190,9 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           }`}
         >
           {isCurrentFlagNamed ? (
-            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <IconCheck size={15} strokeWidth={2.5} className="text-emerald-400 shrink-0" />
           ) : (
-            <HelpCircle className="w-3.5 h-3.5 text-[#38bdf8] shrink-0" />
+            <IconHelp size={15} strokeWidth={2} className="text-[#38bdf8] shrink-0" />
           )}
           <span className="truncate">
             {isCurrentFlagNamed
@@ -207,7 +207,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           title="Place this flag on the map (0 points)"
           className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-[#242424] hover:bg-[#2c2c2c] text-[#f8fafc] border border-[#383838] transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Eye className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <IconEye size={15} strokeWidth={2} className="text-amber-400 shrink-0" />
           <span>Show Me</span>
         </button>
       </div>
@@ -223,7 +223,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
       >
         <div className="flex flex-row md:grid md:grid-cols-2 gap-2 md:gap-2.5 items-center md:items-stretch">
           {unplacedCountries.map((country) => {
-            const isSelected = selectedFlagId === country.id;
+            const isSelected = selectedCountry?.id === country.id;
             const isNamed = namedCountryIds.has(country.id);
 
             return (
@@ -234,7 +234,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                 tabIndex={0}
                 role="button"
                 aria-pressed={isSelected}
-                aria-label={`Flag card. ${isNamed ? country.name : 'Unknown flag'}`}
+                aria-label={`Flag for ${isNamed ? country.name : 'mystery country'}`}
                 onDragStart={(e) => handleDragStart(e, country.id)}
                 onTouchStart={(e) => handleTouchStart(e, country.id)}
                 onTouchMove={handleTouchMove}
@@ -265,7 +265,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
 
                 {isSelected && (
                   <div className="absolute top-1 right-1 bg-sky-600 text-white rounded-full p-0.5 shadow-md z-10">
-                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    <IconCheck size={11} strokeWidth={3} />
                   </div>
                 )}
 
