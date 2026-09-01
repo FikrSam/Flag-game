@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { IconArrowLeft, IconRotateClockwise, IconVolume, IconVolumeOff, IconFlame } from './TablerIcons';
-import { sound } from '../utils/sound';
+import React from 'react';
+import { IconArrowLeft, IconRotateClockwise, IconFlame } from './TablerIcons';
 import { Logo } from './Logo';
 
 interface HeaderProps {
@@ -24,13 +23,6 @@ export const Header: React.FC<HeaderProps> = ({
   onBackToContinents,
   onRestart
 }) => {
-  const [isMuted, setIsMuted] = useState(sound.getIsMuted());
-
-  const handleToggleSound = () => {
-    const nextMuted = sound.toggleMute();
-    setIsMuted(nextMuted);
-  };
-
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
@@ -87,16 +79,6 @@ export const Header: React.FC<HeaderProps> = ({
             <span>SCORE</span>
             <span className="text-[#38bdf8] font-bold font-mono">{score.toLocaleString()}</span>
           </div>
-
-          {/* Sound Toggle */}
-          <button
-            onClick={handleToggleSound}
-            title={isMuted ? "Unmute sound" : "Mute sound"}
-            aria-label={isMuted ? "Unmute sound" : "Mute sound"}
-            className="p-1 text-[#9ca3af] hover:text-[#f8fafc] hover:bg-[#282828] rounded-md transition-colors"
-          >
-            {isMuted ? <IconVolumeOff size={15} strokeWidth={2} className="text-rose-400" /> : <IconVolume size={15} strokeWidth={2} />}
-          </button>
 
           {/* Restart */}
           <button

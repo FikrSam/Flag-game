@@ -8,7 +8,6 @@ import { Header } from './components/Header';
 import { InteractiveMap } from './components/EuropeMap';
 import { FlagDock } from './components/FlagDock';
 import { VictoryScreen } from './components/VictoryScreen';
-import { sound } from './utils/sound';
 
 export function App() {
   const [screen, setScreen] = useState<'continent_select' | 'game'>('continent_select');
@@ -110,7 +109,6 @@ export function App() {
 
   // Restart / Reset game
   const handleRestart = () => {
-    sound.playSelect();
     initGame(activeContinentId);
   };
 
@@ -121,7 +119,6 @@ export function App() {
 
   // "Name it" action: reveals name of country
   const handleNameIt = useCallback((countryId: string) => {
-    sound.playSelect();
     setNamedCountryIds(prev => new Set(prev).add(countryId));
   }, []);
 
@@ -147,7 +144,6 @@ export function App() {
       const nextStreak = currentStreak + 1;
       setCurrentStreak(nextStreak);
       setMaxStreak(prev => Math.max(prev, nextStreak));
-      sound.playCorrect(nextStreak);
       setWrongFeedback(null);
 
       // Scoring: 100 pts without Name It hint, 70 pts (30% deduction) if Name It was used
@@ -167,7 +163,6 @@ export function App() {
       }
     } else {
       // Break streak on mistake
-      sound.playIncorrect();
       setCurrentStreak(0);
       const clickedCountry = activeContinentData.countries.find(c => c.id === targetCountryId);
       if (clickedCountry) {
@@ -184,7 +179,6 @@ export function App() {
 
   // "Show me" action: places flag automatically for 0 points & breaks streak
   const handleShowMe = useCallback((countryId: string) => {
-    sound.playReveal();
     setCurrentStreak(0);
     setShowMeCountryIds(prev => new Set(prev).add(countryId));
 

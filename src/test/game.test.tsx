@@ -180,7 +180,7 @@ describe('Flaggle Basic Geography Game', () => {
       expect(targetCountry?.getAttribute('fill')).toContain(`url(#flag-pat-${firstCountryId})`);
     });
 
-    it('plays wrong sound and displays "This is <Country>" banner when clicking incorrect country', () => {
+    it('displays "This is <Country>" error banner when clicking incorrect country', () => {
       const { container } = render(<App />);
       fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
 
@@ -223,7 +223,7 @@ describe('Flaggle Basic Geography Game', () => {
       expect(screen.getByText('100')).toBeInTheDocument();
     });
 
-    it('debounces rapid synthetic double clicks to avoid playing double sounds', () => {
+    it('debounces rapid synthetic double clicks to avoid duplicate placement score triggers', () => {
       const { container } = render(<App />);
       fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
 

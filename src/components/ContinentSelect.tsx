@@ -1,7 +1,6 @@
 import React from 'react';
 import { CONTINENTS } from '../data/continents';
 import { CONTINENT_SILHOUETTES } from '../data/continentSilhouettes';
-import { sound } from '../utils/sound';
 import { Logo } from './Logo';
 
 interface ContinentSelectProps {
@@ -10,7 +9,6 @@ interface ContinentSelectProps {
 
 export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContinent }) => {
   const handleSelect = (continentId: string) => {
-    sound.playSelect();
     onSelectContinent(continentId);
   };
 

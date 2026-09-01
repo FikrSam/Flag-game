@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { IconRotateClockwise, IconArrowLeft, IconFlame } from './TablerIcons';
-import { sound } from '../utils/sound';
 import { Logo } from './Logo';
 
 interface VictoryScreenProps {
@@ -28,7 +27,6 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
   onSelectContinent
 }) => {
   useEffect(() => {
-    sound.playVictory();
     confetti({
       particleCount: 50,
       spread: 70,

@@ -108,9 +108,9 @@ const patY = Math.round(cy - patH / 2);
   - **Unassisted Correct Placement**: **100 points** awarded per country.
   - **"Name It" Hint Used**: **70 points** awarded (30% point deduction to discourage hint overuse and reinforce memory).
   - **"Show Me" Auto-Placement**: **0 points** awarded (resets active streak to 0).
-  - **Consecutive Streaks**: Tracks `currentStreak` and `maxStreak`. Consecutive correct answers without mistakes or "Show Me" increment the streak (with pitch-escalating audio arpeggios). Any wrong drop or "Show Me" resets `currentStreak` to 0.
-  - **Live Streak Badge**: Rendered in the top sticky Header (`Header.tsx`) with flame icon `🔥 {streak}` when streak > 1.
-  - **Victory Screen Breakdown**: Displays Final Score, Total Time, Best Streak (`🔥 {maxStreak}` in a row), "Show Me" count (`X countries` or `0 (Master!)`), and "Name It" count (`Y (-30% pts)`).
+  - **Consecutive Streaks**: Tracks `currentStreak` and `maxStreak`. Consecutive correct answers without mistakes or "Show Me" increment the streak. Any wrong drop or "Show Me" resets `currentStreak` to 0.
+  - **Live Streak Badge**: Rendered in the top sticky Header (`Header.tsx`) with Tabler `IconFlame` when streak > 1.
+  - **Victory Screen Breakdown**: Displays Final Score, Total Time, Best Streak (`{maxStreak} in a row`), "Show Me" count (`X countries` or `0 (Master!)`), and "Name It" count (`Y (-30% pts)`).
 
 ---
 
@@ -119,7 +119,7 @@ const patY = Math.round(cy - patH / 2);
 1. **Balanced Mobile-First Viewport Hierarchy**:
    - Uses `h-[100dvh]` and `viewport-fit=cover` to eliminate URL bar jump/clipping on iOS Safari and Android Chrome.
    - **Hierarchy**:
-     1. Minimal sticky top header (`h-11`) with back navigation, category, progress, score, sound toggle, and restart.
+     1. Minimal sticky top header (`h-11`) with back navigation, category, progress, streak, time, score, and restart.
      2. Primary map arena (`flex-1 min-h-[220px]`) sized naturally without excessive void.
      3. Horizontal flag carousel (`h-24` to `h-28`) with auto-scrolling active card.
      4. Shared global action bar (`[ Name It ]` `[ Show Me ]`) operating on the currently selected flag.

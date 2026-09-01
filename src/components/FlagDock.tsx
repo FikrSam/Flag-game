@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useState } from 'react';
 import type { CountryData } from '../types/game';
 import { FlagImage } from './FlagImage';
 import { IconHelp, IconEye, IconCheck } from './TablerIcons';
-import { sound } from '../utils/sound';
 
 export interface FlagDockProps {
   unplacedCountries: CountryData[];
@@ -63,7 +62,6 @@ export const FlagDock: React.FC<FlagDockProps> = ({
   const handleDragStart = (e: React.DragEvent, countryId: string) => {
     e.dataTransfer.setData('text/plain', countryId);
     e.dataTransfer.effectAllowed = 'copyMove';
-    sound.playSelect();
     onSelectFlag(countryId);
   };
 
@@ -87,7 +85,6 @@ export const FlagDock: React.FC<FlagDockProps> = ({
     // Only activate drag-and-drop if moving significantly upward towards the map
     if (!touchDrag?.isDragging) {
       if (dy < -25 && Math.abs(dy) > Math.abs(dx) * 1.2) {
-        sound.playSelect();
         onSelectFlag(touchStartRef.current.countryId);
         setTouchDrag({
           countryId: touchStartRef.current.countryId,
@@ -141,7 +138,6 @@ export const FlagDock: React.FC<FlagDockProps> = ({
       }
     } else if (dist < 12 && duration < 400) {
       // Tap selection
-      sound.playSelect();
       onSelectFlag(countryId);
     }
 
@@ -240,13 +236,11 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                 onTouchMove={handleTouchMove}
                 onTouchEnd={(e) => handleTouchEnd(e, country.id)}
                 onClick={() => {
-                  sound.playSelect();
                   onSelectFlag(country.id);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    sound.playSelect();
                     onSelectFlag(country.id);
                   }
                 }}
