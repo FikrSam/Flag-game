@@ -27,11 +27,11 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
   const isChallenge = gameMode === 'challenge';
 
   return (
-    <aside className="flex h-full flex-col overflow-hidden rounded-2xl border border-[#bad0d7] bg-[#fffaf0] shadow-[0_10px_24px_rgba(18,59,76,0.12)]">
+    <aside className="flex h-full flex-col overflow-hidden rounded-lg border border-[#bad0d7] bg-[#fffaf0] shadow-[0_10px_24px_rgba(18,59,76,0.12)]">
       <div className="border-b border-[#dce6e4] bg-[#e9f2f0] px-5 py-4">
         <div className="flex items-center justify-between gap-3">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#416d73]">Current flag</span>
-          <span className="rounded-full bg-[#fffaf0] px-2.5 py-1 text-[11px] font-bold text-[#416d73]">{placedCount + 1} of {totalCount}</span>
+          <span className="rounded-md bg-[#fffaf0] px-2.5 py-1 text-[11px] font-bold text-[#416d73]">{placedCount + 1} of {totalCount}</span>
         </div>
       </div>
 
@@ -40,11 +40,11 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
           <p className="text-sm leading-relaxed text-[#52677a]">
             {isChallenge ? 'Which country wears this flag?' : 'Find this country on the map.'}
           </p>
-          <div className="mt-4 overflow-hidden rounded-xl border-4 border-white bg-[#dfe8e6] shadow-sm">
+          <div className="mt-4 overflow-hidden rounded-lg border-4 border-white bg-[#dfe8e6] shadow-sm">
             <FlagImage countryCode={country.id} countryName={isChallenge ? 'Current flag' : country.name} className="aspect-[4/3] w-full object-cover" />
           </div>
 
-          <div className="mt-5 rounded-xl bg-[#f3eee3] p-4">
+          <div className="mt-5 rounded-lg bg-[#f3eee3] p-4">
             {isChallenge ? (
               <>
                 <div className="flex items-center gap-2 text-[#17324d]">
@@ -66,7 +66,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
             <button
               onClick={onReveal}
               disabled={hintsRemaining <= 0 || hasActiveHint}
-              className={`mt-4 flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-bold transition ${
+              className={`mt-4 flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-bold transition ${
                 hintsRemaining > 0 && !hasActiveHint
                   ? 'border-[#d5a33a] bg-[#fff3d4] text-[#85580e] hover:bg-[#fce8b7]'
                   : 'cursor-not-allowed border-[#dfe4e1] bg-[#f2f3f0] text-[#9aa5a6]'

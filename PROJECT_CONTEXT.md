@@ -89,31 +89,28 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 4. Visual System & Monotonous Black/White Scale (Single Sky-Blue Accent)
+## 4. Visual System & High-Contrast Palette (Correct/Incorrect Feedback & Max 8px Radius)
 
-- **Philosophy**: Pure grayscale palette (`#101010` darkest to `#f1f1f1` lightest) across all application views with **exactly ONE accent color (`#38bdf8` / Sky Blue)**.
-- **Grayscale Architecture**:
-  - Darkest Base / Canvas: `#101010`
-  - Cards, Shell & Dock: `#141414` / `#161616` / `#181818`
-  - Structural Borders & Dividers: `#222222` / `#242424` / `#282828`
-  - Interactive Surfaces & Button Defaults: `#202020` / `#222222` (hover `#2a2a2a`)
-  - Surrounding Context Land: `#181818` (stroke `#262626`)
-  - Unplaced Countries: Fill `#222222`, Border `#383838` (0.5px)
-  - Hover State: Fill `#383838`, Border `#383838` (clean area-only highlight with zero border clipping artifacts)
-  - Drag-Over & Assist Highlight State: Fill `#4a4a4a`, Border `#383838`
-  - Muted Text / Labels: `#888888` / `#666666`
-  - Secondary Text: `#cccccc`
-  - Lightest Headings & Active Text: `#f1f1f1`
-- **Single Accent Color (`#38bdf8`)**:
-  - Placed country border: `#38bdf8` (0.6px, clean artwork fill with no overlapping text).
-  - Microstate rings, selection outlines & beacons: `#38bdf8`.
-  - Flag selection glow ring & checkmark: `#38bdf8`.
-  - Header Score & Progress Bar: `#38bdf8`.
-  - Primary Play action buttons: `bg-sky-600 hover:bg-sky-500 text-[#f1f1f1]`.
+- **Philosophy**: High-contrast dark grayscale foundation (`#0d0d0d` to `#ffffff`) with dedicated semantic colors for gameplay validation: **Emerald Green (`#22c55e`)** for correct placement, **Vivid Rose (`#f43f5e`)** for incorrect placement/notifications, and **Sky Blue (`#38bdf8`)** for interactive selection and progress telemetry.
+- **Border Radius Rule**: Strict maximum border-radius of **8px (`rounded-lg`)** site-wide (no `rounded-xl`, `rounded-2xl`, etc.).
+- **Grayscale Architecture (High Contrast)**:
+  - Dark Base / Canvas: `#0d0d0d`
+  - Cards, Shell & Dock: `#181818` with crisp `#333333` borders
+  - Interactive Surfaces & Buttons: `#242424` (hover `#2c2c2c`, border `#383838`)
+  - Surrounding Context Land: `#171717` (stroke `#2b2b2b`)
+  - Unplaced Countries: Fill `#242424`, Border `#454545` (0.5px) — high contrast against ocean
+  - Hover State: Fill `#383838`, Border `#454545` (clean area-only highlight with zero border clipping artifacts)
+  - Drag-Over & Assist State: Fill `#4a4a4a`, Border `#454545`
+  - Muted Text / Labels: `#9ca3af` / `#a1a1aa`
+  - Secondary Text: `#d1d5db` / `#e5e7eb`
+  - Lightest Headings & Active Text: `#ffffff` / `#f8fafc`
+- **Validation & Gameplay Colors**:
+  - **Correct Placement**: Emerald green `#22c55e` border stroke (`0.7px`) on placed countries & microstates; `bg-emerald-950/90 text-emerald-300 border-emerald-600/60` badge on victory; `text-emerald-400` tag on revealed flags.
+  - **Incorrect Placement**: Vivid rose floating banner `bg-rose-950/95 border-rose-500 text-rose-100 text-xs font-semibold rounded-lg shadow-2xl backdrop-blur-md`.
+  - **Interactive Assist**: `Show Me` icon highlight in `#fbbf24` (amber-400); selection ring in `#38bdf8` (sky).
+  - **Telemetry & Controls**: Score counter and progress bar in `#38bdf8`; primary continent play buttons in `bg-sky-600 hover:bg-sky-500 text-white`.
 - **Placed Countries on Map**:
-  - Pure, un-skewed flag vector fill without superimposed text labels or name text overlay for a clean, sharp aesthetic.
-- **Incorrect Country Feedback**:
-  - Clean floating pill badge: `bg-[#1c1c1c]/95 border-[#38bdf8]/50 text-[#f1f1f1] text-xs font-semibold rounded-md shadow-xl`.
+  - Pure, un-skewed flag vector fill with crisp `#22c55e` emerald border and zero text overlays.
 
 ---
 
@@ -122,13 +119,13 @@ const patY = Math.round(cy - patH / 2);
 1. **Balanced Mobile-First Viewport Hierarchy**:
    - Uses `h-[100dvh]` and `viewport-fit=cover` to eliminate URL bar jump/clipping on iOS Safari and Android Chrome.
    - **Hierarchy**:
-     1. Minimal sticky top header (`h-11`) with back navigation, category, progress, score, and restart.
+     1. Minimal sticky top header (`h-11`) with back navigation, category, progress, score, sound toggle, and restart.
      2. Primary map arena (`flex-1 min-h-[220px]`) sized naturally without excessive void.
      3. Horizontal flag carousel (`h-24` to `h-28`) with auto-scrolling active card.
      4. Shared global action bar (`[ Name It ]` `[ Show Me ]`) operating on the currently selected flag.
 2. **Flag Card Geometry (Zero Bottom Dead Space)**:
    - Flag cards are exact `aspect-[4/3]` units directly wrapping `<FlagImage className="w-full h-full object-cover">`.
-   - Eliminates nested height mismatch and vertical stretching so there is zero bottom or side dead whitespace.
+   - Capped at `rounded-lg` (8px), eliminating dead whitespace around flags.
 3. **Shared Global Action Controls**:
    - Eliminated redundant, clipped individual buttons inside every flag card.
    - Single pair of ergonomic action buttons (`[ ❓ Name It ]` `[ 👁️ Show Me ]`) dynamically bound to the selected flag.

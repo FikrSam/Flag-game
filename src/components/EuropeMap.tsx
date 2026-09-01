@@ -321,17 +321,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           })}
         </defs>
 
-        {/* Ocean Background (Exact neutral dark #101010) */}
-        <rect width={mapConfig.width} height={mapConfig.height} fill="#101010" className="map-ocean" />
+        {/* Ocean Background (Exact neutral dark #0d0d0d) */}
+        <rect width={mapConfig.width} height={mapConfig.height} fill="#0d0d0d" className="map-ocean" />
 
-        {/* Surrounding Context Landmasses (Subtle neutral dark land #181818) */}
-        <g className="context-land" fill="#181818" stroke="#262626" strokeWidth="0.4">
+        {/* Surrounding Context Landmasses (Subtle neutral dark land #171717) */}
+        <g className="context-land" fill="#171717" stroke="#2b2b2b" strokeWidth="0.4">
           {contextLandPaths.map((pathD, idx) => (
             <path key={`ctx-${idx}`} d={pathD} className="context-land" />
           ))}
         </g>
 
-        {/* Country Polygons (Neutral charcoal #222222 with clean #383838 borders) */}
+        {/* Country Polygons (Neutral charcoal #242424 with high-contrast #454545 borders) */}
         <g id="country-polygons">
           {countries.map((country) => {
             const isPlaced = placedCountries.has(country.id);
@@ -339,14 +339,14 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             const isDragOver = dragOverCountryId === country.id;
             const isHighlighted = highlightedCountryId === country.id;
 
-            let fill = '#222222';
-            let stroke = '#383838';
+            let fill = '#242424';
+            let stroke = '#454545';
             let strokeWidth = 0.5;
 
             if (isPlaced) {
               fill = `url(#flag-pat-${country.id})`;
-              stroke = '#38bdf8';
-              strokeWidth = 0.6;
+              stroke = '#22c55e';
+              strokeWidth = 0.7;
             } else if (isDragOver || isHighlighted) {
               fill = '#4a4a4a';
             } else if (isHovered) {
@@ -377,7 +377,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           })}
         </g>
 
-        {/* Microstates: When unplaced, shows subtle ring & dot. When placed, renders a small flag rectangle with single accent border */}
+        {/* Microstates: When unplaced, shows subtle ring & dot. When placed, renders a small flag rectangle with green border */}
         <g id="microstate-markers">
           {microstateCountries.map((country) => {
             const isPlaced = placedCountries.has(country.id);
@@ -386,7 +386,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             const isHighlighted = highlightedCountryId === country.id;
             const [cx, cy] = country.centroid;
 
-            // When placed, always display crisp non-repeating flag rectangle
+            // When placed, always display crisp non-repeating flag rectangle with emerald border
             if (isPlaced) {
               const rectW = 15;
               const rectH = 11;
@@ -415,7 +415,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     height={rectH}
                     rx={1}
                     fill="none"
-                    stroke="#38bdf8"
+                    stroke="#22c55e"
                     strokeWidth={0.9}
                     className="pointer-events-none"
                   />
@@ -444,8 +444,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   cx={cx}
                   cy={cy}
                   r={6.5}
-                  fill={isDragOver || isHighlighted ? '#4a4a4a' : isHovered ? '#383838' : 'rgba(34, 34, 34, 0.8)'}
-                  stroke="#555555"
+                  fill={isDragOver || isHighlighted ? '#4a4a4a' : isHovered ? '#383838' : 'rgba(36, 36, 36, 0.85)'}
+                  stroke="#666666"
                   strokeWidth={0.8}
                   className="transition-all duration-150"
                 />
@@ -455,7 +455,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   cx={cx}
                   cy={cy}
                   r={1.8}
-                  fill="#f1f1f1"
+                  fill="#ffffff"
                   className="pointer-events-none"
                 />
               </g>

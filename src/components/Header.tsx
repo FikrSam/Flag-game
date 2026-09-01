@@ -37,20 +37,20 @@ export const Header: React.FC<HeaderProps> = ({
   const percent = Math.round((placedCount / totalCount) * 100) || 0;
 
   return (
-    <header className="w-full bg-[#141414] border-b border-[#242424] px-2.5 sm:px-4 py-1.5 flex flex-col gap-1 shrink-0 select-none">
+    <header className="w-full bg-[#181818] border-b border-[#333333] px-2.5 sm:px-4 py-1.5 flex flex-col gap-1 shrink-0 select-none">
       <div className="flex items-center justify-between gap-2 sm:gap-4">
         {/* Left: Navigation & Title */}
         <div className="flex items-center gap-1.5 sm:gap-3">
           <button
             onClick={onBackToContinents}
             title="Back to continent selection"
-            className="flex items-center gap-1 text-xs text-[#888888] hover:text-[#f1f1f1] transition-colors py-1 px-1.5 rounded-md hover:bg-[#222222]"
+            className="flex items-center gap-1 text-xs text-[#9ca3af] hover:text-[#f8fafc] transition-colors py-1 px-1.5 rounded-md hover:bg-[#282828]"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Continents</span>
           </button>
-          <span className="text-[#333333] hidden sm:inline">|</span>
-          <h1 className="text-xs sm:text-sm font-bold text-[#f1f1f1] tracking-wide truncate">
+          <span className="text-[#404040] hidden sm:inline">|</span>
+          <h1 className="text-xs sm:text-sm font-bold text-[#f8fafc] tracking-wide truncate">
             {continentName}
           </h1>
         </div>
@@ -58,20 +58,20 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Right: Stats & Controls */}
         <div className="flex items-center gap-4 text-xs">
           {/* Progress */}
-          <div className="text-[#cccccc] font-medium">
-            <span className="text-[#f1f1f1] font-bold">{placedCount}</span>
-            <span className="text-[#666666]"> / </span>
+          <div className="text-[#d1d5db] font-medium">
+            <span className="text-[#f8fafc] font-bold">{placedCount}</span>
+            <span className="text-[#6b7280]"> / </span>
             <span>{totalCount}</span>
           </div>
 
           {/* Time */}
-          <div className="hidden sm:flex items-center gap-1 text-[#888888] font-mono">
+          <div className="hidden sm:flex items-center gap-1 text-[#9ca3af] font-mono">
             <span>TIME</span>
-            <span className="text-[#f1f1f1] font-bold">{formatTime(timeElapsed)}</span>
+            <span className="text-[#f8fafc] font-bold">{formatTime(timeElapsed)}</span>
           </div>
 
           {/* Score */}
-          <div className="flex items-center gap-1 text-[#888888]">
+          <div className="flex items-center gap-1 text-[#9ca3af]">
             <span>SCORE</span>
             <span className="text-[#38bdf8] font-bold font-mono">{score.toLocaleString()}</span>
           </div>
@@ -81,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={handleToggleSound}
             title={isMuted ? "Unmute sound" : "Mute sound"}
             aria-label={isMuted ? "Unmute sound" : "Mute sound"}
-            className="p-1 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#222222] rounded-md transition-colors"
+            className="p-1 text-[#9ca3af] hover:text-[#f8fafc] hover:bg-[#282828] rounded-md transition-colors"
           >
             {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5" />}
           </button>
@@ -90,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onRestart}
             title="Restart game"
-            className="p-1 text-[#888888] hover:text-[#f1f1f1] hover:bg-[#222222] rounded-md transition-colors"
+            className="p-1 text-[#9ca3af] hover:text-[#f8fafc] hover:bg-[#282828] rounded-md transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-[#242424] h-1 rounded-sm overflow-hidden">
+      <div className="w-full bg-[#2a2a2a] h-1 rounded-sm overflow-hidden">
         <div
           className="h-full bg-sky-500 transition-all duration-300 ease-out"
           style={{ width: `${percent}%` }}
