@@ -38,7 +38,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
   const selectedCountry = unplacedCountries.find(c => c.id === selectedFlagId) || unplacedCountries[0];
   const isCurrentFlagNamed = selectedCountry ? namedCountryIds.has(selectedCountry.id) : false;
 
-  // Auto-scroll selected flag card into horizontal view
+  // Auto-scroll selected flag card into view
   useEffect(() => {
     if (selectedFlagId && scrollContainerRef.current) {
       const activeCard = scrollContainerRef.current.querySelector(`[data-country-id="${selectedFlagId}"]`);
@@ -67,7 +67,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
     onSelectFlag(countryId);
   };
 
-  // Mobile Touch Handlers: Native horizontal carousel scrolling, upward drag-to-map
+  // Mobile Touch Handlers
   const handleTouchStart = (e: React.TouchEvent, countryId: string) => {
     const touch = e.touches[0];
     touchStartRef.current = {
@@ -153,8 +153,8 @@ export const FlagDock: React.FC<FlagDockProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-[#0f182a] rounded-lg md:rounded-xl border border-slate-800/80 shadow-md overflow-hidden select-none">
-      {/* Top Header: Title, remaining count, and selection feedback */}
-      <div className="px-3 py-1.5 md:p-3 border-b border-slate-800/80 bg-[#131f36] flex items-center justify-between shrink-0">
+      {/* Top Header: Title, remaining count, and selection feedback (Order 1 on all screens) */}
+      <div className="px-3 py-1.5 md:p-3 border-b border-slate-800/80 bg-[#131f36] flex items-center justify-between shrink-0 order-1">
         <div className="flex items-center gap-2">
           <h2 className="font-bold text-xs sm:text-sm text-slate-200">
             Flags
@@ -177,10 +177,41 @@ export const FlagDock: React.FC<FlagDockProps> = ({
         )}
       </div>
 
-      {/* Flag Carousel: Smooth horizontal scrolling on mobile, 2-column grid on desktop */}
+      {/* Global Shared Action Controls: Top on desktop (order-2), Bottom on mobile (order-3) */}
+      <div className="p-2 sm:p-2.5 border-t md:border-t-0 md:border-b border-slate-800/90 bg-[#10182b] flex items-center gap-2 shrink-0 order-3 md:order-2">
+        <button
+          onClick={handleTriggerNameIt}
+          disabled={!selectedCountry}
+          title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name"}
+          className={`flex-1 h-10 px-3 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
+            isCurrentFlagNamed
+              ? 'bg-emerald-950/80 border border-emerald-600/70 text-emerald-300'
+              : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-750 text-slate-100 border border-slate-700 hover:border-slate-600'
+          }`}
+        >
+          <HelpCircle className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+          <span className="truncate">
+            {isCurrentFlagNamed
+              ? `${selectedCountry?.name}`
+              : 'Name It'}
+          </span>
+        </button>
+
+        <button
+          onClick={handleTriggerShowMe}
+          disabled={!selectedCountry}
+          title="Place this flag on the map (0 points)"
+          className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-amber-500/20 hover:bg-amber-500/30 active:bg-amber-500/35 text-amber-300 border border-amber-500/50 hover:border-amber-500/70 transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Eye className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span>Show Me</span>
+        </button>
+      </div>
+
+      {/* Flag List / Carousel: Middle on mobile (order-2), Bottom on desktop (order-3) */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 p-2 md:p-3 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto overscroll-contain"
+        className="flex-1 p-2 md:p-3 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto overscroll-contain order-2 md:order-3"
         style={{
           touchAction: 'pan-x',
           WebkitOverflowScrolling: 'touch'
@@ -244,37 +275,6 @@ export const FlagDock: React.FC<FlagDockProps> = ({
             );
           })}
         </div>
-      </div>
-
-      {/* Global Shared Action Controls: Single pair of buttons operating on the selected flag */}
-      <div className="p-2 sm:p-2.5 border-t border-slate-800/90 bg-[#10182b] flex items-center gap-2 shrink-0">
-        <button
-          onClick={handleTriggerNameIt}
-          disabled={!selectedCountry}
-          title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name"}
-          className={`flex-1 h-10 px-3 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
-            isCurrentFlagNamed
-              ? 'bg-emerald-950/80 border border-emerald-600/70 text-emerald-300'
-              : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-750 text-slate-100 border border-slate-700 hover:border-slate-600'
-          }`}
-        >
-          <HelpCircle className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-          <span className="truncate">
-            {isCurrentFlagNamed
-              ? `${selectedCountry?.name}`
-              : 'Name It'}
-          </span>
-        </button>
-
-        <button
-          onClick={handleTriggerShowMe}
-          disabled={!selectedCountry}
-          title="Place this flag on the map (0 points)"
-          className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-amber-500/20 hover:bg-amber-500/30 active:bg-amber-500/35 text-amber-300 border border-amber-500/50 hover:border-amber-500/70 transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <Eye className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <span>Show Me</span>
-        </button>
       </div>
 
       {/* Floating Ghost Drag Preview on Touch Devices */}

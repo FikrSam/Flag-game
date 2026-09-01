@@ -123,6 +123,8 @@ const patY = Math.round(cy - patH / 2);
 2. **Shared Global Action Controls**:
    - Eliminated redundant, clipped individual buttons inside every flag card.
    - Single pair of ergonomic action buttons (`[ ❓ Name It ]` `[ 👁️ Show Me ]`) dynamically bound to the selected flag.
+   - **Desktop**: Positioned at the top of the sidebar (`md:order-2`) directly below the header and above the flag grid for immediate access without long mouse travel.
+   - **Mobile**: Positioned in the bottom dock (`order-3`) for natural thumb ergonomics.
    - Reveals the active country name upon click and updates automatically as players swipe between flags.
 3. **Touch Carousel Swiping & Gesture Disambiguation**:
    - Carousel container uses `touch-action: pan-x` with `-webkit-overflow-scrolling: touch` and `overscroll-contain`.
