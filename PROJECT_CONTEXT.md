@@ -138,14 +138,34 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 6. Sound Engine (`src/utils/sound.ts`)
+## 6. Sound Engine & Touch Event Reliability (`src/utils/sound.ts`, `src/App.tsx`)
 
-Synthesized offline sound effects using Web Audio API:
-- `playSelect()`: High-frequency soft sine click.
-- `playCorrect(streak)`: Major chord arpeggio (adjusts root based on streak).
-- `playIncorrect()`: Gentle lowpass-filtered descending sawtooth buzz.
-- `playReveal()`: Ascending pentatonic chime.
-- `playVictory()`: Triumphant fanfare melody with canvas confetti.
+1. **Web Audio API Auto-Unlock**:
+   - Registered listeners for `['click', 'touchstart', 'touchend', 'pointerdown', 'keydown']` to automatically instantiate and resume `AudioContext` on user interaction.
+   - Every sound playback method calls `this.unlock()`, handling `AudioContext.resume()` safely and preventing dropped audio on mobile browsers.
+2. **Synthetic Event & Double-Tap Debouncing**:
+   - `handleCountryMatch` tracks timestamp and country ID with `lastMatchRef`.
+   - Rapid double invocations (<250ms) from mobile touch + synthetic mouse clicks are safely debounced, preventing double tap sounds and erroneous mismatch sounds.
+3. **Sound Library**:
+   - `playSelect()`: High-frequency soft sine click.
+   - `playCorrect(streak)`: Major chord arpeggio (adjusts root based on streak).
+   - `playIncorrect()`: Gentle lowpass-filtered descending sawtooth buzz.
+   - `playReveal()`: Ascending pentatonic chime.
+   - `playVictory()`: Triumphant fanfare melody with canvas confetti.
+
+---
+
+## 7. Home Screen & Continent Selection Design
+
+- **Typography & Hero**:
+  - Header with `A GEOGRAPHY DRILL` tracking-widest tag and bold `Flaggle` title.
+  - Dynamically computed flag count subtitle (`110 flags are in play today`).
+- **Continent Cards**:
+  - Crisp SVG continent silhouette preview with custom theme accents (Africa amber, Europe sky cyan, South America emerald, locked muted slate).
+  - Pill badges (`54 flags`, `44 flags`, `12 flags`, `COMING SOON`).
+  - Geography taglines (e.g. *"From the Atlas to the Cape"*, *"Reykjavík to the Urals"*, *"The Andes and the Amazon"*).
+- **Feature & Guidance Grid**:
+  - 3 guidance tiles at the bottom explaining double tap/drag, microstate target dots, and "Name It" / "Show Me" mechanics.
 
 ---
 

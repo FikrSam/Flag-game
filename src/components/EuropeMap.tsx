@@ -201,7 +201,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   };
 
   // Click handler (only triggered if not dragging/panning)
-  const handleCountryClick = (countryId: string) => {
+  const handleCountryClick = (e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent, countryId: string) => {
+    e.stopPropagation();
     if (!isDragging && selectedFlagId) {
       onCountryMatch(countryId);
     }
@@ -211,7 +212,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent, countryId: string) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      handleCountryClick(countryId);
+      handleCountryClick(e, countryId);
     }
   };
 
@@ -372,7 +373,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 className="cursor-pointer focus:outline-none transition-colors duration-100"
                 onMouseEnter={() => setHoveredCountryId(country.id)}
                 onMouseLeave={() => setHoveredCountryId(null)}
-                onClick={() => handleCountryClick(country.id)}
+                onClick={(e) => handleCountryClick(e, country.id)}
                 onKeyDown={(e) => handleKeyDown(e, country.id)}
                 onDragOver={(e) => handleDragOver(e, country.id)}
                 onDragLeave={(e) => handleDragLeave(e, country.id)}
@@ -422,7 +423,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 <g
                   key={`micro-flag-${country.id}`}
                   className="cursor-pointer group"
-                  onClick={() => handleCountryClick(country.id)}
+                  onClick={(e) => handleCountryClick(e, country.id)}
                   tabIndex={0}
                   role="button"
                   aria-label={`${country.name}, placed flag`}
@@ -459,7 +460,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 tabIndex={0}
                 role="button"
                 aria-label="Small country target ring"
-                onClick={() => handleCountryClick(country.id)}
+                onClick={(e) => handleCountryClick(e, country.id)}
                 onKeyDown={(e) => handleKeyDown(e, country.id)}
                 onDragOver={(e) => handleDragOver(e, country.id)}
                 onDragLeave={(e) => handleDragLeave(e, country.id)}

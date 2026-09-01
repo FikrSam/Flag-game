@@ -119,10 +119,20 @@ export function App() {
     setNamedCountryIds(prev => new Set(prev).add(countryId));
   }, []);
 
+  // Track last match event timestamp and country to prevent mobile double-tap synthetic clicks
+  const lastMatchRef = useRef<{ time: number; countryId: string }>({ time: 0, countryId: '' });
+
   // Match interaction (drag drop or tap twice)
   const handleCountryMatch = useCallback((targetCountryId: string) => {
     if (!selectedFlagId) return;
     if (placedCountries.has(targetCountryId)) return;
+
+    // Debounce duplicate synthetic clicks / rapid double triggers within 250ms
+    const now = performance.now();
+    if (now - lastMatchRef.current.time < 250 && lastMatchRef.current.countryId === targetCountryId) {
+      return;
+    }
+    lastMatchRef.current = { time: now, countryId: targetCountryId };
 
     const isMatch = selectedFlagId === targetCountryId;
 

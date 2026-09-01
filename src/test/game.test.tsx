@@ -81,14 +81,14 @@ describe('Flaggle Basic Geography Game', () => {
 
       expect(screen.getByText(/Flaggle/i)).toBeInTheDocument();
       expect(screen.getByText(/Pick a continent/i)).toBeInTheDocument();
-      expect(screen.getByText(/Play Europe/i)).toBeInTheDocument();
-      expect(screen.getByText(/Play Africa/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Play Europe/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Play Africa/i })).toBeInTheDocument();
     });
 
     it('starts European game on selecting Europe', () => {
       render(<App />);
 
-      const playEuropeBtn = screen.getByText(/Play Europe/i);
+      const playEuropeBtn = screen.getByRole('button', { name: /Play Europe/i });
       fireEvent.click(playEuropeBtn);
 
       expect(screen.getByText(/Europe/i)).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('Flaggle Basic Geography Game', () => {
     it('starts African game on selecting Africa', () => {
       render(<App />);
 
-      const playAfricaBtn = screen.getByText(/Play Africa/i);
+      const playAfricaBtn = screen.getByRole('button', { name: /Play Africa/i });
       fireEvent.click(playAfricaBtn);
 
       expect(screen.getByText(/Africa/i)).toBeInTheDocument();
@@ -109,7 +109,7 @@ describe('Flaggle Basic Geography Game', () => {
     it('starts South American game on selecting South America', () => {
       render(<App />);
 
-      const playSABtn = screen.getByText(/Play South America/i);
+      const playSABtn = screen.getByRole('button', { name: /Play South America/i });
       fireEvent.click(playSABtn);
 
       expect(screen.getByText(/South America/i)).toBeInTheDocument();
@@ -122,7 +122,7 @@ describe('Flaggle Basic Geography Game', () => {
       const { container } = render(<App />);
 
       // Go to game
-      fireEvent.click(screen.getByText(/Play Europe/i));
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
 
       // Get first card element
       const firstCard = container.querySelector('[data-country-id]');
@@ -144,7 +144,7 @@ describe('Flaggle Basic Geography Game', () => {
 
     it('reveals country name when clicking shared "Name it" button', () => {
       const { container } = render(<App />);
-      fireEvent.click(screen.getByText(/Play Europe/i));
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
 
       // Get first card and its country ID
       const firstCard = container.querySelector('[data-country-id]');
@@ -163,7 +163,7 @@ describe('Flaggle Basic Geography Game', () => {
 
     it('places selected flag automatically when clicking shared "Show me" button', () => {
       const { container } = render(<App />);
-      fireEvent.click(screen.getByText(/Play Europe/i));
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
 
       // Get first card and its country ID
       const firstCard = container.querySelector('[data-country-id]');
@@ -182,7 +182,7 @@ describe('Flaggle Basic Geography Game', () => {
 
     it('plays wrong sound and displays "This is <Country>" banner when clicking incorrect country', () => {
       const { container } = render(<App />);
-      fireEvent.click(screen.getByText(/Play Europe/i));
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
 
       // Get first unplaced flag card
       const firstCard = container.querySelector('[data-country-id]');
@@ -203,7 +203,7 @@ describe('Flaggle Basic Geography Game', () => {
 
     it('places flag correctly on mobile touch interaction', () => {
       const { container } = render(<App />);
-      fireEvent.click(screen.getByText(/Play Europe/i));
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
 
       // Get first card
       const firstCard = container.querySelector('[data-country-id]');
@@ -221,6 +221,38 @@ describe('Flaggle Basic Geography Game', () => {
 
       // Placed score updated to 100
       expect(screen.getByText('100')).toBeInTheDocument();
+    });
+
+    it('debounces rapid synthetic double clicks to avoid playing double sounds', () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+
+      const firstCard = container.querySelector('[data-country-id]');
+      const countryId = firstCard?.getAttribute('data-country-id');
+      const targetCountry = container.querySelector(`#country-${countryId}`);
+
+      // Rapid successive clicks (e.g. touch + synthetic click)
+      fireEvent.click(firstCard!);
+      fireEvent.click(targetCountry!);
+      fireEvent.click(targetCountry!);
+
+      // Score should still only be 100, not double scored or errored
+      expect(screen.getByText('100')).toBeInTheDocument();
+    });
+  });
+
+  describe('4. Home Screen Reference Design & Features', () => {
+    it('renders all 3 informational cards and continent silhouettes on home screen', () => {
+      render(<App />);
+
+      expect(screen.getByText(/Drag, or tap twice/i)).toBeInTheDocument();
+      expect(screen.getByText(/Little countries get a dot/i)).toBeInTheDocument();
+      expect(screen.getByText(/Stuck on one\?/i)).toBeInTheDocument();
+
+      // Check taglines
+      expect(screen.getByText(/From the Atlas to the Cape/i)).toBeInTheDocument();
+      expect(screen.getByText(/Reykjavík to the Urals/i)).toBeInTheDocument();
+      expect(screen.getByText(/The Andes and the Amazon/i)).toBeInTheDocument();
     });
   });
 });
