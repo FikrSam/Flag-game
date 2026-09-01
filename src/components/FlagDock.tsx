@@ -167,7 +167,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                 <IconCheck size={13} strokeWidth={2.5} className="shrink-0" /> {selectedCountry.name}
               </span>
             ) : (
-              <span className="text-[#818cf8]">Tap country on map</span>
+              <span className="text-[#f1f1f1]">Tap country on map</span>
             )}
           </div>
         )}
@@ -188,7 +188,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           {isCurrentFlagNamed ? (
             <IconCheck size={15} strokeWidth={2.5} className="text-emerald-400 shrink-0" />
           ) : (
-            <IconHelp size={15} strokeWidth={2} className="text-[#818cf8] shrink-0" />
+            <IconHelp size={15} strokeWidth={2} className="text-[#f1f1f1] shrink-0" />
           )}
           <span className="truncate">
             {isCurrentFlagNamed
@@ -246,7 +246,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                 }}
                 className={`relative group aspect-[4/3] w-20 min-w-[80px] sm:w-24 sm:min-w-[96px] md:w-auto shrink-0 md:shrink rounded-lg border transition-all cursor-pointer overflow-hidden shadow-sm focus:outline-none flex items-center justify-center bg-[#141414] ${
                   isSelected
-                    ? 'border-[#6366f1] ring-2 ring-[#6366f1]/80 shadow-md shadow-black/70 scale-[1.03] z-10'
+                    ? 'border-[#f1f1f1] ring-2 ring-white/90 shadow-md shadow-black/80 scale-[1.03] z-10'
                     : 'border-[#333333] hover:border-[#4b5563] opacity-85 hover:opacity-100'
                 }`}
               >
@@ -258,7 +258,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                 />
 
                 {isSelected && (
-                  <div className="absolute top-1 right-1 bg-indigo-600 text-white rounded-full p-0.5 shadow-md z-10">
+                  <div className="absolute top-1 right-1 bg-[#f1f1f1] text-[#101010] rounded-full p-0.5 shadow-md z-10">
                     <IconCheck size={11} strokeWidth={3} />
                   </div>
                 )}
@@ -280,7 +280,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
       {/* Floating Ghost Drag Preview on Touch Devices */}
       {touchDrag?.isDragging && draggingCountry && (
         <div
-          className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 shadow-2xl rounded-lg border-2 border-[#6366f1] bg-[#1a1a1a]/95 p-1 flex items-center gap-2 backdrop-blur-md"
+          className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 shadow-2xl rounded-lg border-2 border-[#f1f1f1] bg-[#1a1a1a]/95 p-1 flex items-center gap-2 backdrop-blur-md"
           style={{
             left: `${touchDrag.currentX}px`,
             top: `${touchDrag.currentY - 40}px`

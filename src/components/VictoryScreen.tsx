@@ -42,7 +42,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
       particleCount: 60,
       spread: 70,
       origin: { y: 0.6, x: 0.5 },
-      colors: ['#6366f1', '#818cf8', '#22c55e', '#fbbf24', '#f43f5e']
+      colors: ['#ffffff', '#f1f1f1', '#e5e5e5', '#fbbf24', '#22c55e']
     });
 
     const timeout = setTimeout(() => {
@@ -51,14 +51,14 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
         angle: 60,
         spread: 55,
         origin: { x: 0 },
-        colors: ['#6366f1', '#fbbf24', '#22c55e']
+        colors: ['#ffffff', '#f1f1f1', '#fbbf24', '#22c55e']
       });
       confetti({
         particleCount: 35,
         angle: 120,
         spread: 55,
         origin: { x: 1 },
-        colors: ['#6366f1', '#fbbf24', '#22c55e']
+        colors: ['#ffffff', '#f1f1f1', '#fbbf24', '#22c55e']
       });
     }, 250);
 
@@ -78,14 +78,14 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
       <div className="relative bg-[#141414] border border-[#2e2e2e] rounded-lg p-6 sm:p-7 max-w-sm w-full shadow-2xl text-center flex flex-col items-center overflow-hidden">
         
         {/* Subtle Decorative Ambient Glow */}
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-48 h-28 bg-indigo-500/20 blur-3xl rounded-full pointer-events-none" />
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-48 h-28 bg-white/10 blur-3xl rounded-full pointer-events-none" />
 
         {/* Playful Floating Trophy Header */}
         <div className="relative mb-3 flex items-center justify-center">
           <div className="w-14 h-14 rounded-full bg-gradient-to-b from-[#242424] to-[#161616] border border-[#3a3a3a] shadow-lg flex items-center justify-center">
             <IconTrophy size={28} strokeWidth={1.75} className="text-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.3)]" />
           </div>
-          <div className="absolute -bottom-1 -right-1 bg-indigo-600 rounded-full p-1 border border-[#141414] shadow-sm">
+          <div className="absolute -bottom-1 -right-1 bg-[#f1f1f1] rounded-full p-1 border border-[#141414] shadow-sm">
             <Logo size={14} />
           </div>
         </div>
@@ -97,8 +97,8 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
             <span>Flawless Master</span>
           </div>
         ) : (
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-indigo-950/90 text-indigo-300 text-[11px] font-bold mb-2 border border-indigo-500/60 shadow-sm">
-            <IconStar size={12} className="text-indigo-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#222222] text-[#f1f1f1] text-[11px] font-bold mb-2 border border-[#383838] shadow-sm">
+            <IconStar size={12} className="text-amber-400" />
             <span>Continent Mastered</span>
           </div>
         )}
@@ -112,12 +112,12 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
         </p>
 
         {/* Hero Score Highlight Box */}
-        <div className="w-full my-3.5 p-3 rounded-lg bg-gradient-to-r from-[#1a1a1a] via-[#1f1f26] to-[#1a1a1a] border border-[#333333] flex items-center justify-between shadow-inner">
+        <div className="w-full my-3.5 p-3 rounded-lg bg-gradient-to-r from-[#1a1a1a] via-[#222222] to-[#1a1a1a] border border-[#333333] flex items-center justify-between shadow-inner">
           <div className="flex items-center gap-1.5 text-[11px] text-[#a1a1aa] font-bold uppercase tracking-wider">
             <IconStar size={14} className="text-amber-400" />
             <span>Final Score</span>
           </div>
-          <div className="text-xl font-black text-[#818cf8] font-mono tracking-tight flex items-baseline gap-1">
+          <div className="text-xl font-black text-[#f1f1f1] font-mono tracking-tight flex items-baseline gap-1">
             <span>{score.toLocaleString()}</span>
             <span className="text-[10px] font-sans font-semibold text-[#a1a1aa]">PTS</span>
           </div>
@@ -141,7 +141,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
           <div className="bg-[#171717] p-2.5 rounded-lg border border-[#2b2b2b] flex flex-col justify-between">
             <div className="flex items-center justify-between text-[#9ca3af] text-[10px] font-bold uppercase tracking-wider">
               <span>Total Time</span>
-              <IconClock size={13} className="text-[#818cf8] shrink-0" />
+              <IconClock size={13} className="text-[#f1f1f1] shrink-0" />
             </div>
             <div className="text-sm font-bold text-white font-mono mt-1">
               {formatTime(timeElapsed)}
@@ -175,7 +175,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
         <div className="flex flex-col gap-2 w-full">
           <button
             onClick={onPlayAgain}
-            className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white font-bold text-xs rounded-lg shadow-md shadow-indigo-950/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full py-2.5 px-4 bg-[#f1f1f1] hover:bg-white active:scale-[0.98] text-[#101010] font-bold text-xs rounded-lg shadow-md shadow-white/5 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <IconRotateClockwise size={15} strokeWidth={2.5} />
             <span>Play Again</span>

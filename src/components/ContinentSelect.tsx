@@ -88,7 +88,7 @@ export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContin
                         e.stopPropagation();
                         handleSelect(continent.id);
                       }}
-                      className="w-full py-2 px-3 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center justify-center active:scale-[0.99]"
+                      className="w-full py-2 px-3 rounded-lg text-xs font-bold bg-[#f1f1f1] hover:bg-white text-[#101010] shadow-sm transition-all flex items-center justify-center active:scale-[0.99]"
                     >
                       Play {continent.name}
                     </button>

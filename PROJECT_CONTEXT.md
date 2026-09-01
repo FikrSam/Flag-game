@@ -91,26 +91,28 @@ const patY = Math.round(cy - patH / 2);
 
 ## 4. Visual System & High-Contrast Palette (Correct/Incorrect Feedback & Max 8px Radius)
 
-- **Philosophy**: High-contrast dark grayscale foundation (`#0d0d0d` to `#ffffff`) with dedicated semantic colors for gameplay validation: **Emerald Green (`#22c55e`)** for correct placement, **Vivid Rose (`#f43f5e`)** for incorrect placement/notifications, **Warm Gold/Amber (`#fbbf24`)** for streaks & assistance, and **Electric Indigo (`#6366f1` / `#818cf8`)** as the primary playful accent for interactive selection, play buttons, and progress telemetry.
+- **Philosophy**: High-contrast dark grayscale foundation (`#0d0d0d` to `#ffffff`) with dedicated semantic colors for gameplay validation: **Emerald Green (`#22c55e`)** for correct placement, **Vivid Rose (`#f43f5e`)** for incorrect placement/notifications, **Warm Gold/Amber (`#fbbf24`)** for streaks & assistance, and **Crisp White (`#f1f1f1` / `#ffffff`)** as the primary sleek accent for interactive selection, bold play buttons (`bg-[#f1f1f1] text-[#101010]`), and progress telemetry.
 - **Border Radius Rule**: Strict maximum border-radius of **8px (`rounded-lg`)** site-wide (no `rounded-xl`, `rounded-2xl`, etc.).
 - **Grayscale Architecture (High Contrast)**:
   - Dark Base / Canvas: `#0d0d0d`
   - Cards, Shell & Dock: `#181818` with crisp `#333333` borders
-  - Interactive Surfaces & Buttons: `#242424` (hover `#2c2c2c`, border `#383838`)
+  - Primary Accent Surfaces & Buttons: `#f1f1f1` (hover `#ffffff`, text `#101010`)
+  - Secondary Interactive Surfaces & Buttons: `#242424` (hover `#2c2c2c`, border `#383838`)
   - Surrounding Context Land: `#171717` (stroke `#2b2b2b`)
   - Unplaced Countries: Fill `#242424`, Border `#454545` (0.5px) — high contrast against ocean
   - Hover State: Fill `#383838`, Border `#454545` (clean area-only highlight with zero border clipping artifacts)
   - Drag-Over & Assist State: Fill `#4a4a4a`, Border `#454545`
+  - Selected Country Ring: Border `#f1f1f1` with `ring-2 ring-white/90`
   - Muted Text / Labels: `#9ca3af` / `#a1a1aa`
   - Secondary Text: `#d1d5db` / `#e5e7eb`
-  - Lightest Headings & Active Text: `#ffffff` / `#f8fafc`
+  - Lightest Headings & Active Text: `#ffffff` / `#f8fafc` / `#f1f1f1`
 - **Scoring & Geography Learning Rules**:
   - **Unassisted Correct Placement**: **100 points** awarded per country.
   - **"Name It" Hint Used**: **70 points** awarded (30% point deduction to discourage hint overuse and reinforce memory).
   - **"Show Me" Auto-Placement**: **0 points** awarded (resets active streak to 0).
   - **Consecutive Streaks**: Tracks `currentStreak` and `maxStreak`. Consecutive correct answers without mistakes or "Show Me" increment the streak. Any wrong drop or "Show Me" resets `currentStreak` to 0.
   - **Live Streak Badge**: Rendered in the top sticky Header (`Header.tsx`) with Tabler `IconFlame` when streak > 1.
-  - **Playful Victory Screen Breakdown**: Dual confetti burst, floating trophy header, flawless master/victory status pill, hero score highlight banner with gold stars, 2x2 playful stat mini-cards (Streak, Time, Show Me, Name Hints), and bouncy primary/secondary action buttons.
+  - **Playful Victory Screen Breakdown**: Dual confetti burst, floating trophy header, flawless master/victory status pill, hero score highlight banner with gold stars, 2x2 playful stat mini-cards (Streak, Time, Show Me, Name Hints), and high-contrast primary action button (`bg-[#f1f1f1] text-[#101010]`).
 
 ---
 

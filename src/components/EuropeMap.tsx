@@ -470,8 +470,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           const [cx, cy] = target.centroid;
           return (
             <g transform={`translate(${cx}, ${cy})`} className="pointer-events-none animate-pulse">
-              <circle cx={0} cy={0} r={14} fill="none" stroke="#818cf8" strokeWidth={1.5} />
-              <circle cx={0} cy={0} r={4} fill="#6366f1" />
+              <circle cx={0} cy={0} r={14} fill="none" stroke="#f1f1f1" strokeWidth={1.5} />
+              <circle cx={0} cy={0} r={4} fill="#ffffff" />
             </g>
           );
         })()}
