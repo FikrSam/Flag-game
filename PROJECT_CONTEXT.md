@@ -111,8 +111,7 @@ const patY = Math.round(cy - patH / 2);
   - **"Name It" Hint Used**: **70 points** awarded (30% point deduction to discourage hint overuse and reinforce memory).
   - **"Show Me" Auto-Placement**: **0 points** awarded (resets active streak to 0).
   - **Consecutive Streaks**: Tracks `currentStreak` and `maxStreak`. Consecutive correct answers without mistakes or "Show Me" increment the streak. Any wrong drop or "Show Me" resets `currentStreak` to 0.
-  - **Live Streak Badge**: Rendered in the top sticky Header (`Header.tsx`) with Tabler `IconFlame` when streak > 1.
-  - **Playful Victory Screen Breakdown**: Dual confetti burst, floating trophy header, flawless master/victory status pill, hero score highlight banner with gold stars, 2x2 playful stat mini-cards (Streak, Time, Show Me, Name Hints), and high-contrast primary action button (`bg-[#f1f1f1] text-[#101010]`).
+  - **Playful Victory Screen Breakdown**: Dual confetti burst, clean vector `<Logo />` header, hero score highlight banner with gold stars, 2x2 playful stat mini-cards (Streak, Time, Show Me, Name Hints), and high-contrast primary action button (`bg-[#f1f1f1] text-[#101010]`).
 
 ---
 

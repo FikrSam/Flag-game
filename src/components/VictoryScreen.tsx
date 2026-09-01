@@ -4,8 +4,6 @@ import {
   IconRotateClockwise, 
   IconArrowLeft, 
   IconFlame, 
-  IconTrophy, 
-  IconSparkles, 
   IconClock, 
   IconTarget, 
   IconHelp,
@@ -71,40 +69,15 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
     return `${m}m ${s}s`;
   };
 
-  const isFlawless = showMeCount === 0 && nameItCount === 0;
-
   return (
     <div className="fixed inset-0 z-50 bg-[#070707]/85 backdrop-blur-md flex items-center justify-center p-4 select-none animate-fade-in">
       <div className="relative bg-[#141414] border border-[#2e2e2e] rounded-lg p-6 sm:p-7 max-w-sm w-full shadow-2xl text-center flex flex-col items-center overflow-hidden">
         
-        {/* Subtle Decorative Ambient Glow */}
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-48 h-28 bg-white/10 blur-3xl rounded-full pointer-events-none" />
-
-        {/* Playful Floating Trophy Header */}
-        <div className="relative mb-3 flex items-center justify-center">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-b from-[#242424] to-[#161616] border border-[#3a3a3a] shadow-lg flex items-center justify-center">
-            <IconTrophy size={28} strokeWidth={1.75} className="text-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.3)]" />
-          </div>
-          <div className="absolute -bottom-1 -right-1 bg-[#f1f1f1] rounded-full p-1 border border-[#141414] shadow-sm">
-            <Logo size={14} />
-          </div>
-        </div>
-
-        {/* Playful Pill Badge */}
-        {isFlawless ? (
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-950/90 text-emerald-300 text-[11px] font-bold mb-2 border border-emerald-500/60 shadow-sm">
-            <IconSparkles size={12} className="text-emerald-400" />
-            <span>Flawless Master</span>
-          </div>
-        ) : (
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#222222] text-[#f1f1f1] text-[11px] font-bold mb-2 border border-[#383838] shadow-sm">
-            <IconStar size={12} className="text-amber-400" />
-            <span>Continent Mastered</span>
-          </div>
-        )}
+        {/* Logo Mark */}
+        <Logo size={36} className="mb-3" />
 
         {/* Header Title */}
-        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
           {continentName} Complete!
         </h2>
         <p className="text-xs text-[#9ca3af] mt-1">
