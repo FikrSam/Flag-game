@@ -194,7 +194,11 @@ const patY = Math.round(cy - patH / 2);
 
 ---
 
-## 9. Testing, Build & Deployment Protocol
+## 9. Testing, Build & Git Protocol (`main` & `dev`)
+
+- **Branch Structure**:
+  - `main`: Production release branch.
+  - `dev`: Active development and feature staging branch.
 
 Always ensure these verification steps pass before pushing:
 ```bash
@@ -207,6 +211,6 @@ npm run build
 # 3. Verify zero lint errors/warnings
 npm run lint
 
-# 4. Push to remote branches
-git push origin main && git push origin main:master
+# 4. Push to origin main and dev
+git push origin main && git push origin dev
 ```
