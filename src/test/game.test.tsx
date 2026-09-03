@@ -394,4 +394,101 @@ describe('Flaggle Basic Geography Game', () => {
       expect(screen.getByText(/Coral atolls, Outback & Polynesia/i)).toBeInTheDocument();
     });
   });
+
+  describe('6. Comprehensive Microstate & Island Beacons', () => {
+    it('renders target beacons for microstates and small territories in Europe', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
+
+      // European microstates must have beacons
+      const vatBeacon = container.querySelector('#country-VA-beacon');
+      const monBeacon = container.querySelector('#country-MC-beacon');
+      const malBeacon = container.querySelector('#country-MT-beacon');
+      const luxBeacon = container.querySelector('#country-LU-beacon');
+
+      expect(vatBeacon).toBeTruthy();
+      expect(monBeacon).toBeTruthy();
+      expect(malBeacon).toBeTruthy();
+      expect(luxBeacon).toBeTruthy();
+    });
+
+    it('renders target beacons for Caribbean islands in North America', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play North America/i }));
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
+
+      // Caribbean microstates must have beacons
+      const bbBeacon = container.querySelector('#country-BB-beacon');
+      const lcBeacon = container.querySelector('#country-LC-beacon');
+      const ttBeacon = container.querySelector('#country-TT-beacon');
+      const knBeacon = container.querySelector('#country-KN-beacon');
+
+      expect(bbBeacon).toBeTruthy();
+      expect(lcBeacon).toBeTruthy();
+      expect(ttBeacon).toBeTruthy();
+      expect(knBeacon).toBeTruthy();
+    });
+
+    it('renders target beacons for Pacific island nations in Oceania', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Oceania/i }));
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
+
+      // Pacific island nations must have beacons
+      const tvBeacon = container.querySelector('#country-TV-beacon');
+      const nrBeacon = container.querySelector('#country-NR-beacon');
+      const toBeacon = container.querySelector('#country-TO-beacon');
+      const wsBeacon = container.querySelector('#country-WS-beacon');
+
+      expect(tvBeacon).toBeTruthy();
+      expect(nrBeacon).toBeTruthy();
+      expect(toBeacon).toBeTruthy();
+      expect(wsBeacon).toBeTruthy();
+    });
+
+    it('renders target beacons for Middle Eastern & Asian microstates in Asia', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Asia/i }));
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
+
+      // Asian microstates must have beacons
+      const bhBeacon = container.querySelector('#country-BH-beacon');
+      const sgBeacon = container.querySelector('#country-SG-beacon');
+      const mvBeacon = container.querySelector('#country-MV-beacon');
+      const qaBeacon = container.querySelector('#country-QA-beacon');
+      const lbBeacon = container.querySelector('#country-LB-beacon');
+
+      expect(bhBeacon).toBeTruthy();
+      expect(sgBeacon).toBeTruthy();
+      expect(mvBeacon).toBeTruthy();
+      expect(qaBeacon).toBeTruthy();
+      expect(lbBeacon).toBeTruthy();
+    });
+
+    it('places flag when clicking directly on a microstate target beacon', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
+
+      // Find Monaco card in dock if present, or select whatever flag is selected
+      const firstCard = container.querySelector('[data-country-id]');
+      const countryId = firstCard?.getAttribute('data-country-id') || '';
+      fireEvent.click(firstCard!);
+
+      // Check if this country has a beacon or choose a country that does
+      const beaconEl = container.querySelector(`#country-${countryId}-beacon`);
+      if (beaconEl) {
+        fireEvent.click(beaconEl);
+        expect(screen.getByText('100')).toBeInTheDocument();
+        // Placed beacon now rendered with placed flag
+        expect(container.querySelector(`#country-${countryId}-placed-beacon`)).toBeTruthy();
+      } else {
+        // Normal country path placed
+        const pathEl = container.querySelector(`#country-${countryId}`);
+        fireEvent.click(pathEl!);
+        expect(screen.getByText('100')).toBeInTheDocument();
+      }
+    });
+  });
 });

@@ -2,9 +2,9 @@ import type { CountryData } from '../types/game';
 export type { CountryData };
 
 export const OCEANIA_MAP_CONFIG = {
-  viewBox: "0 0 1000 800",
-  width: 1000,
-  height: 800,
+  "viewBox": "0 0 1000 800",
+  "width": 1000,
+  "height": 800
 };
 
 export const OCEANIA_CONTEXT_LAND_PATHS: string[] = [
@@ -96,7 +96,7 @@ export const OCEANIA_COUNTRIES: CountryData[] = [
       "width": 55,
       "height": 74
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "SB",
@@ -117,7 +117,7 @@ export const OCEANIA_COUNTRIES: CountryData[] = [
       "width": 86,
       "height": 41
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "VU",
@@ -138,7 +138,7 @@ export const OCEANIA_COUNTRIES: CountryData[] = [
       "width": 26,
       "height": 52
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "WS",
@@ -159,7 +159,7 @@ export const OCEANIA_COUNTRIES: CountryData[] = [
       "width": 10,
       "height": 5
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "KI",
@@ -180,7 +180,7 @@ export const OCEANIA_COUNTRIES: CountryData[] = [
       "width": 297,
       "height": 119
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "TO",

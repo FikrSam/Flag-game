@@ -2,9 +2,9 @@ import type { CountryData } from '../types/game';
 export type { CountryData };
 
 export const NORTH_AMERICA_MAP_CONFIG = {
-  viewBox: "0 0 1000 800",
-  width: 1000,
-  height: 800,
+  "viewBox": "0 0 1000 800",
+  "width": 1000,
+  "height": 800
 };
 
 export const NORTH_AMERICA_CONTEXT_LAND_PATHS: string[] = [
@@ -118,7 +118,7 @@ export const NORTH_AMERICA_COUNTRIES: CountryData[] = [
       "width": 11,
       "height": 21
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "SV",
@@ -139,7 +139,7 @@ export const NORTH_AMERICA_COUNTRIES: CountryData[] = [
       "width": 19,
       "height": 9
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "HN",
@@ -286,7 +286,7 @@ export const NORTH_AMERICA_COUNTRIES: CountryData[] = [
       "width": 21,
       "height": 18
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "DO",
@@ -307,7 +307,7 @@ export const NORTH_AMERICA_COUNTRIES: CountryData[] = [
       "width": 28,
       "height": 19
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "JM",
@@ -328,7 +328,7 @@ export const NORTH_AMERICA_COUNTRIES: CountryData[] = [
       "width": 17,
       "height": 6
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "TT",
@@ -349,7 +349,7 @@ export const NORTH_AMERICA_COUNTRIES: CountryData[] = [
       "width": 7,
       "height": 13
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "BB",

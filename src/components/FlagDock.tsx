@@ -117,18 +117,18 @@ export const FlagDock: React.FC<FlagDockProps> = ({
       let matchedTargetId: string | null = null;
 
       for (const el of elements) {
-        if (el.id && el.id.startsWith('country-')) {
-          matchedTargetId = el.id.replace('country-', '');
+        const beaconId = el.getAttribute('data-beacon-country') || el.closest('[data-beacon-country]')?.getAttribute('data-beacon-country');
+        if (beaconId) {
+          matchedTargetId = beaconId;
           break;
         }
-        const dataId = el.getAttribute('data-country-id');
-        if (dataId) {
-          matchedTargetId = dataId;
+        if (el.id && el.id.startsWith('country-')) {
+          matchedTargetId = el.id.replace('country-', '').replace('-placed-beacon', '').replace('-beacon', '');
           break;
         }
         const closestCountry = el.closest('[id^="country-"]');
         if (closestCountry) {
-          matchedTargetId = closestCountry.id.replace('country-', '');
+          matchedTargetId = closestCountry.id.replace('country-', '').replace('-placed-beacon', '').replace('-beacon', '');
           break;
         }
       }

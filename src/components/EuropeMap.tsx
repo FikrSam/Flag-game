@@ -18,6 +18,28 @@ const MAX_ZOOM = 4.5;
 
 const DEFAULT_MAP_CONFIG = { viewBox: "0 0 1000 800", width: 1000, height: 800 };
 
+// Comprehensive microstate, small territory, and island nation detection
+const MICROSTATE_AND_ISLAND_COUNTRY_IDS = new Set([
+  // Europe
+  'VA', 'MC', 'SM', 'AD', 'LI', 'MT', 'LU', 'CY',
+  // Africa
+  'CV', 'ST', 'SC', 'MU', 'KM', 'SZ', 'LS', 'DJ', 'GM', 'RW', 'BI', 'GQ', 'SL', 'GW', 'TG',
+  // Asia
+  'BH', 'SG', 'MV', 'BN', 'QA', 'KW', 'LB', 'PS', 'IL', 'CY', 'TL', 'BT', 'AM', 'TW',
+  // North America (Caribbean & Central America)
+  'KN', 'AG', 'DM', 'LC', 'VC', 'GD', 'BB', 'TT', 'JM', 'HT', 'DO', 'BZ', 'SV',
+  // Oceania (All Pacific Island Nations)
+  'NR', 'TV', 'PW', 'MH', 'FM', 'TO', 'WS', 'KI', 'VU', 'FJ', 'SB'
+]);
+
+function isCountryBeacon(c: CountryData): boolean {
+  if (c.isMicrostate) return true;
+  if (MICROSTATE_AND_ISLAND_COUNTRY_IDS.has(c.id)) return true;
+  const maxDim = Math.max(c.bbox.width, c.bbox.height);
+  const area = c.bbox.width * c.bbox.height;
+  return maxDim < 26 || area < 400;
+}
+
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   countries,
   contextLandPaths = [],
@@ -218,7 +240,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   };
 
   // Microstate countries list (marked with rings & target dots for easy targeting)
-  const microstateCountries = countries.filter(c => c.isMicrostate || ['MT', 'CY', 'LU', 'CV', 'ST', 'SC', 'MU', 'KM', 'SZ', 'LS', 'DJ', 'GM', 'RW', 'BI', 'GQ', 'SL'].includes(c.id));
+  const microstateCountries = countries.filter(isCountryBeacon);
 
   return (
     <div
@@ -378,7 +400,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           })}
         </g>
 
-        {/* Microstates: When unplaced, shows subtle ring & dot. When placed, renders a small flag rectangle with green border */}
+        {/* Microstates & Island Nations: When unplaced, shows prominent ring & dot with generous hit area. When placed, renders a flag rectangle with green border */}
         <g id="microstate-markers">
           {microstateCountries.map((country) => {
             const isPlaced = placedCountries.has(country.id);
@@ -387,13 +409,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             const isHighlighted = highlightedCountryId === country.id;
             const [cx, cy] = country.centroid;
 
-            // When placed, always display crisp non-repeating flag rectangle with emerald border
+            // When placed, display crisp non-repeating flag rectangle with emerald border
             if (isPlaced) {
-              const rectW = 15;
+              const rectW = 16;
               const rectH = 11;
               return (
                 <g
                   key={`micro-flag-${country.id}`}
+                  id={`country-${country.id}-placed-beacon`}
+                  data-beacon-country={country.id}
                   className="cursor-pointer group"
                   onClick={(e) => handleCountryClick(e, country.id)}
                   tabIndex={0}
@@ -408,30 +432,34 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     width={rectW}
                     height={rectH}
                     preserveAspectRatio="none"
+                    data-beacon-country={country.id}
                   />
                   <rect
                     x={cx - rectW / 2}
                     y={cy - rectH / 2}
                     width={rectW}
                     height={rectH}
-                    rx={1}
+                    rx={1.5}
                     fill="none"
                     stroke="#22c55e"
-                    strokeWidth={0.9}
+                    strokeWidth={1}
                     className="pointer-events-none"
                   />
                 </g>
               );
             }
 
-            // When unplaced, always show target ring (visible across all zoom levels)
+            // When unplaced, show prominent target beacon with generous hit target
+            const isInteractive = isHovered || isDragOver || isHighlighted;
             return (
               <g
                 key={`ring-${country.id}`}
+                id={`country-${country.id}-beacon`}
+                data-beacon-country={country.id}
                 className="cursor-pointer"
                 tabIndex={0}
                 role="button"
-                aria-label="Small country target ring"
+                aria-label={`${country.name} target beacon`}
                 onClick={(e) => handleCountryClick(e, country.id)}
                 onKeyDown={(e) => handleKeyDown(e, country.id)}
                 onDragOver={(e) => handleDragOver(e, country.id)}
@@ -440,23 +468,46 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 onMouseEnter={() => setHoveredCountryId(country.id)}
                 onMouseLeave={() => setHoveredCountryId(null)}
               >
+                {/* Generous touch & mouse hit-target (r=14px / 28px diameter) */}
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={14}
+                  fill="transparent"
+                  data-beacon-country={country.id}
+                />
+
+                {/* Animated pulse halo when highlighted or dragged over */}
+                {(isHighlighted || isDragOver) && (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={12}
+                    fill="none"
+                    stroke="#f1f1f1"
+                    strokeWidth={1.2}
+                    className="animate-ping opacity-75 pointer-events-none"
+                  />
+                )}
+
                 {/* Outer Target Ring */}
                 <circle
                   cx={cx}
                   cy={cy}
-                  r={6.5}
-                  fill={isDragOver || isHighlighted ? '#4a4a4a' : isHovered ? '#383838' : 'rgba(36, 36, 36, 0.85)'}
-                  stroke="#666666"
-                  strokeWidth={0.8}
+                  r={isInteractive ? 7.5 : 6}
+                  fill={isDragOver || isHighlighted ? '#52525b' : isHovered ? '#3f3f46' : 'rgba(28, 28, 28, 0.95)'}
+                  stroke={isDragOver || isHighlighted ? '#22c55e' : isHovered ? '#ffffff' : '#a1a1aa'}
+                  strokeWidth={isInteractive ? 1.4 : 1.0}
                   className="transition-all duration-150"
+                  data-beacon-country={country.id}
                 />
 
-                {/* Inner Dot */}
+                {/* Inner Center Dot */}
                 <circle
                   cx={cx}
                   cy={cy}
-                  r={1.8}
-                  fill="#ffffff"
+                  r={2}
+                  fill={isDragOver || isHighlighted ? '#22c55e' : '#ffffff'}
                   className="pointer-events-none"
                 />
               </g>

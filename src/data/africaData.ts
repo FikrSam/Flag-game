@@ -2,9 +2,9 @@ import type { CountryData } from '../types/game';
 export type { CountryData };
 
 export const AFRICA_MAP_CONFIG = {
-  viewBox: "0 0 1000 800",
-  width: 1000,
-  height: 800,
+  "viewBox": "0 0 1000 800",
+  "width": 1000,
+  "height": 800
 };
 
 export const AFRICA_CONTEXT_LAND_PATHS: string[] = [
@@ -544,7 +544,7 @@ export const AFRICA_COUNTRIES: CountryData[] = [
       "width": 21,
       "height": 12
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "KE",
@@ -1069,7 +1069,7 @@ export const AFRICA_COUNTRIES: CountryData[] = [
       "width": 13,
       "height": 36
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "TN",

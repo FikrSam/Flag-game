@@ -2,9 +2,9 @@ import type { CountryData } from '../types/game';
 export type { CountryData };
 
 export const ASIA_MAP_CONFIG = {
-  viewBox: "0 0 1000 800",
-  width: 1000,
-  height: 800,
+  "viewBox": "0 0 1000 800",
+  "width": 1000,
+  "height": 800
 };
 
 export const ASIA_CONTEXT_LAND_PATHS: string[] = [
@@ -57,7 +57,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 14,
       "height": 22
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "AZ",
@@ -141,7 +141,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 22,
       "height": 13
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "BN",
@@ -162,7 +162,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 10,
       "height": 8
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "KH",
@@ -225,7 +225,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 10,
       "height": 5
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "GE",
@@ -351,7 +351,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 18,
       "height": 26
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "JP",
@@ -435,7 +435,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 13,
       "height": 14
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "KG",
@@ -498,7 +498,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 12,
       "height": 10
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "MY",
@@ -687,7 +687,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 11,
       "height": 8
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "PH",
@@ -729,7 +729,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 7,
       "height": 11
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "SA",
@@ -855,7 +855,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 23,
       "height": 26
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "TJ",
@@ -918,7 +918,7 @@ export const ASIA_COUNTRIES: CountryData[] = [
       "width": 25,
       "height": 15
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "TR",

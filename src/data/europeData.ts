@@ -2,9 +2,9 @@ import type { CountryData } from '../types/game';
 export type { CountryData };
 
 export const MAP_CONFIG = {
-  viewBox: "0 0 1000 800",
-  width: 1000,
-  height: 800,
+  "viewBox": "0 0 1000 800",
+  "width": 1000,
+  "height": 800
 };
 
 export const CONTEXT_LAND_PATHS: string[] = [
@@ -204,7 +204,7 @@ export const EUROPE_COUNTRIES: CountryData[] = [
       "width": 26,
       "height": 13
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "CZ",
@@ -519,7 +519,7 @@ export const EUROPE_COUNTRIES: CountryData[] = [
       "width": 9,
       "height": 14
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "MT",
@@ -540,7 +540,7 @@ export const EUROPE_COUNTRIES: CountryData[] = [
       "width": 6,
       "height": 5
     },
-    "isMicrostate": false
+    "isMicrostate": true
   },
   {
     "id": "MD",
@@ -942,6 +942,3 @@ export const EUROPE_COUNTRIES: CountryData[] = [
     "isMicrostate": true
   }
 ];
-
-export const REGIONS = ['All', 'Western', 'Northern', 'Eastern', 'Southern', 'Microstate'] as const;
-export type RegionFilter = typeof REGIONS[number];

@@ -37,6 +37,7 @@ All geospatial datasets are pre-processed offline via TypeScript generation scri
 - **Code-Splitting Architecture**: All continent datasets are dynamically lazy-loaded via `src/data/continentLoader.ts`, keeping initial page load under 405 kB (140 kB gzip) and downloading datasets only when selected.
 - **Native Haptics**: Subtle vibrations on mobile touches via `src/utils/haptics.ts` (`navigator.vibrate(25)` for match, `[35, 45, 35]` for mistake, `15ms` for hints).
 - **Desktop Speedrun Shortcuts**: Hotkeys active during gameplay: `N` for Name It, `S` for Show Me, `R` for restart, `Escape` to exit, and arrow keys to cycle flags in the dock.
+- **Global Microstate & Island Beacons**: All microstates, small territories, and island nations across all 6 continents (61 countries total, including Pacific archipelagos, Caribbean islands, Persian Gulf states, and European microstates) feature interactive beacons with an expanded 28px hit-target (`r=14`), animated pulsing halo, and a crisp mini flag badge on completion.
 
 ### Continent Definition Schema (`CountryData` in `src/types/game.ts`)
 ```typescript
