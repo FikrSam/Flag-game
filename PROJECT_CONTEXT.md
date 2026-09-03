@@ -107,8 +107,8 @@ const patY = Math.round(cy - patH / 2);
   - Secondary Text: `#d1d5db` / `#e5e7eb`
   - Lightest Headings & Active Text: `#ffffff` / `#f8fafc` / `#f1f1f1`
 - **Brand Iconography & Favicon**:
-  - **Logo (`Logo.tsx`)**: Official Tabler flag icon (`IconFlag`) in crisp pure white (`#ffffff`).
-  - **Favicon (`public/favicon.svg`)**: Official Tabler flag icon in pure white (`#ffffff`) placed on dark `#0d0d0d` rounded container with `#262626` border for crisp visibility across light and dark browser tabs.
+  - **Logo (`Logo.tsx`)**: Official Tabler solid filled flag icon (`IconFlag`) in crisp pure white (`#ffffff`).
+  - **Favicon (`public/favicon.svg`)**: Official Tabler solid filled flag icon in pure white (`#ffffff`) placed on dark `#0d0d0d` rounded container with `#262626` border for crisp visibility across light and dark browser tabs. Cache-busted via `?v=5` in `index.html`.
 - **Scoring & Geography Learning Rules**:
   - **Unassisted Correct Placement**: **100 points** awarded per country.
   - **"Name It" Hint Used**: **70 points** awarded (30% point deduction to discourage hint overuse and reinforce memory).
