@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import type { CountryData } from '../types/game';
 import { IconZoomIn, IconZoomOut, IconRotateClockwise } from './TablerIcons';
 
@@ -49,94 +49,204 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   highlightedCountryId,
   onCountryMatch
 }) => {
-  const [zoom, setZoom] = useState<number>(1);
-  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  // Combined transform state ensures pan and zoom update atomically in a single render pass
+  const [transform, setTransform] = useState<{ zoom: number; pan: { x: number; y: number } }>({
+    zoom: 1,
+    pan: { x: 0, y: 0 }
+  });
+
+  const { zoom, pan } = transform;
+
   const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [pointerDownPos, setPointerDownPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [hoveredCountryId, setHoveredCountryId] = useState<string | null>(null);
   const [dragOverCountryId, setDragOverCountryId] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const dragStartRef = useRef<{ clientX: number; clientY: number; panX: number; panY: number } | null>(null);
 
-  // Smart pan boundaries: expanded 20-25% for extra open canvas freedom
+  // Soft boundary clamping in SVG coordinate units
   const clampPan = useCallback((x: number, y: number, currentZoom: number) => {
-    const baseMarginX = 205;
-    const baseMarginY = 175;
-    const maxOffsetX = (Math.max(currentZoom, 1.0) - 1) * 650 + baseMarginX;
-    const maxOffsetY = (Math.max(currentZoom, 1.0) - 1) * 525 + baseMarginY;
+    const margin = 200;
+    const minX = mapConfig.width * (1 - currentZoom) - margin;
+    const maxX = margin;
+    const minY = mapConfig.height * (1 - currentZoom) - margin;
+    const maxY = margin;
 
     return {
-      x: Math.min(Math.max(x, -maxOffsetX), maxOffsetX),
-      y: Math.min(Math.max(y, -maxOffsetY), maxOffsetY)
+      x: Math.min(Math.max(x, minX), maxX),
+      y: Math.min(Math.max(y, minY), maxY)
     };
-  }, []);
+  }, [mapConfig.width, mapConfig.height]);
 
-  const updateZoom = useCallback((newZoom: number) => {
-    const clampedZoom = Math.min(Math.max(newZoom, MIN_ZOOM), MAX_ZOOM);
-    setZoom(clampedZoom);
-    setPan(prev => clampPan(prev.x, prev.y, clampedZoom));
+  // Convert client viewport coordinates (clientX, clientY) to SVG viewBox space (0..1000, 0..800)
+  const getSvgCoordinates = useCallback((clientX: number, clientY: number): { x: number; y: number } => {
+    if (!svgRef.current) return { x: mapConfig.width / 2, y: mapConfig.height / 2 };
+    const rect = svgRef.current.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return { x: mapConfig.width / 2, y: mapConfig.height / 2 };
+
+    const svgAspect = mapConfig.width / mapConfig.height;
+    const domAspect = rect.width / rect.height;
+
+    let scale: number;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (domAspect > svgAspect) {
+      scale = rect.height / mapConfig.height;
+      offsetX = (rect.width - mapConfig.width * scale) / 2;
+    } else {
+      scale = rect.width / mapConfig.width;
+      offsetY = (rect.height - mapConfig.height * scale) / 2;
+    }
+
+    return {
+      x: (clientX - rect.left - offsetX) / scale,
+      y: (clientY - rect.top - offsetY) / scale
+    };
+  }, [mapConfig.width, mapConfig.height]);
+
+  // Ratio of screen pixels to SVG coordinate units
+  const getScreenScale = useCallback((): number => {
+    if (!svgRef.current) return 1;
+    const rect = svgRef.current.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return 1;
+    return Math.min(rect.width / mapConfig.width, rect.height / mapConfig.height);
+  }, [mapConfig.width, mapConfig.height]);
+
+  // Zoom anchored directly to a specific point (e.g. mouse cursor or center of map)
+  const zoomToPoint = useCallback((anchorX: number, anchorY: number, newZoom: number) => {
+    setTransform(prev => {
+      const clampedZoom = Math.min(Math.max(newZoom, MIN_ZOOM), MAX_ZOOM);
+      if (Math.abs(clampedZoom - prev.zoom) < 0.0001) return prev;
+
+      // Invariant: The content coordinate under (anchorX, anchorY) remains stationary
+      const contentX = (anchorX - prev.pan.x) / prev.zoom;
+      const contentY = (anchorY - prev.pan.y) / prev.zoom;
+
+      const newPanX = anchorX - contentX * clampedZoom;
+      const newPanY = anchorY - contentY * clampedZoom;
+
+      return {
+        zoom: clampedZoom,
+        pan: clampPan(newPanX, newPanY, clampedZoom)
+      };
+    });
   }, [clampPan]);
 
-  // Smooth zoom handlers
-  const handleZoomIn = () => updateZoom(zoom * 1.15);
-  const handleZoomOut = () => updateZoom(zoom / 1.15);
+  // Corner control button handlers (zoom to canvas center)
+  const handleZoomIn = () => {
+    zoomToPoint(mapConfig.width / 2, mapConfig.height / 2, zoom * 1.25);
+  };
+
+  const handleZoomOut = () => {
+    zoomToPoint(mapConfig.width / 2, mapConfig.height / 2, zoom / 1.25);
+  };
+
   const handleResetZoom = () => {
-    setZoom(1.0);
-    setPan({ x: 0, y: 0 });
+    setTransform({ zoom: 1.0, pan: { x: 0, y: 0 } });
   };
 
-  // Granular wheel zoom
-  const handleWheel = (e: React.WheelEvent) => {
+  // Natural cursor-anchored wheel & trackpad zoom with continuous exponential scaling
+  const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 1.04 : 0.96;
-    updateZoom(zoom * zoomFactor);
-  };
 
-  // Mouse pan handlers with smart bounded panning
+    const anchor = getSvgCoordinates(e.clientX, e.clientY);
+
+    let delta = e.deltaY;
+    if (e.deltaMode === 1) delta *= 24; // lines to pixels
+
+    // e.ctrlKey indicates native trackpad pinch on macOS Safari & Chrome
+    const sensitivity = e.ctrlKey ? 0.01 : 0.0018;
+    const factor = Math.exp(-delta * sensitivity);
+
+    setTransform(prev => {
+      const newZoom = Math.min(Math.max(prev.zoom * factor, MIN_ZOOM), MAX_ZOOM);
+      if (Math.abs(newZoom - prev.zoom) < 0.0001) return prev;
+
+      const contentX = (anchor.x - prev.pan.x) / prev.zoom;
+      const contentY = (anchor.y - prev.pan.y) / prev.zoom;
+
+      const newPanX = anchor.x - contentX * newZoom;
+      const newPanY = anchor.y - contentY * newZoom;
+
+      return {
+        zoom: newZoom,
+        pan: clampPan(newPanX, newPanY, newZoom)
+      };
+    });
+  }, [getSvgCoordinates, clampPan]);
+
+  // Attach non-passive wheel listener to allow reliable e.preventDefault()
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+    };
+  }, [handleWheel]);
+
+  // Mouse pan handlers: 1:1 tracking in SVG space
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 0) {
       setIsPointerDown(true);
       setIsDragging(false);
       setPointerDownPos({ x: e.clientX, y: e.clientY });
-      setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+      dragStartRef.current = {
+        clientX: e.clientX,
+        clientY: e.clientY,
+        panX: pan.x,
+        panY: pan.y
+      };
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isPointerDown) {
+    if (isPointerDown && dragStartRef.current) {
       const dx = e.clientX - pointerDownPos.x;
       const dy = e.clientY - pointerDownPos.y;
       if (!isDragging && Math.hypot(dx, dy) > 4) {
         setIsDragging(true);
       }
       if (isDragging || Math.hypot(dx, dy) > 4) {
-        const rawX = e.clientX - dragStart.x;
-        const rawY = e.clientY - dragStart.y;
-        setPan(clampPan(rawX, rawY, zoom));
+        const screenScale = getScreenScale();
+        const deltaSvgX = (e.clientX - dragStartRef.current.clientX) / screenScale;
+        const deltaSvgY = (e.clientY - dragStartRef.current.clientY) / screenScale;
+
+        setTransform(prev => ({
+          ...prev,
+          pan: clampPan(
+            dragStartRef.current!.panX + deltaSvgX,
+            dragStartRef.current!.panY + deltaSvgY,
+            prev.zoom
+          )
+        }));
       }
     }
   };
 
   const handleMouseUp = () => {
     setIsPointerDown(false);
+    dragStartRef.current = null;
     setTimeout(() => setIsDragging(false), 50);
   };
 
-  // Multi-touch tracking (pinch-to-zoom & 1-finger pan)
+  // Multi-touch tracking: 1-finger pan & 2-finger pinch centered on pinch midpoint
   const touchStateRef = useRef<{
     initialDist: number;
     initialZoom: number;
-    touchStartTime: number;
-    touchStartPos: { x: number; y: number };
+    initialPan: { x: number; y: number };
+    anchorSvg: { x: number; y: number };
     isPinching: boolean;
   }>({
     initialDist: 0,
     initialZoom: 1,
-    touchStartTime: 0,
-    touchStartPos: { x: 0, y: 0 },
+    initialPan: { x: 0, y: 0 },
+    anchorSvg: { x: 0, y: 0 },
     isPinching: false
   });
 
@@ -146,42 +256,73 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       setIsPointerDown(true);
       setIsDragging(false);
       setPointerDownPos({ x: t.clientX, y: t.clientY });
-      setDragStart({ x: t.clientX - pan.x, y: t.clientY - pan.y });
-      touchStateRef.current.touchStartTime = e.timeStamp;
-      touchStateRef.current.touchStartPos = { x: t.clientX, y: t.clientY };
+      dragStartRef.current = {
+        clientX: t.clientX,
+        clientY: t.clientY,
+        panX: pan.x,
+        panY: pan.y
+      };
       touchStateRef.current.isPinching = false;
     } else if (e.touches.length === 2) {
       const t1 = e.touches[0];
       const t2 = e.touches[1];
       const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-      touchStateRef.current.initialDist = dist;
-      touchStateRef.current.initialZoom = zoom;
-      touchStateRef.current.isPinching = true;
+      const midClientX = (t1.clientX + t2.clientX) / 2;
+      const midClientY = (t1.clientY + t2.clientY) / 2;
+
+      touchStateRef.current = {
+        initialDist: Math.max(dist, 1),
+        initialZoom: zoom,
+        initialPan: { ...pan },
+        anchorSvg: getSvgCoordinates(midClientX, midClientY),
+        isPinching: true
+      };
       setIsDragging(true);
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 1 && !touchStateRef.current.isPinching) {
+    if (e.touches.length === 1 && !touchStateRef.current.isPinching && dragStartRef.current) {
       const t = e.touches[0];
-      const dx = t.clientX - touchStateRef.current.touchStartPos.x;
-      const dy = t.clientY - touchStateRef.current.touchStartPos.y;
+      const dx = t.clientX - pointerDownPos.x;
+      const dy = t.clientY - pointerDownPos.y;
       if (!isDragging && Math.hypot(dx, dy) > 5) {
         setIsDragging(true);
       }
       if (isDragging || Math.hypot(dx, dy) > 5) {
-        const rawX = t.clientX - dragStart.x;
-        const rawY = t.clientY - dragStart.y;
-        setPan(clampPan(rawX, rawY, zoom));
+        const screenScale = getScreenScale();
+        const deltaSvgX = (t.clientX - dragStartRef.current.clientX) / screenScale;
+        const deltaSvgY = (t.clientY - dragStartRef.current.clientY) / screenScale;
+
+        setTransform(prev => ({
+          ...prev,
+          pan: clampPan(
+            dragStartRef.current!.panX + deltaSvgX,
+            dragStartRef.current!.panY + deltaSvgY,
+            prev.zoom
+          )
+        }));
       }
-    } else if (e.touches.length === 2) {
+    } else if (e.touches.length === 2 && touchStateRef.current.isPinching) {
       const t1 = e.touches[0];
       const t2 = e.touches[1];
       const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+
       if (touchStateRef.current.initialDist > 0) {
         const scaleFactor = dist / touchStateRef.current.initialDist;
-        const newZoom = touchStateRef.current.initialZoom * scaleFactor;
-        updateZoom(newZoom);
+        const targetZoom = Math.min(Math.max(touchStateRef.current.initialZoom * scaleFactor, MIN_ZOOM), MAX_ZOOM);
+
+        const { anchorSvg, initialPan, initialZoom } = touchStateRef.current;
+        const contentX = (anchorSvg.x - initialPan.x) / initialZoom;
+        const contentY = (anchorSvg.y - initialPan.y) / initialZoom;
+
+        const newPanX = anchorSvg.x - contentX * targetZoom;
+        const newPanY = anchorSvg.y - contentY * targetZoom;
+
+        setTransform({
+          zoom: targetZoom,
+          pan: clampPan(newPanX, newPanY, targetZoom)
+        });
       }
     }
   };
@@ -189,11 +330,18 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (e.touches.length === 0) {
       setIsPointerDown(false);
+      dragStartRef.current = null;
       setTimeout(() => setIsDragging(false), 50);
       touchStateRef.current.isPinching = false;
     } else if (e.touches.length === 1) {
       const t = e.touches[0];
-      setDragStart({ x: t.clientX - pan.x, y: t.clientY - pan.y });
+      dragStartRef.current = {
+        clientX: t.clientX,
+        clientY: t.clientY,
+        panX: pan.x,
+        panY: pan.y
+      };
+      setPointerDownPos({ x: t.clientX, y: t.clientY });
       touchStateRef.current.isPinching = false;
     }
   };
@@ -239,14 +387,70 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     }
   };
 
-  // Microstate countries list (marked with rings & target dots for easy targeting)
-  const microstateCountries = countries.filter(isCountryBeacon);
+  // Microstate countries list
+  const microstateCountries = useMemo(() => countries.filter(isCountryBeacon), [countries]);
+
+  // Memoized SVG Pattern Definitions (avoid recreating 50+ patterns on every zoom/pan tick)
+  const flagPatterns = useMemo(() => {
+    const FLAG_ASPECT_RATIO = 4 / 3;
+    return countries.map((country) => {
+      const [cx, cy] = country.centroid;
+      const halfW = Math.max(cx - country.bbox.x, (country.bbox.x + country.bbox.width) - cx);
+      const halfH = Math.max(cy - country.bbox.y, (country.bbox.y + country.bbox.height) - cy);
+      const minW = Math.max(1, halfW * 2);
+      const minH = Math.max(1, halfH * 2);
+
+      let patW: number;
+      let patH: number;
+
+      if (minW / minH > FLAG_ASPECT_RATIO) {
+        patW = minW;
+        patH = minW / FLAG_ASPECT_RATIO;
+      } else {
+        patH = minH;
+        patW = minH * FLAG_ASPECT_RATIO;
+      }
+
+      const patX = Math.round(cx - patW / 2);
+      const patY = Math.round(cy - patH / 2);
+      const roundedW = Math.round(patW);
+      const roundedH = Math.round(patH);
+
+      return (
+        <pattern
+          key={`flag-pattern-${country.id}`}
+          id={`flag-pat-${country.id}`}
+          patternUnits="userSpaceOnUse"
+          x={patX}
+          y={patY}
+          width={roundedW}
+          height={roundedH}
+        >
+          <image
+            href={country.flagDataUri}
+            xlinkHref={country.flagDataUri}
+            x={0}
+            y={0}
+            width={roundedW}
+            height={roundedH}
+            preserveAspectRatio="xMidYMid slice"
+          />
+        </pattern>
+      );
+    });
+  }, [countries]);
+
+  // Memoized Context Land
+  const contextLand = useMemo(() => {
+    return contextLandPaths.map((pathD, idx) => (
+      <path key={`ctx-${idx}`} d={pathD} className="context-land" />
+    ));
+  }, [contextLandPaths]);
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full min-h-[280px] bg-[#0d0d0d] rounded-lg shadow-md overflow-hidden flex items-center justify-center select-none touch-none"
-      onWheel={handleWheel}
+      className="relative w-full h-full min-h-[280px] bg-[#0a0a0a] rounded-lg overflow-hidden flex items-center justify-center select-none touch-none"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -259,276 +463,229 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       aria-label="Continent Map"
     >
       {/* Zoom controls */}
-      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 bg-[#181818]/90 backdrop-blur-md p-1 rounded-md border border-[#333333] shadow-sm">
+      <div className="absolute top-3 right-3 z-20 flex flex-col gap-0.5 bg-[#141414]/90 backdrop-blur-md p-1 rounded-lg border border-[#222222] shadow-lg">
         <button
           onClick={handleZoomIn}
           title="Zoom In"
-          className="p-1.5 text-[#9ca3af] hover:text-white hover:bg-[#282828] rounded transition-colors active:scale-95"
+          className="p-1.5 text-[#555555] hover:text-[#e5e7eb] hover:bg-[#1e1e1e] rounded-md transition-colors duration-150 active:scale-95"
         >
-          <IconZoomIn size={16} strokeWidth={2} />
+          <IconZoomIn size={15} strokeWidth={2} />
         </button>
+        <div className="h-px bg-[#1e1e1e] mx-1" />
         <button
           onClick={handleZoomOut}
           title="Zoom Out"
-          className="p-1.5 text-[#9ca3af] hover:text-white hover:bg-[#282828] rounded transition-colors active:scale-95"
+          className="p-1.5 text-[#555555] hover:text-[#e5e7eb] hover:bg-[#1e1e1e] rounded-md transition-colors duration-150 active:scale-95"
         >
-          <IconZoomOut size={16} strokeWidth={2} />
+          <IconZoomOut size={15} strokeWidth={2} />
         </button>
+        <div className="h-px bg-[#1e1e1e] mx-1" />
         <button
           onClick={handleResetZoom}
           title="Reset Zoom"
-          className="p-1.5 text-[#9ca3af] hover:text-white hover:bg-[#282828] rounded transition-colors active:scale-95"
+          className="p-1.5 text-[#555555] hover:text-[#e5e7eb] hover:bg-[#1e1e1e] rounded-md transition-colors duration-150 active:scale-95"
         >
-          <IconRotateClockwise size={16} strokeWidth={2} />
+          <IconRotateClockwise size={15} strokeWidth={2} />
         </button>
       </div>
 
-      {/* SVG Canvas */}
+      {/* Static SVG Viewport: No CSS transform on SVG eliminates GPU tile ghosting/afterimages */}
       <svg
         ref={svgRef}
         viewBox={mapConfig.viewBox}
-        className="w-full h-full max-h-full transition-transform duration-75 ease-out"
-        style={{
-          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-          transformOrigin: '50% 50%'
-        }}
+        className="w-full h-full max-h-full block"
       >
         <defs>
-          {/* SVG Patterns for filled country flags (centered on country centroid with EXACT 4:3 aspect ratio, 0% distortion) */}
-          {countries.map((country) => {
-            const [cx, cy] = country.centroid;
-            const halfW = Math.max(cx - country.bbox.x, (country.bbox.x + country.bbox.width) - cx);
-            const halfH = Math.max(cy - country.bbox.y, (country.bbox.y + country.bbox.height) - cy);
-            const minW = Math.max(1, halfW * 2);
-            const minH = Math.max(1, halfH * 2);
-
-            const FLAG_ASPECT_RATIO = 4 / 3;
-            let patW: number;
-            let patH: number;
-
-            // Preserve natural 4:3 flag aspect ratio without any stretching or squishing
-            if (minW / minH > FLAG_ASPECT_RATIO) {
-              patW = minW;
-              patH = minW / FLAG_ASPECT_RATIO;
-            } else {
-              patH = minH;
-              patW = minH * FLAG_ASPECT_RATIO;
-            }
-
-            const patX = Math.round(cx - patW / 2);
-            const patY = Math.round(cy - patH / 2);
-            const roundedW = Math.round(patW);
-            const roundedH = Math.round(patH);
-
-            return (
-              <pattern
-                key={`flag-pattern-${country.id}`}
-                id={`flag-pat-${country.id}`}
-                patternUnits="userSpaceOnUse"
-                x={patX}
-                y={patY}
-                width={roundedW}
-                height={roundedH}
-              >
-                <image
-                  href={country.flagDataUri}
-                  xlinkHref={country.flagDataUri}
-                  x={0}
-                  y={0}
-                  width={roundedW}
-                  height={roundedH}
-                  preserveAspectRatio="xMidYMid slice"
-                />
-              </pattern>
-            );
-          })}
+          {flagPatterns}
         </defs>
 
-        {/* Ocean Background (Exact neutral dark #0d0d0d) */}
-        <rect width={mapConfig.width} height={mapConfig.height} fill="#0d0d0d" className="map-ocean" />
+        {/* Global ocean fill */}
+        <rect width={mapConfig.width} height={mapConfig.height} fill="#0a0a0a" className="map-ocean" />
 
-        {/* Surrounding Context Landmasses (Subtle neutral dark land #171717) */}
-        <g className="context-land" fill="#171717" stroke="#2b2b2b" strokeWidth="0.4">
-          {contextLandPaths.map((pathD, idx) => (
-            <path key={`ctx-${idx}`} d={pathD} className="context-land" />
-          ))}
-        </g>
+        {/* Pure SVG Vector Stage: Native coordinate transformation without browser rasterization artifacts */}
+        <g
+          id="map-stage"
+          transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}
+        >
+          {/* Stage ocean plane */}
+          <rect width={mapConfig.width} height={mapConfig.height} fill="#0a0a0a" />
 
-        {/* Country Polygons (Neutral charcoal #242424 with high-contrast #454545 borders) */}
-        <g id="country-polygons">
-          {countries.map((country) => {
-            const isPlaced = placedCountries.has(country.id);
-            const isHovered = hoveredCountryId === country.id;
-            const isDragOver = dragOverCountryId === country.id;
-            const isHighlighted = highlightedCountryId === country.id;
+          {/* Surrounding Context Landmasses */}
+          <g className="context-land" fill="#151515" stroke="#1e1e1e" strokeWidth="0.4">
+            {contextLand}
+          </g>
 
-            let fill = '#242424';
-            let stroke = '#454545';
-            let strokeWidth = 0.5;
+          {/* Country Polygons */}
+          <g id="country-polygons">
+            {countries.map((country) => {
+              const isPlaced = placedCountries.has(country.id);
+              const isHovered = hoveredCountryId === country.id;
+              const isDragOver = dragOverCountryId === country.id;
+              const isHighlighted = highlightedCountryId === country.id;
 
-            if (isPlaced) {
-              fill = `url(#flag-pat-${country.id})`;
-              stroke = '#22c55e';
-              strokeWidth = 0.7;
-            } else if (isDragOver || isHighlighted) {
-              fill = '#4a4a4a';
-            } else if (isHovered) {
-              fill = '#383838';
-            }
+              let fill = '#1e1e1e';
+              let stroke = '#3a3a3a';
+              let strokeWidth = 0.5;
 
-            return (
-              <path
-                key={country.id}
-                id={`country-${country.id}`}
-                d={country.path}
-                fill={fill}
-                stroke={stroke}
-                strokeWidth={strokeWidth}
-                tabIndex={0}
-                role="button"
-                aria-label={isPlaced ? `${country.name}, placed` : 'Country location'}
-                className="cursor-pointer focus:outline-none transition-colors duration-100"
-                onMouseEnter={() => setHoveredCountryId(country.id)}
-                onMouseLeave={() => setHoveredCountryId(null)}
-                onClick={(e) => handleCountryClick(e, country.id)}
-                onKeyDown={(e) => handleKeyDown(e, country.id)}
-                onDragOver={(e) => handleDragOver(e, country.id)}
-                onDragLeave={(e) => handleDragLeave(e, country.id)}
-                onDrop={(e) => handleDrop(e, country.id)}
-              />
-            );
-          })}
-        </g>
+              if (isPlaced) {
+                fill = `url(#flag-pat-${country.id})`;
+                stroke = '#22c55e';
+                strokeWidth = 0.7;
+              } else if (isDragOver || isHighlighted) {
+                fill = '#3a3a3a';
+                stroke = '#555555';
+              } else if (isHovered) {
+                fill = '#2a2a2a';
+                stroke = '#4a4a4a';
+              }
 
-        {/* Microstates & Island Nations: When unplaced, shows prominent ring & dot with generous hit area. When placed, renders a flag rectangle with green border */}
-        <g id="microstate-markers">
-          {microstateCountries.map((country) => {
-            const isPlaced = placedCountries.has(country.id);
-            const isHovered = hoveredCountryId === country.id;
-            const isDragOver = dragOverCountryId === country.id;
-            const isHighlighted = highlightedCountryId === country.id;
-            const [cx, cy] = country.centroid;
-
-            // When placed, display crisp non-repeating flag rectangle with emerald border
-            if (isPlaced) {
-              const rectW = 16;
-              const rectH = 11;
               return (
-                <g
-                  key={`micro-flag-${country.id}`}
-                  id={`country-${country.id}-placed-beacon`}
-                  data-beacon-country={country.id}
-                  className="cursor-pointer group"
-                  onClick={(e) => handleCountryClick(e, country.id)}
+                <path
+                  key={country.id}
+                  id={`country-${country.id}`}
+                  d={country.path}
+                  fill={fill}
+                  stroke={stroke}
+                  strokeWidth={strokeWidth}
                   tabIndex={0}
                   role="button"
-                  aria-label={`${country.name}, placed flag`}
+                  aria-label={isPlaced ? `${country.name}, placed` : 'Country location'}
+                  className="cursor-pointer focus:outline-none"
+                  onMouseEnter={() => setHoveredCountryId(country.id)}
+                  onMouseLeave={() => setHoveredCountryId(null)}
+                  onClick={(e) => handleCountryClick(e, country.id)}
+                  onKeyDown={(e) => handleKeyDown(e, country.id)}
+                  onDragOver={(e) => handleDragOver(e, country.id)}
+                  onDragLeave={(e) => handleDragLeave(e, country.id)}
+                  onDrop={(e) => handleDrop(e, country.id)}
+                />
+              );
+            })}
+          </g>
+
+          {/* Microstates & Island Nations */}
+          <g id="microstate-markers">
+            {microstateCountries.map((country) => {
+              const isPlaced = placedCountries.has(country.id);
+              const isHovered = hoveredCountryId === country.id;
+              const isDragOver = dragOverCountryId === country.id;
+              const isHighlighted = highlightedCountryId === country.id;
+              const [cx, cy] = country.centroid;
+
+              if (isPlaced) {
+                const rectW = 16;
+                const rectH = 11;
+                return (
+                  <g
+                    key={`micro-flag-${country.id}`}
+                    id={`country-${country.id}-placed-beacon`}
+                    data-beacon-country={country.id}
+                    className="cursor-pointer group"
+                    onClick={(e) => handleCountryClick(e, country.id)}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${country.name}, placed flag`}
+                  >
+                    <image
+                      href={country.flagDataUri}
+                      xlinkHref={country.flagDataUri}
+                      x={cx - rectW / 2}
+                      y={cy - rectH / 2}
+                      width={rectW}
+                      height={rectH}
+                      preserveAspectRatio="none"
+                      data-beacon-country={country.id}
+                    />
+                    <rect
+                      x={cx - rectW / 2}
+                      y={cy - rectH / 2}
+                      width={rectW}
+                      height={rectH}
+                      rx={1.5}
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth={1}
+                      className="pointer-events-none"
+                    />
+                  </g>
+                );
+              }
+
+              const isInteractive = isHovered || isDragOver || isHighlighted;
+              return (
+                <g
+                  key={`ring-${country.id}`}
+                  id={`country-${country.id}-beacon`}
+                  data-beacon-country={country.id}
+                  className="cursor-pointer"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${country.name} target beacon`}
+                  onClick={(e) => handleCountryClick(e, country.id)}
+                  onKeyDown={(e) => handleKeyDown(e, country.id)}
+                  onDragOver={(e) => handleDragOver(e, country.id)}
+                  onDragLeave={(e) => handleDragLeave(e, country.id)}
+                  onDrop={(e) => handleDrop(e, country.id)}
+                  onMouseEnter={() => setHoveredCountryId(country.id)}
+                  onMouseLeave={() => setHoveredCountryId(null)}
                 >
-                  <image
-                    href={country.flagDataUri}
-                    xlinkHref={country.flagDataUri}
-                    x={cx - rectW / 2}
-                    y={cy - rectH / 2}
-                    width={rectW}
-                    height={rectH}
-                    preserveAspectRatio="none"
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={14}
+                    fill="transparent"
                     data-beacon-country={country.id}
                   />
-                  <rect
-                    x={cx - rectW / 2}
-                    y={cy - rectH / 2}
-                    width={rectW}
-                    height={rectH}
-                    rx={1.5}
-                    fill="none"
-                    stroke="#22c55e"
-                    strokeWidth={1}
+
+                  {(isHighlighted || isDragOver) && (
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={12}
+                      fill="none"
+                      stroke="#e5e7eb"
+                      strokeWidth={1.2}
+                      className="animate-ping opacity-75 pointer-events-none"
+                    />
+                  )}
+
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={isInteractive ? 7.5 : 6}
+                    fill={isDragOver || isHighlighted ? '#3a3a3a' : isHovered ? '#2a2a2a' : 'rgba(18, 18, 18, 0.95)'}
+                    stroke={isDragOver || isHighlighted ? '#22c55e' : isHovered ? '#e5e7eb' : '#777777'}
+                    strokeWidth={isInteractive ? 1.4 : 0.8}
+                    className="transition-all duration-150"
+                    data-beacon-country={country.id}
+                  />
+
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={2}
+                    fill={isDragOver || isHighlighted ? '#22c55e' : '#e5e7eb'}
                     className="pointer-events-none"
                   />
                 </g>
               );
-            }
+            })}
+          </g>
 
-            // When unplaced, show prominent target beacon with generous hit target
-            const isInteractive = isHovered || isDragOver || isHighlighted;
+          {/* Highlighted Beacon */}
+          {highlightedCountryId && (() => {
+            const target = countries.find(c => c.id === highlightedCountryId);
+            if (!target) return null;
+            const [cx, cy] = target.centroid;
             return (
-              <g
-                key={`ring-${country.id}`}
-                id={`country-${country.id}-beacon`}
-                data-beacon-country={country.id}
-                className="cursor-pointer"
-                tabIndex={0}
-                role="button"
-                aria-label={`${country.name} target beacon`}
-                onClick={(e) => handleCountryClick(e, country.id)}
-                onKeyDown={(e) => handleKeyDown(e, country.id)}
-                onDragOver={(e) => handleDragOver(e, country.id)}
-                onDragLeave={(e) => handleDragLeave(e, country.id)}
-                onDrop={(e) => handleDrop(e, country.id)}
-                onMouseEnter={() => setHoveredCountryId(country.id)}
-                onMouseLeave={() => setHoveredCountryId(null)}
-              >
-                {/* Generous touch & mouse hit-target (r=14px / 28px diameter) */}
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={14}
-                  fill="transparent"
-                  data-beacon-country={country.id}
-                />
-
-                {/* Animated pulse halo when highlighted or dragged over */}
-                {(isHighlighted || isDragOver) && (
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r={12}
-                    fill="none"
-                    stroke="#f1f1f1"
-                    strokeWidth={1.2}
-                    className="animate-ping opacity-75 pointer-events-none"
-                  />
-                )}
-
-                {/* Outer Target Ring */}
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={isInteractive ? 7.5 : 6}
-                  fill={isDragOver || isHighlighted ? '#52525b' : isHovered ? '#3f3f46' : 'rgba(28, 28, 28, 0.95)'}
-                  stroke={isDragOver || isHighlighted ? '#22c55e' : isHovered ? '#ffffff' : '#a1a1aa'}
-                  strokeWidth={isInteractive ? 1.4 : 1.0}
-                  className="transition-all duration-150"
-                  data-beacon-country={country.id}
-                />
-
-                {/* Inner Center Dot */}
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={2}
-                  fill={isDragOver || isHighlighted ? '#22c55e' : '#ffffff'}
-                  className="pointer-events-none"
-                />
+              <g transform={`translate(${cx}, ${cy})`} className="pointer-events-none animate-pulse">
+                <circle cx={0} cy={0} r={14} fill="none" stroke="#e5e7eb" strokeWidth={1.5} />
+                <circle cx={0} cy={0} r={4} fill="#e5e7eb" />
               </g>
             );
-          })}
+          })()}
         </g>
-
-        {/* Highlighted Beacon */}
-        {highlightedCountryId && (() => {
-          const target = countries.find(c => c.id === highlightedCountryId);
-          if (!target) return null;
-          const [cx, cy] = target.centroid;
-          return (
-            <g transform={`translate(${cx}, ${cy})`} className="pointer-events-none animate-pulse">
-              <circle cx={0} cy={0} r={14} fill="none" stroke="#f1f1f1" strokeWidth={1.5} />
-              <circle cx={0} cy={0} r={4} fill="#ffffff" />
-            </g>
-          );
-        })()}
       </svg>
     </div>
   );
 };
-

@@ -148,14 +148,14 @@ export const FlagDock: React.FC<FlagDockProps> = ({
   const draggingCountry = touchDrag ? unplacedCountries.find(c => c.id === touchDrag.countryId) : null;
 
   return (
-    <div className="flex flex-col h-full bg-[#181818] rounded-lg border border-[#333333] shadow-md overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-[#131313] rounded-lg border border-[#222222] overflow-hidden select-none">
       {/* Top Header: Title, remaining count, and selection feedback (Order 1 on all screens) */}
-      <div className="px-3 py-1.5 md:p-3 border-b border-[#333333] bg-[#1d1d1d] flex items-center justify-between shrink-0 order-1">
+      <div className="px-3 py-2 md:p-3 border-b border-[#1e1e1e] bg-[#161616] flex items-center justify-between shrink-0 order-1">
         <div className="flex items-center gap-2">
-          <h2 className="font-bold text-xs sm:text-sm text-[#f8fafc]">
+          <h2 className="font-bold text-xs sm:text-sm text-[#e5e7eb]">
             Flags
           </h2>
-          <span className="px-1.5 py-0.5 bg-[#282828] text-[#9ca3af] font-semibold text-[10px] rounded-md">
+          <span className="px-1.5 py-0.5 bg-[#1a1a1a] text-[#777777] font-semibold text-[10px] rounded-md border border-[#2a2a2a] tabular-nums">
             {unplacedCountries.length} left
           </span>
         </div>
@@ -167,28 +167,28 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                 <IconCheck size={13} strokeWidth={2.5} className="shrink-0" /> {selectedCountry.name}
               </span>
             ) : (
-              <span className="text-[#f1f1f1]">Tap country on map</span>
+              <span className="text-[#777777] italic">Tap country on map</span>
             )}
           </div>
         )}
       </div>
 
       {/* Global Shared Action Controls: Top on desktop (order-2), Bottom on mobile (order-3) */}
-      <div className="p-2 sm:p-2.5 border-t md:border-t-0 md:border-b border-[#333333] bg-[#1a1a1a] flex items-center gap-2 shrink-0 order-3 md:order-2">
+      <div className="p-2 sm:p-2.5 border-t md:border-t-0 md:border-b border-[#1e1e1e] bg-[#141414] flex items-center gap-2 shrink-0 order-3 md:order-2">
         <button
           onClick={handleTriggerNameIt}
           disabled={!selectedCountry}
           title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name (Press N)"}
-          className={`flex-1 h-10 px-3 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
+          className={`flex-1 h-10 px-3 rounded-lg font-semibold text-xs transition-all duration-150 flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed ${
             isCurrentFlagNamed
-              ? 'bg-emerald-950/80 border border-emerald-500/70 text-emerald-300'
-              : 'bg-[#242424] hover:bg-[#2c2c2c] text-[#f8fafc] border border-[#383838]'
+              ? 'bg-emerald-950/70 border border-emerald-500/50 text-emerald-300'
+              : 'bg-[#1e1e1e] hover:bg-[#282828] text-[#e5e7eb] border border-[#2a2a2a]'
           }`}
         >
           {isCurrentFlagNamed ? (
             <IconCheck size={15} strokeWidth={2.5} className="text-emerald-400 shrink-0" />
           ) : (
-            <IconHelp size={15} strokeWidth={2} className="text-[#f1f1f1] shrink-0" />
+            <IconHelp size={15} strokeWidth={2} className="text-[#9ca3af] shrink-0" />
           )}
           <span className="truncate">
             {isCurrentFlagNamed
@@ -196,7 +196,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
               : 'Name It'}
           </span>
           {!isCurrentFlagNamed && (
-            <kbd className="hidden sm:inline-block px-1.5 py-0.2 bg-[#2d2d2d] text-[10px] text-[#a1a1aa] rounded font-mono border border-[#404040] ml-0.5">
+            <kbd className="hidden sm:inline-block px-1.5 py-0.2 bg-[#1a1a1a] text-[10px] text-[#555555] rounded font-mono border border-[#2a2a2a] ml-0.5">
               N
             </kbd>
           )}
@@ -206,11 +206,11 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           onClick={handleTriggerShowMe}
           disabled={!selectedCountry}
           title="Place this flag on the map (0 points, Press S)"
-          className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-[#242424] hover:bg-[#2c2c2c] text-[#f8fafc] border border-[#383838] transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-[#1e1e1e] hover:bg-[#282828] text-[#e5e7eb] border border-[#2a2a2a] transition-all duration-150 flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <IconEye size={15} strokeWidth={2} className="text-amber-400 shrink-0" />
+          <IconEye size={15} strokeWidth={2} className="text-amber-400/80 shrink-0" />
           <span>Show Me</span>
-          <kbd className="hidden sm:inline-block px-1.5 py-0.2 bg-[#2d2d2d] text-[10px] text-[#a1a1aa] rounded font-mono border border-[#404040] ml-0.5">
+          <kbd className="hidden sm:inline-block px-1.5 py-0.2 bg-[#1a1a1a] text-[10px] text-[#555555] rounded font-mono border border-[#2a2a2a] ml-0.5">
             S
           </kbd>
         </button>
@@ -219,7 +219,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
       {/* Flag List / Carousel: Middle on mobile (order-2), Bottom on desktop (order-3) */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 p-2 md:p-3 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto overscroll-contain order-2 md:order-3"
+        className="flex-1 p-2 md:p-2.5 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto overscroll-contain order-2 md:order-3"
         style={{
           touchAction: 'pan-x',
           WebkitOverflowScrolling: 'touch'
@@ -252,10 +252,10 @@ export const FlagDock: React.FC<FlagDockProps> = ({
                     onSelectFlag(country.id);
                   }
                 }}
-                className={`relative group aspect-[4/3] w-20 min-w-[80px] sm:w-24 sm:min-w-[96px] md:w-auto shrink-0 md:shrink rounded-lg border transition-all cursor-pointer overflow-hidden shadow-sm focus:outline-none flex items-center justify-center bg-[#141414] ${
+                className={`relative group aspect-[4/3] w-20 min-w-[80px] sm:w-24 sm:min-w-[96px] md:w-auto shrink-0 md:shrink rounded-lg border transition-all duration-150 cursor-pointer overflow-hidden focus:outline-none flex items-center justify-center bg-[#111111] ${
                   isSelected
-                    ? 'border-[#f1f1f1] ring-2 ring-white/90 shadow-md shadow-black/80 scale-[1.03] z-10'
-                    : 'border-[#333333] hover:border-[#4b5563] opacity-85 hover:opacity-100'
+                    ? 'border-[#e5e7eb] ring-2 ring-white/80 shadow-[0_0_12px_rgba(255,255,255,0.06)] scale-[1.03] z-10'
+                    : 'border-[#2a2a2a] hover:border-[#444444] opacity-80 hover:opacity-100'
                 }`}
               >
                 {/* Full Card Flag Image */}
@@ -273,7 +273,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
 
                 {/* If Named: Translucent Bottom Tag */}
                 {isNamed && (
-                  <div className="absolute inset-x-0 bottom-0 bg-[#0d0d0d]/95 backdrop-blur-xs py-0.5 px-1 text-center border-t border-[#333333] z-10">
+                  <div className="absolute inset-x-0 bottom-0 bg-[#0d0d0d]/90 backdrop-blur-sm py-0.5 px-1 text-center border-t border-[#222222] z-10">
                     <span className="text-[10px] font-bold text-white truncate block leading-tight">
                       {country.name}
                     </span>
@@ -288,7 +288,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
       {/* Floating Ghost Drag Preview on Touch Devices */}
       {touchDrag?.isDragging && draggingCountry && (
         <div
-          className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 shadow-2xl rounded-lg border-2 border-[#f1f1f1] bg-[#1a1a1a]/95 p-1 flex items-center gap-2 backdrop-blur-md"
+          className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 shadow-2xl rounded-lg border-2 border-[#e5e7eb] bg-[#141414]/95 p-1 flex items-center gap-2 backdrop-blur-md"
           style={{
             left: `${touchDrag.currentX}px`,
             top: `${touchDrag.currentY - 40}px`
@@ -297,7 +297,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
           <div className="w-12 h-9 rounded overflow-hidden shadow">
             <FlagImage countryCode={draggingCountry.id} countryName="" className="w-full h-full object-cover" />
           </div>
-          <span className="text-[#f1f1f1] text-xs font-bold pr-1.5">Drop on Map</span>
+          <span className="text-[#e5e7eb] text-xs font-bold pr-1.5">Drop on Map</span>
         </div>
       )}
     </div>
