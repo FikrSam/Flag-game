@@ -1,26 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-  <!-- Background Dark Rounded Square -->
-  <rect width="100" height="100" rx="20" fill="#0d0d0d" />
-  <rect x="1.5" y="1.5" width="97" height="97" rx="18.5" stroke="#333333" stroke-width="3" />
+  <!-- Dark Rounded Container for High Contrast on Browser Tabs -->
+  <rect width="100" height="100" rx="22" fill="#0d0d0d" />
+  <rect x="1.5" y="1.5" width="97" height="97" rx="20.5" stroke="#262626" stroke-width="3" />
 
-  <!-- Globe Latitude & Longitude Coordinates Grid -->
-  <!-- Outer Globe Ring -->
-  <circle cx="50" cy="50" r="34" stroke="#454545" stroke-width="2.5" />
-  <!-- Equator Line -->
-  <line x1="16" y1="50" x2="84" y2="50" stroke="#383838" stroke-width="2" stroke-dasharray="3 3" />
-  <!-- Prime Meridian Ellipse -->
-  <ellipse cx="50" cy="50" rx="18" ry="34" stroke="#383838" stroke-width="2" stroke-dasharray="3 3" />
-
-  <!-- Flagpole: Anchored from bottom-left meridian to top center -->
-  <line x1="36" y1="72" x2="36" y2="22" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" />
-
-  <!-- Custom Geometric Wave Flag / Pennant -->
-  <!-- Top Flag Polygon in Crisp White/Silver Accent (#f1f1f1) -->
-  <path d="M37 24 L74 34 L66 48 L37 42 Z" fill="#f1f1f1" stroke="#f1f1f1" stroke-width="1" stroke-linejoin="round" />
-
-  <!-- Inner Flag Geometric Accent Fold -->
-  <path d="M37 33 L55 38 L37 42 Z" fill="#888888" />
-
-  <!-- Pin Mast Finial -->
-  <circle cx="36" cy="22" r="3.5" fill="#ffffff" stroke="#ffffff" stroke-width="1.5" />
+  <!-- Tabler Flag Icon in White -->
+  <g transform="translate(18, 17) scale(2.667)">
+    <path d="M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M5 21v-7" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
 </svg>
