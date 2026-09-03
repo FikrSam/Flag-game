@@ -112,11 +112,18 @@ export const IconX: React.FC<TablerIconProps> = ({ size = 24, strokeWidth = 2, c
   </svg>
 );
 
-export const IconFlag: React.FC<TablerIconProps> = ({ size = 24, strokeWidth = 2, className = '', ...props }) => (
-  <svg {...defaultProps} width={size} height={size} strokeWidth={strokeWidth} className={`tabler-icon tabler-icon-flag ${className}`} {...props}>
-    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-    <path d="M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z" />
-    <path d="M5 21v-7" />
+export const IconFlag: React.FC<TablerIconProps> = ({ size = 24, className = '', ...props }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    fill="currentColor"
+    className={`tabler-icon tabler-icon-flag-filled ${className}`}
+    {...props}
+  >
+    <path d="M4 4a1 1 0 0 1 1 1v15a1 1 0 1 1 -2 0v-15a1 1 0 0 1 1 -1z" />
+    <path d="M5 5a4 4 0 0 1 5.6 0a3.99 3.99 0 0 0 5.4 0l.2 -.19a1 1 0 0 1 1.6 .8v7.2a1 1 0 0 1 -.4 .8a3.99 3.99 0 0 1 -5.4 0a4.01 4.01 0 0 0 -5.6 0a1 1 0 0 1 -1.4 -.8v-7a1 1 0 0 1 0 -.81z" />
   </svg>
 );
 
