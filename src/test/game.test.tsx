@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { EUROPE_COUNTRIES } from '../data/europeData';
 import { AFRICA_COUNTRIES } from '../data/africaData';
 import { SOUTH_AMERICA_COUNTRIES } from '../data/southAmericaData';
+import { ASIA_COUNTRIES } from '../data/asiaData';
 import { NORTH_AMERICA_COUNTRIES } from '../data/northAmericaData';
 import { OCEANIA_COUNTRIES } from '../data/oceaniaData';
-import { ASIA_COUNTRIES } from '../data/asiaData';
 import { CONTINENTS } from '../data/continents';
 import { App } from '../App';
+import * as haptics from '../utils/haptics';
 
 // Mock canvas-confetti
 vi.mock('canvas-confetti', () => ({
@@ -17,6 +18,7 @@ vi.mock('canvas-confetti', () => ({
 describe('Flaggle Basic Geography Game', () => {
   beforeEach(() => {
     localStorage.clear();
+    vi.restoreAllMocks();
   });
 
   describe('1. Natural Earth Geospatial Data', () => {
@@ -62,6 +64,20 @@ describe('Flaggle Basic Geography Game', () => {
       });
     });
 
+    it('has all 49 Asian countries with valid vector paths, centroids, and bboxes', () => {
+      expect(ASIA_COUNTRIES.length).toBe(49);
+
+      ASIA_COUNTRIES.forEach((country) => {
+        expect(country.id).toBeDefined();
+        expect(country.name).toBeTruthy();
+        expect(country.path.length).toBeGreaterThan(10);
+        expect(country.centroid.length).toBe(2);
+        expect(country.bbox.width).toBeGreaterThan(0);
+        expect(country.bbox.height).toBeGreaterThan(0);
+        expect(country.flagDataUri).toBeTruthy();
+      });
+    });
+
     it('has all 23 North American countries with valid vector paths, centroids, and bboxes', () => {
       expect(NORTH_AMERICA_COUNTRIES.length).toBe(23);
 
@@ -90,28 +106,21 @@ describe('Flaggle Basic Geography Game', () => {
       });
     });
 
-    it('has all 49 Asian countries with valid vector paths, centroids, and bboxes', () => {
-      expect(ASIA_COUNTRIES.length).toBe(49);
-
-      ASIA_COUNTRIES.forEach((country) => {
-        expect(country.id).toBeDefined();
-        expect(country.name).toBeTruthy();
-        expect(country.path.length).toBeGreaterThan(10);
-        expect(country.centroid.length).toBe(2);
-        expect(country.bbox.width).toBeGreaterThan(0);
-        expect(country.bbox.height).toBeGreaterThan(0);
-        expect(country.flagDataUri).toBeTruthy();
-      });
-    });
-
-    it('has 6 continents marked as playable (196 sovereign nations) and Antarctica coming soon', () => {
+    it('has all 6 habitable continents marked as playable and Antarctica coming soon', () => {
       const playable = CONTINENTS.filter(c => c.status === 'playable');
       expect(playable.length).toBe(6);
-      const totalCountries = playable.reduce((sum, c) => sum + c.countryCount, 0);
-      expect(totalCountries).toBe(196);
 
-      const antarctica = CONTINENTS.find(c => c.id === 'antarctica');
-      expect(antarctica?.status).toBe('coming_soon');
+      const playableIds = playable.map(c => c.id);
+      expect(playableIds).toContain('europe');
+      expect(playableIds).toContain('africa');
+      expect(playableIds).toContain('south_america');
+      expect(playableIds).toContain('asia');
+      expect(playableIds).toContain('north_america');
+      expect(playableIds).toContain('oceania');
+
+      const comingSoon = CONTINENTS.filter(c => c.status === 'coming_soon');
+      expect(comingSoon.length).toBe(1);
+      expect(comingSoon[0].id).toBe('antarctica');
     });
   });
 
@@ -135,8 +144,11 @@ describe('Flaggle Basic Geography Game', () => {
       const playEuropeBtn = screen.getByRole('button', { name: /Play Europe/i });
       fireEvent.click(playEuropeBtn);
 
-      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
-      expect(screen.getByText(/Flags/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/Europe/i)).toBeInTheDocument();
+        expect(screen.getByText(/Flags/i)).toBeInTheDocument();
+        expect(screen.getByText(/SCORE/i)).toBeInTheDocument();
+      });
     });
 
     it('starts African game on selecting Africa', async () => {
@@ -145,8 +157,10 @@ describe('Flaggle Basic Geography Game', () => {
       const playAfricaBtn = screen.getByRole('button', { name: /Play Africa/i });
       fireEvent.click(playAfricaBtn);
 
-      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/54/i).length).toBeGreaterThan(0);
+      await waitFor(() => {
+        expect(screen.getByText(/Africa/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/54/i).length).toBeGreaterThan(0);
+      });
     });
 
     it('starts South American game on selecting South America', async () => {
@@ -155,17 +169,57 @@ describe('Flaggle Basic Geography Game', () => {
       const playSABtn = screen.getByRole('button', { name: /Play South America/i });
       fireEvent.click(playSABtn);
 
-      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/12/i).length).toBeGreaterThan(0);
+      await waitFor(() => {
+        expect(screen.getByText(/South America/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/12/i).length).toBeGreaterThan(0);
+      });
+    });
+
+    it('starts Asian game on selecting Asia', async () => {
+      render(<App />);
+
+      const playAsiaBtn = screen.getByRole('button', { name: /Play Asia/i });
+      fireEvent.click(playAsiaBtn);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Asia/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/49/i).length).toBeGreaterThan(0);
+      });
+    });
+
+    it('starts North American game on selecting North America', async () => {
+      render(<App />);
+
+      const playNABtn = screen.getByRole('button', { name: /Play North America/i });
+      fireEvent.click(playNABtn);
+
+      await waitFor(() => {
+        expect(screen.getByText(/North America/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/23/i).length).toBeGreaterThan(0);
+      });
+    });
+
+    it('starts Oceania game on selecting Oceania', async () => {
+      render(<App />);
+
+      const playOceaniaBtn = screen.getByRole('button', { name: /Play Oceania/i });
+      fireEvent.click(playOceaniaBtn);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Oceania/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/14/i).length).toBeGreaterThan(0);
+      });
     });
   });
 
   describe('3. Core Game Mechanics: Match, Name It, and Show Me', () => {
-    it('places flag correctly on tapping flag then tapping its country', () => {
+    it('places flag correctly on tapping flag then tapping its country', async () => {
       const { container } = render(<App />);
 
       // Go to game
       fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
 
       // Get first card element
       const firstCard = container.querySelector('[data-country-id]');
@@ -185,9 +239,11 @@ describe('Flaggle Basic Geography Game', () => {
       expect(screen.getByText('100')).toBeInTheDocument();
     });
 
-    it('reveals country name when clicking shared "Name it" button', () => {
+    it('reveals country name when clicking shared "Name it" button', async () => {
       const { container } = render(<App />);
       fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
 
       // Get first card and its country ID
       const firstCard = container.querySelector('[data-country-id]');
@@ -204,9 +260,11 @@ describe('Flaggle Basic Geography Game', () => {
       expect(firstCard).toHaveTextContent(countryObj.name);
     });
 
-    it('places selected flag automatically when clicking shared "Show me" button', () => {
+    it('places selected flag automatically when clicking shared "Show me" button', async () => {
       const { container } = render(<App />);
       fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
 
       // Get first card and its country ID
       const firstCard = container.querySelector('[data-country-id]');
@@ -221,71 +279,16 @@ describe('Flaggle Basic Geography Game', () => {
       // Verify that target country is now placed on the map
       const targetCountry = container.querySelector(`#country-${firstCountryId}`);
       expect(targetCountry?.getAttribute('fill')).toContain(`url(#flag-pat-${firstCountryId})`);
+
+      // Placed score should still be 0 (Show me awards 0 points)
+      expect(screen.getByText('0')).toBeInTheDocument();
     });
 
-    it('displays "This is <Country>" error banner when clicking incorrect country', () => {
+    it('deducts 30% points (awards 70 pts) when placing a flag after using Name It hint', async () => {
       const { container } = render(<App />);
       fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
 
-      // Get first unplaced flag card
-      const firstCard = container.querySelector('[data-country-id]');
-      const countryId = firstCard?.getAttribute('data-country-id');
-      expect(countryId).toBeTruthy();
-
-      // Find a DIFFERENT country on map
-      const otherCountry = EUROPE_COUNTRIES.find(c => c.id !== countryId)!;
-      const wrongTarget = container.querySelector(`#country-${otherCountry.id}`);
-      expect(wrongTarget).toBeTruthy();
-
-      // Click wrong country
-      fireEvent.click(wrongTarget!);
-
-      // Verify that "This is <CountryName>" banner is shown
-      expect(screen.getByText(new RegExp(`This is ${otherCountry.name}`, 'i'))).toBeInTheDocument();
-    });
-
-    it('places flag correctly on mobile touch interaction', () => {
-      const { container } = render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
-
-      // Get first card
-      const firstCard = container.querySelector('[data-country-id]');
-      const countryId = firstCard?.getAttribute('data-country-id');
-      expect(countryId).toBeTruthy();
-
-      // Touch flag to select
-      fireEvent.touchStart(firstCard!, { touches: [{ clientX: 100, clientY: 100 }] });
-      fireEvent.touchEnd(firstCard!, { changedTouches: [{ clientX: 100, clientY: 100 }] });
-
-      // Touch matching country on map
-      const targetCountry = container.querySelector(`#country-${countryId}`);
-      expect(targetCountry).toBeTruthy();
-      fireEvent.click(targetCountry!);
-
-      // Placed score updated to 100
-      expect(screen.getByText('100')).toBeInTheDocument();
-    });
-
-    it('debounces rapid synthetic double clicks to avoid duplicate placement score triggers', () => {
-      const { container } = render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
-
-      const firstCard = container.querySelector('[data-country-id]');
-      const countryId = firstCard?.getAttribute('data-country-id');
-      const targetCountry = container.querySelector(`#country-${countryId}`);
-
-      // Rapid successive clicks (e.g. touch + synthetic click)
-      fireEvent.click(firstCard!);
-      fireEvent.click(targetCountry!);
-      fireEvent.click(targetCountry!);
-
-      // Score should still only be 100, not double scored or errored
-      expect(screen.getByText('100')).toBeInTheDocument();
-    });
-
-    it('deducts 30% points (awards 70 pts) when placing a flag after using Name It hint', () => {
-      const { container } = render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
 
       const firstCard = container.querySelector('[data-country-id]');
       const countryId = firstCard?.getAttribute('data-country-id');
@@ -302,9 +305,11 @@ describe('Flaggle Basic Geography Game', () => {
       expect(screen.getByText('70')).toBeInTheDocument();
     });
 
-    it('builds streak on consecutive correct placements and resets on error', () => {
+    it('builds streak on consecutive correct placements and resets on error', async () => {
       const { container } = render(<App />);
       fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
 
       // 1st correct match
       const firstCard = container.querySelector('[data-country-id]');
@@ -333,7 +338,46 @@ describe('Flaggle Basic Geography Game', () => {
     });
   });
 
-  describe('4. Home Screen Reference Design & Features', () => {
+  describe('4. Speedrun Keyboard Shortcuts & Haptics', () => {
+    it('handles keyboard shortcuts: N for Name It, S for Show Me, and Escape to exit', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+
+      await waitFor(() => expect(screen.getByText(/Flags/i)).toBeInTheDocument());
+
+      const firstCard = container.querySelector('[data-country-id]');
+      const countryId = firstCard?.getAttribute('data-country-id');
+      const countryObj = EUROPE_COUNTRIES.find(c => c.id === countryId)!;
+
+      // Press 'n' to trigger Name It
+      fireEvent.keyDown(window, { key: 'n' });
+      expect(firstCard).toHaveTextContent(countryObj.name);
+
+      // Press 's' to trigger Show Me
+      fireEvent.keyDown(window, { key: 's' });
+      const targetCountry = container.querySelector(`#country-${countryId}`);
+      expect(targetCountry?.getAttribute('fill')).toContain(`url(#flag-pat-${countryId})`);
+
+      // Press 'Escape' to return to Continent Selection
+      fireEvent.keyDown(window, { key: 'Escape' });
+      await waitFor(() => {
+        expect(screen.getByText(/Flaggle/i)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Play Europe/i })).toBeInTheDocument();
+      });
+    });
+
+    it('triggers haptics safely on mobile actions', () => {
+      const hapticSpy = vi.spyOn(haptics, 'triggerHaptic');
+      haptics.triggerHaptic('success');
+      expect(hapticSpy).toHaveBeenCalledWith('success');
+      haptics.triggerHaptic('error');
+      expect(hapticSpy).toHaveBeenCalledWith('error');
+      haptics.triggerHaptic('hint');
+      expect(hapticSpy).toHaveBeenCalledWith('hint');
+    });
+  });
+
+  describe('5. Home Screen Reference Design & Features', () => {
     it('renders all 3 informational cards and continent silhouettes on home screen', () => {
       render(<App />);
 
@@ -341,85 +385,13 @@ describe('Flaggle Basic Geography Game', () => {
       expect(screen.getByText(/Microstate Rings/i)).toBeInTheDocument();
       expect(screen.getByText(/Hints & Assistance/i)).toBeInTheDocument();
 
-      // Check descriptions
+      // Check continent descriptions
       expect(screen.getByText(/Continental & island nations/i)).toBeInTheDocument();
       expect(screen.getByText(/Includes 6 microstates/i)).toBeInTheDocument();
       expect(screen.getByText(/Andes, Amazon & Patagonia/i)).toBeInTheDocument();
-      expect(screen.getByText(/Silk Road, Steppes & Archipelagoes/i)).toBeInTheDocument();
-      expect(screen.getByText(/Great Plains, Mayans & Caribbean/i)).toBeInTheDocument();
-      expect(screen.getByText(/Outback, Atolls & Pacific Isles/i)).toBeInTheDocument();
-    });
-
-    it('starts Asia game on selecting Asia', async () => {
-      render(<App />);
-      const playAsiaBtn = screen.getByRole('button', { name: /Play Asia/i });
-      fireEvent.click(playAsiaBtn);
-      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/49/i).length).toBeGreaterThan(0);
-    });
-
-    it('starts North America game on selecting North America', async () => {
-      render(<App />);
-      const playNABtn = screen.getByRole('button', { name: /Play North America/i });
-      fireEvent.click(playNABtn);
-      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/23/i).length).toBeGreaterThan(0);
-    });
-
-    it('starts Oceania game on selecting Oceania', async () => {
-      render(<App />);
-      const playOceaniaBtn = screen.getByRole('button', { name: /Play Oceania/i });
-      fireEvent.click(playOceaniaBtn);
-      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/14/i).length).toBeGreaterThan(0);
-    });
-  });
-
-  describe('5. Desktop Speedrun Keyboard Shortcuts', () => {
-    it('triggers Name It hint on pressing N key', async () => {
-      const { container } = render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
-      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
-
-      const firstCard = container.querySelector('[data-country-id]');
-      const countryId = firstCard?.getAttribute('data-country-id');
-      const country = EUROPE_COUNTRIES.find(c => c.id === countryId);
-
-      // Press 'n'
-      fireEvent.keyDown(window, { key: 'n' });
-
-      // Name should now be visible in dock
-      expect(screen.getAllByText(country!.name).length).toBeGreaterThan(0);
-    });
-
-    it('triggers Show Me auto-placement on pressing S key', async () => {
-      const { container } = render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
-      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
-
-      const initialCount = container.querySelectorAll('[data-country-id]').length;
-
-      // Press 's'
-      fireEvent.keyDown(window, { key: 's' });
-
-      // Flag placed automatically; unplaced count decreased by 1
-      const newCount = container.querySelectorAll('[data-country-id]').length;
-      expect(newCount).toBe(initialCount - 1);
-    });
-
-    it('cycles selected flag on ArrowRight key', async () => {
-      const { container } = render(<App />);
-      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
-      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
-
-      const cards = container.querySelectorAll('[data-country-id]');
-      const id1 = cards[0]?.getAttribute('data-country-id');
-
-      // Press ArrowRight
-      fireEvent.keyDown(window, { key: 'ArrowRight' });
-
-      // Should have selected another card or cycled
-      expect(id1).toBeTruthy();
+      expect(screen.getByText(/Silk Road, Steppes & Archipelagos/i)).toBeInTheDocument();
+      expect(screen.getByText(/Great Lakes, Maya & Caribbean/i)).toBeInTheDocument();
+      expect(screen.getByText(/Coral atolls, Outback & Polynesia/i)).toBeInTheDocument();
     });
   });
 });

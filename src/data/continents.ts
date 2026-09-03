@@ -33,21 +33,21 @@ export const CONTINENTS: Continent[] = [
     name: 'Asia',
     countryCount: 49,
     status: 'playable',
-    description: '49 countries • Silk Road, Steppes & Archipelagoes'
+    description: '49 countries • Silk Road, Steppes & Archipelagos'
   },
   {
     id: 'north_america',
     name: 'North America',
     countryCount: 23,
     status: 'playable',
-    description: '23 countries • Great Plains, Mayans & Caribbean'
+    description: '23 countries • Great Lakes, Maya & Caribbean'
   },
   {
     id: 'oceania',
     name: 'Oceania',
     countryCount: 14,
     status: 'playable',
-    description: '14 countries • Outback, Atolls & Pacific Isles'
+    description: '14 countries • Coral atolls, Outback & Polynesia'
   },
   {
     id: 'antarctica',
@@ -57,3 +57,4 @@ export const CONTINENTS: Continent[] = [
     description: 'No sovereign territories'
   }
 ];
+

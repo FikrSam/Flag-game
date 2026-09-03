@@ -11,15 +11,18 @@ const countriesGeo = (topojson.feature(worldData, worldData.objects.countries) a
 const width = 1000;
 const height = 800;
 
-// Standard Mercator projection centered on North America & Caribbean
-const projection = d3.geoMercator()
-  .center([-96, 42])
-  .scale(320)
-  .translate([width / 2, height / 2 + 10]);
+// Authentic Conic Equal Area projection for North America
+const projection = d3.geoConicEqualArea()
+  .parallels([20, 60])
+  .rotate([96, 0])
+  .center([0, 38])
+  .scale(460)
+  .translate([width / 2 + 10, height / 2 - 10]);
 
 const pathGenerator = d3.geoPath().projection(projection);
 
-function filterNorthAmericaGeometry(geometry: any) {
+// Filter out Aleutian islands crossing 180° into the Eastern Hemisphere and distant overseas territories
+function filterNAGeometry(geometry: any) {
   if (!geometry) return null;
   if (geometry.type === 'Polygon') return geometry;
   if (geometry.type === 'MultiPolygon') {
@@ -27,8 +30,7 @@ function filterNorthAmericaGeometry(geometry: any) {
       const pts = poly[0];
       const avgLon = pts.reduce((s: number, p: number[]) => s + p[0], 0) / pts.length;
       const avgLat = pts.reduce((s: number, p: number[]) => s + p[1], 0) / pts.length;
-      // Exclude eastern hemisphere Aleutians (crossing 180°) and extreme arctic above 75°N
-      return avgLat >= 5 && avgLat <= 75 && avgLon >= -175 && avgLon <= -50;
+      return avgLon <= -50 && avgLon >= -175 && avgLat >= 5 && avgLat <= 85;
     });
     if (validPolys.length === 0) return null;
     return {
@@ -39,13 +41,39 @@ function filterNorthAmericaGeometry(geometry: any) {
   return geometry;
 }
 
-// Surrounding context landmasses (Northern South America, Greenland)
-const CONTEXT_NUMERICS = ['170', '862', '304', '254', '534', '531'];
+// Surrounding context landmasses (South America: Colombia, Venezuela; Greenland, Bermuda)
+const CONTEXT_NUMERICS = ['170', '862', '304', '060'];
 const contextLandFeatures = countriesGeo.filter((f: any) => CONTEXT_NUMERICS.includes(f.id));
 const contextLandPaths = contextLandFeatures.map((f: any) => {
-  const filtered = { ...f, geometry: filterNorthAmericaGeometry(f.geometry) };
-  return pathGenerator(filtered);
+  const d = pathGenerator(f);
+  return d;
 }).filter(Boolean);
+
+const CENTROID_OVERRIDES: Record<string, [number, number]> = {
+  'CA': [-106.0, 56.0],
+  'US': [-98.5, 39.5],
+  'MX': [-102.5, 23.5],
+  'GT': [-90.2, 15.5],
+  'BZ': [-88.5, 17.2],
+  'SV': [-88.9, 13.8],
+  'HN': [-86.5, 15.0],
+  'NI': [-85.2, 12.8],
+  'CR': [-84.0, 10.0],
+  'PA': [-80.2, 8.5],
+  'CU': [-79.5, 22.0],
+  'BS': [-77.4, 25.0],
+  'HT': [-72.3, 19.0],
+  'DO': [-70.2, 19.0],
+  'JM': [-77.3, 18.1],
+  'TT': [-61.2, 10.5],
+  'BB': [-59.5, 13.2],
+  'LC': [-61.0, 14.0],
+  'VC': [-61.2, 13.2],
+  'GD': [-61.7, 12.1],
+  'AG': [-61.8, 17.1],
+  'DM': [-61.4, 15.4],
+  'KN': [-62.7, 17.3]
+};
 
 interface CountryDef {
   numeric: string;
@@ -58,56 +86,30 @@ interface CountryDef {
 }
 
 const COUNTRY_DEFINITIONS: CountryDef[] = [
-  { numeric: '124', code: 'CA', name: 'Canada', capital: 'Ottawa', region: 'Northern America', funFact: 'Has the longest coastline in the world (over 202,080 km) and more lakes than all other countries combined.' },
-  { numeric: '840', code: 'US', name: 'United States', capital: 'Washington, D.C.', region: 'Northern America', funFact: 'Home to 63 National Parks and the world’s longest cave system, Mammoth Cave in Kentucky.' },
-  { numeric: '484', code: 'MX', name: 'Mexico', capital: 'Mexico City', region: 'Central America', funFact: 'Introduced chocolate, chili, and corn to the world; home to the ancient Mayan pyramid of Chichen Itza.' },
-  { numeric: '320', code: 'GT', name: 'Guatemala', capital: 'Guatemala City', region: 'Central America', funFact: 'Heartland of the ancient Maya civilization, famous for the magnificent jungle temples of Tikal.' },
-  { numeric: '084', code: 'BZ', name: 'Belize', capital: 'Belmopan', region: 'Central America', funFact: 'Home to the Great Blue Hole and the second-largest coral barrier reef system on Earth.' },
-  { numeric: '222', code: 'SV', name: 'El Salvador', capital: 'San Salvador', region: 'Central America', funFact: 'Known as the "Land of Volcanoes," it is the smallest and most densely populated Central American country.' },
-  { numeric: '340', code: 'HN', name: 'Honduras', capital: 'Tegucigalpa', region: 'Central America', funFact: 'First country to establish a designated national dolphin reserve and home to ancient Copán ruins.' },
-  { numeric: '558', code: 'NI', name: 'Nicaragua', capital: 'Managua', region: 'Central America', funFact: 'Features Lake Nicaragua, Central America’s largest lake, home to rare freshwater bull sharks.' },
-  { numeric: '188', code: 'CR', name: 'Costa Rica', capital: 'San José', region: 'Central America', funFact: 'Contains ~5% of Earth\'s total biodiversity while holding no standing military army since 1948.' },
-  { numeric: '591', code: 'PA', name: 'Panama', capital: 'Panama City', region: 'Central America', funFact: 'The only place on Earth where you can see the sun rise over the Pacific and set over the Atlantic.' },
-  { numeric: '192', code: 'CU', name: 'Cuba', capital: 'Havana', region: 'Caribbean', funFact: 'The largest island in the Caribbean, famed for vintage American automobiles and UNESCO biosphere reserves.' },
-  { numeric: '388', code: 'JM', name: 'Jamaica', capital: 'Kingston', region: 'Caribbean', funFact: 'The birthplace of Reggae music and home to the majestic mist-covered Blue Mountains.' },
-  { numeric: '332', code: 'HT', name: 'Haiti', capital: 'Port-au-Prince', region: 'Caribbean', funFact: 'The world\'s first independent Black-led republic, established in 1804 after a successful revolution.' },
-  { numeric: '214', code: 'DO', name: 'Dominican Republic', capital: 'Santo Domingo', region: 'Caribbean', funFact: 'Home to Pico Duarte (the Caribbean’s highest peak) and the oldest European city in the Americas.' },
-  { numeric: '044', code: 'BS', name: 'Bahamas', capital: 'Nassau', region: 'Caribbean', funFact: 'An archipelago of over 700 islands and cays known for crystal-clear turquoise waters and swimming pigs.' },
-  { numeric: '780', code: 'TT', name: 'Trinidad and Tobago', capital: 'Port of Spain', region: 'Caribbean', funFact: 'Birthplace of the steelpan (the only acoustic instrument invented in the 20th century) and Calypso.' },
-  { numeric: '052', code: 'BB', name: 'Barbados', capital: 'Bridgetown', region: 'Caribbean', funFact: 'The easternmost Caribbean island, legendary birthplace of rum and global icon Rihanna.', isMicrostate: true },
-  { numeric: '662', code: 'LC', name: 'Saint Lucia', capital: 'Castries', region: 'Caribbean', funFact: 'Famed for the dramatic volcanic Gros Piton and Petit Piton spires rising straight from the sea.', isMicrostate: true },
-  { numeric: '670', code: 'VC', name: 'Saint Vincent and the Grenadines', capital: 'Kingstown', region: 'Caribbean', funFact: 'Comprises 32 tropical islands, including active stratovolcano La Soufrière.', isMicrostate: true },
-  { numeric: '308', code: 'GD', name: 'Grenada', capital: "St. George's", region: 'Caribbean', funFact: 'Known as the "Spice Isle" for being one of the world\'s largest exporters of nutmeg and mace.', isMicrostate: true },
-  { numeric: '028', code: 'AG', name: 'Antigua and Barbuda', capital: "St. John's", region: 'Caribbean', funFact: 'Boasts 365 distinct pristine beaches — famously "one for every single day of the year."', isMicrostate: true },
-  { numeric: '212', code: 'DM', name: 'Dominica', capital: 'Roseau', region: 'Caribbean', funFact: 'Known as the "Nature Isle of the Caribbean," home to Boiling Lake and lush rainforest reserves.', isMicrostate: true },
-  { numeric: '659', code: 'KN', name: 'Saint Kitts and Nevis', capital: 'Basseterre', region: 'Caribbean', funFact: 'The smallest sovereign nation in the Western Hemisphere, both in land area and population.', isMicrostate: true }
+  { numeric: '124', code: 'CA', name: 'Canada', capital: 'Ottawa', region: 'Northern', funFact: 'Contains more than half of all natural lakes on planet Earth and has the longest coastline in the world.' },
+  { numeric: '840', code: 'US', name: 'United States', capital: 'Washington, D.C.', region: 'Northern', funFact: 'Home to Yellowstone (1872), the world\'s very first national park, and 50 diverse states.' },
+  { numeric: '484', code: 'MX', name: 'Mexico', capital: 'Mexico City', region: 'Central', funFact: 'Introduced chocolate, chili, and corn to the world; Mexico City is built over ancient Aztec Tenochtitlan.' },
+  { numeric: '320', code: 'GT', name: 'Guatemala', capital: 'Guatemala City', region: 'Central', funFact: 'The birthplace of Mayan culture and home to Tikal, one of the grandest ancient Mesoamerican cities.' },
+  { numeric: '084', code: 'BZ', name: 'Belize', capital: 'Belmopan', region: 'Central', funFact: 'Features the Belize Barrier Reef and the Great Blue Hole, a giant marine sinkhole over 300 meters across.' },
+  { numeric: '222', code: 'SV', name: 'El Salvador', capital: 'San Salvador', region: 'Central', funFact: 'Known as the "Land of Volcanoes" with over 20 active volcanoes, and the smallest mainland American nation.' },
+  { numeric: '340', code: 'HN', name: 'Honduras', capital: 'Tegucigalpa', region: 'Central', funFact: 'Home to the ancient Maya ruins of Copán, famous for its magnificent carved hieroglyphic stairway.' },
+  { numeric: '558', code: 'NI', name: 'Nicaragua', capital: 'Managua', region: 'Central', funFact: 'Lake Nicaragua contains the world\'s only known freshwater-adapted oceanic bull sharks.' },
+  { numeric: '188', code: 'CR', name: 'Costa Rica', capital: 'San José', region: 'Central', funFact: 'Houses roughly 5% of all global biodiversity despite covering only 0.03% of Earth\'s surface.' },
+  { numeric: '591', code: 'PA', name: 'Panama', capital: 'Panama City', region: 'Central', funFact: 'The only place on Earth where you can see the sun rise over the Pacific and set over the Atlantic.' },
+  { numeric: '192', code: 'CU', name: 'Cuba', capital: 'Havana', region: 'Caribbean', funFact: 'The largest island nation in the Caribbean, famed for vintage American automobiles and cigars.' },
+  { numeric: '044', code: 'BS', name: 'Bahamas', capital: 'Nassau', region: 'Caribbean', funFact: 'An archipelago of over 700 islands and cays surrounded by some of the clearest turquoise waters on Earth.' },
+  { numeric: '332', code: 'HT', name: 'Haiti', capital: 'Port-au-Prince', region: 'Caribbean', funFact: 'The first independent republic in Latin America and the Caribbean, founded following a successful 1804 revolution.' },
+  { numeric: '214', code: 'DO', name: 'Dominican Republic', capital: 'Santo Domingo', region: 'Caribbean', funFact: 'Santo Domingo is the oldest permanent European settlement in the Americas (founded in 1496).' },
+  { numeric: '388', code: 'JM', name: 'Jamaica', capital: 'Kingston', region: 'Caribbean', funFact: 'The birthplace of reggae music, Bob Marley, and the fastest sprinters in Olympic history.' },
+  { numeric: '780', code: 'TT', name: 'Trinidad and Tobago', capital: 'Port of Spain', region: 'Caribbean', funFact: 'Invented the steelpan (steel drum), the only acoustic musical instrument developed in the 20th century.' },
+  { numeric: '052', code: 'BB', name: 'Barbados', capital: 'Bridgetown', region: 'Caribbean', isMicrostate: true, funFact: 'The birthplace of rum (Mount Gay, established 1703) and megastar Rihanna, designated a National Hero.' },
+  { numeric: '662', code: 'LC', name: 'Saint Lucia', capital: 'Castries', region: 'Caribbean', isMicrostate: true, funFact: 'The only sovereign country in the world named after an actual historical woman (Saint Lucy of Syracuse).' },
+  { numeric: '670', code: 'VC', name: 'Saint Vincent and the Grenadines', capital: 'Kingstown', region: 'Caribbean', isMicrostate: true, funFact: 'Consists of 32 stunning volcanic islands and cays, famous for black and golden sand beaches.' },
+  { numeric: '308', code: 'GD', name: 'Grenada', capital: 'St. George\'s', region: 'Caribbean', isMicrostate: true, funFact: 'Known as the "Island of Spice" for being one of the world\'s top producers of aromatic nutmeg and mace.' },
+  { numeric: '028', code: 'AG', name: 'Antigua and Barbuda', capital: 'St. John\'s', region: 'Caribbean', isMicrostate: true, funFact: 'Boasts 365 distinct white and pink sandy beaches — famously one for every day of the year.' },
+  { numeric: '212', code: 'DM', name: 'Dominica', capital: 'Roseau', region: 'Caribbean', isMicrostate: true, funFact: 'Known as the "Nature Isle of the Caribbean," home to the world\'s second-largest thermal boiling lake.' },
+  { numeric: '659', code: 'KN', name: 'Saint Kitts and Nevis', capital: 'Basseterre', region: 'Caribbean', isMicrostate: true, funFact: 'The smallest sovereign state in the Americas, both in land area (261 km²) and population.' }
 ];
-
-const CENTROID_OVERRIDES: Record<string, [number, number]> = {
-  'CA': [-100, 56],
-  'US': [-98, 38.5],
-  'MX': [-102, 23.5],
-  'GT': [-90.2, 15.5],
-  'BZ': [-88.7, 17.2],
-  'SV': [-88.9, 13.8],
-  'HN': [-86.5, 14.8],
-  'NI': [-85.2, 12.8],
-  'CR': [-84.1, 9.8],
-  'PA': [-80.5, 8.5],
-  'CU': [-79.5, 22.0],
-  'JM': [-77.3, 18.1],
-  'HT': [-72.5, 19.0],
-  'DO': [-70.5, 19.0],
-  'BS': [-76.5, 24.5],
-  'TT': [-61.3, 10.5],
-  'BB': [-59.5, 13.2],
-  'LC': [-61.0, 13.9],
-  'VC': [-61.2, 13.25],
-  'GD': [-61.7, 12.1],
-  'AG': [-61.8, 17.1],
-  'DM': [-61.35, 15.4],
-  'KN': [-62.7, 17.3]
-};
 
 const resultCountries: any[] = [];
 
@@ -118,7 +120,7 @@ for (const cDef of COUNTRY_DEFINITIONS) {
   let bbox = { x: 0, y: 0, width: 100, height: 100 };
 
   if (geoFeature) {
-    const filteredGeo = { ...geoFeature, geometry: filterNorthAmericaGeometry(geoFeature.geometry) };
+    const filteredGeo = { ...geoFeature, geometry: filterNAGeometry(geoFeature.geometry) };
     if (filteredGeo.geometry) {
       pathD = pathGenerator(filteredGeo) || '';
       const bounds = pathGenerator.bounds(filteredGeo);
@@ -144,10 +146,11 @@ for (const cDef of COUNTRY_DEFINITIONS) {
     centroid = [Math.round(projected[0] * 10) / 10, Math.round(projected[1] * 10) / 10];
   }
 
-  // Small island beacon support
-  if (cDef.isMicrostate) {
+  // Dedicated accessible beacon polygon for microstates or tiny islands
+  const isMicrostate = !!cDef.isMicrostate;
+  if (!pathD || isMicrostate) {
     const r = 9;
-    if (!pathD || bbox.width < 10 || bbox.height < 10) {
+    if (!pathD) {
       pathD = `M ${centroid[0] - r} ${centroid[1]} a ${r} ${r} 0 1 0 ${r * 2} 0 a ${r} ${r} 0 1 0 ${-r * 2} 0 Z`;
       bbox = {
         x: Math.round(centroid[0] - r),
@@ -158,7 +161,7 @@ for (const cDef of COUNTRY_DEFINITIONS) {
     }
   }
 
-  // Read SVG flag data
+  // Read raw SVG content from public/flags
   const flagSvgPath = path.resolve(`public/flags/${cDef.code.toLowerCase()}.svg`);
   let flagDataUri = `/flags/${cDef.code.toLowerCase()}.svg`;
   if (fs.existsSync(flagSvgPath)) {
@@ -178,7 +181,7 @@ for (const cDef of COUNTRY_DEFINITIONS) {
     path: pathD,
     centroid,
     bbox,
-    isMicrostate: !!cDef.isMicrostate
+    isMicrostate
   });
 }
 
@@ -197,4 +200,4 @@ export const NORTH_AMERICA_COUNTRIES: CountryData[] = ${JSON.stringify(resultCou
 `;
 
 fs.writeFileSync(path.resolve('src/data/northAmericaData.ts'), fileContent, 'utf8');
-console.log(`Successfully generated src/data/northAmericaData.ts with all ${resultCountries.length} North American nations.`);
+console.log(`Successfully generated src/data/northAmericaData.ts with all 23 North American countries.`);

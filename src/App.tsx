@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { loadContinentData, getCachedContinentData } from './data/continentLoader';
-import type { LoadedContinent } from './data/continentLoader';
+import { loadContinentData, preloadContinentData, getCachedContinentData, type ContinentGamePackage } from './data/continentLoader';
 import type { CountryData } from './types/game';
 import { ContinentSelect } from './components/ContinentSelect';
 import { Header } from './components/Header';
 import { InteractiveMap } from './components/EuropeMap';
 import { FlagDock } from './components/FlagDock';
 import { VictoryScreen } from './components/VictoryScreen';
-import { hapticSuccess, hapticError, hapticTap } from './utils/haptics';
+import { triggerHaptic } from './utils/haptics';
 
 export function App() {
   const [screen, setScreen] = useState<'continent_select' | 'game'>('continent_select');
-  const [activeContinentData, setActiveContinentData] = useState<LoadedContinent | null>(null);
-  const [isLoadingContinent, setIsLoadingContinent] = useState<boolean>(false);
+  const [activeContinentId, setActiveContinentId] = useState<string>('europe');
+  const [activeContinentData, setActiveContinentData] = useState<ContinentGamePackage | null>(null);
+  const [loadingContinentId, setLoadingContinentId] = useState<string | null>(null);
 
   // Game state
   const [placedCountries, setPlacedCountries] = useState<Set<string>>(new Set());
@@ -30,10 +30,16 @@ export function App() {
 
   const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialize unplaced flags when continent data is loaded
-  const initGameWithData = useCallback((data: LoadedContinent) => {
-    const shuffled = [...data.countries].sort(() => Math.random() - 0.5);
-    setActiveContinentData(data);
+  // Preload Europe in the background on initial landing
+  useEffect(() => {
+    preloadContinentData('europe');
+  }, []);
+
+  // Helper to initialize and start gameplay once data package is ready
+  const applyContinentData = useCallback((dataPkg: ContinentGamePackage, continentId: string) => {
+    const shuffled = [...dataPkg.countries].sort(() => Math.random() - 0.5);
+    setActiveContinentId(continentId);
+    setActiveContinentData(dataPkg);
     setPlacedCountries(new Set());
     setUnplacedCountries(shuffled);
     setSelectedFlagId(shuffled[0]?.id || null);
@@ -46,7 +52,29 @@ export function App() {
     setScore(0);
     setTimeElapsed(0);
     setIsVictory(false);
+    setScreen('game');
   }, []);
+
+  // Lazy-load continent dataset and start game
+  const initGame = useCallback((continentId: string) => {
+    const cached = getCachedContinentData(continentId);
+    if (cached) {
+      applyContinentData(cached, continentId);
+      return;
+    }
+
+    setLoadingContinentId(continentId);
+    loadContinentData(continentId)
+      .then((dataPkg) => {
+        applyContinentData(dataPkg, continentId);
+      })
+      .catch((err) => {
+        console.error(`Failed to load continent data for ${continentId}:`, err);
+      })
+      .finally(() => {
+        setLoadingContinentId(null);
+      });
+  }, [applyContinentData]);
 
   // Timer
   useEffect(() => {
@@ -66,50 +94,34 @@ export function App() {
     };
   }, []);
 
-  // Start continent game with dynamic code-splitting loader
-  const handleSelectContinent = useCallback(async (continentId: string) => {
-    // If already in memory cache, start synchronously for zero delay
-    const cached = getCachedContinentData(continentId);
-    if (cached) {
-      initGameWithData(cached);
-      setScreen('game');
-      return;
-    }
-
-    setIsLoadingContinent(true);
-    try {
-      const data = await loadContinentData(continentId);
-      initGameWithData(data);
-      setScreen('game');
-    } finally {
-      setIsLoadingContinent(false);
-    }
-  }, [initGameWithData]);
+  // Start continent game
+  const handleSelectContinent = (continentId: string) => {
+    initGame(continentId);
+  };
 
   // Restart / Reset game
   const handleRestart = useCallback(() => {
-    if (activeContinentData) {
-      hapticTap();
-      initGameWithData(activeContinentData);
+    if (activeContinentId) {
+      initGame(activeContinentId);
     }
-  }, [activeContinentData, initGameWithData]);
+  }, [activeContinentId, initGame]);
 
   // Flag selection
-  const handleSelectFlag = useCallback((countryId: string) => {
+  const handleSelectFlag = (countryId: string) => {
     setSelectedFlagId(countryId);
-    hapticTap();
-  }, []);
+    triggerHaptic('tap');
+  };
 
-  // "Name it" action: reveals name of country (30% point deduction on correct placement)
+  // "Name it" action: reveals name of country
   const handleNameIt = useCallback((countryId: string) => {
-    hapticTap();
     setNamedCountryIds(prev => new Set(prev).add(countryId));
+    triggerHaptic('hint');
   }, []);
 
   // Track last match event timestamp and country to prevent mobile double-tap synthetic clicks
   const lastMatchRef = useRef<{ time: number; countryId: string }>({ time: 0, countryId: '' });
 
-  // Match interaction (drag drop or tap flag then tap country)
+  // Match interaction (drag drop or tap twice)
   const handleCountryMatch = useCallback((targetCountryId: string) => {
     if (!selectedFlagId || !activeContinentData) return;
     if (placedCountries.has(targetCountryId)) return;
@@ -124,8 +136,8 @@ export function App() {
     const isMatch = selectedFlagId === targetCountryId;
 
     if (isMatch) {
-      // Tactile vibration success pulse
-      hapticSuccess();
+      // Haptic feedback for correct placement
+      triggerHaptic('success');
 
       // Increment streak
       const nextStreak = currentStreak + 1;
@@ -133,7 +145,7 @@ export function App() {
       setMaxStreak(prev => Math.max(prev, nextStreak));
       setWrongFeedback(null);
 
-      // Scoring: 100 pts unassisted, 70 pts if Name It hint was used
+      // Scoring: 100 pts without Name It hint, 70 pts (30% deduction) if Name It was used
       const isNamed = namedCountryIds.has(targetCountryId);
       const pointsEarned = isNamed ? 70 : 100;
       setScore(prev => prev + pointsEarned);
@@ -149,8 +161,8 @@ export function App() {
         setIsVictory(true);
       }
     } else {
-      // Tactile vibration warning buzz
-      hapticError();
+      // Haptic feedback for mistake
+      triggerHaptic('error');
 
       // Break streak on mistake
       setCurrentStreak(0);
@@ -170,7 +182,7 @@ export function App() {
   // "Show me" action: places flag automatically for 0 points & breaks streak
   const handleShowMe = useCallback((countryId: string) => {
     if (!activeContinentData) return;
-    hapticTap();
+    triggerHaptic('hint');
     setCurrentStreak(0);
     setShowMeCountryIds(prev => new Set(prev).add(countryId));
 
@@ -194,81 +206,76 @@ export function App() {
 
   // Desktop Speedrun Keyboard Shortcuts
   useEffect(() => {
-    if (screen !== 'game' || isVictory) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is inside an input/textarea
-      const target = e.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+      // Ignore keystrokes when typing inside inputs or textareas
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
 
-      const key = e.key.toLowerCase();
+      // Escape key: close victory modal or return to continent selection
+      if (e.key === 'Escape') {
+        if (isVictory) {
+          setIsVictory(false);
+        } else if (screen === 'game') {
+          setScreen('continent_select');
+        }
+        return;
+      }
 
-      if (key === 'n') {
-        // [N] Hint: Name It
-        if (selectedFlagId && !namedCountryIds.has(selectedFlagId)) {
+      // Only handle game shortcuts during active game screen
+      if (screen !== 'game' || isVictory || !activeContinentData) return;
+
+      // N or n: Name It
+      if (e.key === 'n' || e.key === 'N') {
+        if (selectedFlagId) {
           e.preventDefault();
           handleNameIt(selectedFlagId);
         }
-      } else if (key === 's') {
-        // [S] Hint: Show Me
+      }
+
+      // S or s: Show Me
+      if (e.key === 's' || e.key === 'S') {
         if (selectedFlagId) {
           e.preventDefault();
           handleShowMe(selectedFlagId);
         }
-      } else if (key === 'r') {
-        // [R] Restart continent run
+      }
+
+      // R or r: Restart continent
+      if (e.key === 'r' || e.key === 'R') {
         e.preventDefault();
         handleRestart();
-      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        // Cycle to next unplaced flag
-        e.preventDefault();
-        if (unplacedCountries.length > 1) {
-          const idx = unplacedCountries.findIndex(c => c.id === selectedFlagId);
-          const nextIdx = (idx + 1) % unplacedCountries.length;
+      }
+
+      // Arrow keys: cycle unplaced flags
+      if (unplacedCountries.length > 1) {
+        const currentIndex = unplacedCountries.findIndex(c => c.id === selectedFlagId);
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          const nextIdx = (currentIndex + 1) % unplacedCountries.length;
           setSelectedFlagId(unplacedCountries[nextIdx].id);
-          hapticTap();
-        }
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        // Cycle to previous unplaced flag
-        e.preventDefault();
-        if (unplacedCountries.length > 1) {
-          const idx = unplacedCountries.findIndex(c => c.id === selectedFlagId);
-          const prevIdx = (idx - 1 + unplacedCountries.length) % unplacedCountries.length;
+          triggerHaptic('tap');
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prevIdx = (currentIndex - 1 + unplacedCountries.length) % unplacedCountries.length;
           setSelectedFlagId(unplacedCountries[prevIdx].id);
-          hapticTap();
+          triggerHaptic('tap');
         }
-      } else if (e.key === 'Escape') {
-        // Escape returns to continent select screen
-        e.preventDefault();
-        setScreen('continent_select');
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [screen, isVictory, selectedFlagId, namedCountryIds, unplacedCountries, handleNameIt, handleShowMe, handleRestart]);
+  }, [screen, isVictory, selectedFlagId, unplacedCountries, activeContinentData, handleNameIt, handleShowMe, handleRestart]);
 
   // Continent Selection View
-  if (screen === 'continent_select') {
+  if (screen === 'continent_select' || !activeContinentData) {
     return (
-      <>
-        {isLoadingContinent && (
-          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center">
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-8 h-8 rounded-full border-2 border-[#f1f1f1] border-t-transparent animate-spin" />
-              <span className="text-xs text-zinc-300 font-medium tracking-wide">Loading continent...</span>
-            </div>
-          </div>
-        )}
-        <ContinentSelect onSelectContinent={handleSelectContinent} />
-      </>
+      <ContinentSelect
+        onSelectContinent={handleSelectContinent}
+        loadingContinentId={loadingContinentId}
+      />
     );
-  }
-
-  if (!activeContinentData) {
-    return null;
   }
 
   // Active Game View (Full width on any display, mobile dynamic viewport height)

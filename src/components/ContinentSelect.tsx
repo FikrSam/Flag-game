@@ -5,9 +5,10 @@ import { Logo } from './Logo';
 
 interface ContinentSelectProps {
   onSelectContinent: (continentId: string) => void;
+  loadingContinentId?: string | null;
 }
 
-export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContinent }) => {
+export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContinent, loadingContinentId }) => {
   const handleSelect = (continentId: string) => {
     onSelectContinent(continentId);
   };
@@ -84,13 +85,21 @@ export const ContinentSelect: React.FC<ContinentSelectProps> = ({ onSelectContin
                   {isPlayable ? (
                     <button
                       aria-label={`Play ${continent.name}`}
+                      disabled={loadingContinentId === continent.id}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelect(continent.id);
                       }}
-                      className="w-full py-2 px-3 rounded-lg text-xs font-bold bg-[#f1f1f1] hover:bg-white text-[#101010] shadow-sm transition-all flex items-center justify-center active:scale-[0.99]"
+                      className="w-full py-2 px-3 rounded-lg text-xs font-bold bg-[#f1f1f1] hover:bg-white text-[#101010] shadow-sm transition-all flex items-center justify-center active:scale-[0.99] disabled:opacity-75 disabled:cursor-wait"
                     >
-                      Play {continent.name}
+                      {loadingContinentId === continent.id ? (
+                        <span className="flex items-center gap-1.5 animate-pulse">
+                          <span className="w-2 h-2 rounded-full bg-[#101010] animate-ping" />
+                          Loading {continent.name}...
+                        </span>
+                      ) : (
+                        `Play ${continent.name}`
+                      )}
                     </button>
                   ) : (
                     <button

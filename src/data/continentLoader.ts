@@ -1,104 +1,107 @@
 import type { CountryData } from '../types/game';
 
-export interface LoadedContinent {
+export interface MapConfig {
+  viewBox: string;
+  width: number;
+  height: number;
+}
+
+export interface ContinentGamePackage {
   id: string;
   name: string;
   countries: CountryData[];
   contextLandPaths: string[];
-  mapConfig: {
-    viewBox: string;
-    width: number;
-    height: number;
-  };
+  mapConfig: MapConfig;
 }
 
-const continentCache = new Map<string, LoadedContinent>();
+// In-memory cache so once a continent dataset is downloaded, subsequent switches are instantaneous
+const continentCache = new Map<string, ContinentGamePackage>();
 
-export function getCachedContinentData(continentId: string): LoadedContinent | null {
-  return continentCache.get(continentId) || null;
+export function getCachedContinentData(continentId: string): ContinentGamePackage | undefined {
+  return continentCache.get(continentId);
 }
 
-export function setCachedContinentData(continentId: string, data: LoadedContinent): void {
-  continentCache.set(continentId, data);
+export function preloadContinentData(continentId: string): Promise<ContinentGamePackage> {
+  return loadContinentData(continentId);
 }
 
-export async function loadContinentData(continentId: string): Promise<LoadedContinent> {
+export async function loadContinentData(continentId: string): Promise<ContinentGamePackage> {
   if (continentCache.has(continentId)) {
     return continentCache.get(continentId)!;
   }
 
-  let loaded: LoadedContinent;
+  let pkg: ContinentGamePackage;
 
   switch (continentId) {
     case 'africa': {
-      const mod = await import('./africaData');
-      loaded = {
+      const m = await import('./africaData');
+      pkg = {
         id: 'africa',
         name: 'Africa',
-        countries: mod.AFRICA_COUNTRIES,
-        contextLandPaths: mod.AFRICA_CONTEXT_LAND_PATHS,
-        mapConfig: mod.AFRICA_MAP_CONFIG
+        countries: m.AFRICA_COUNTRIES,
+        contextLandPaths: m.AFRICA_CONTEXT_LAND_PATHS,
+        mapConfig: m.AFRICA_MAP_CONFIG
       };
       break;
     }
     case 'south_america': {
-      const mod = await import('./southAmericaData');
-      loaded = {
+      const m = await import('./southAmericaData');
+      pkg = {
         id: 'south_america',
         name: 'South America',
-        countries: mod.SOUTH_AMERICA_COUNTRIES,
-        contextLandPaths: mod.SOUTH_AMERICA_CONTEXT_LAND_PATHS,
-        mapConfig: mod.SOUTH_AMERICA_MAP_CONFIG
+        countries: m.SOUTH_AMERICA_COUNTRIES,
+        contextLandPaths: m.SOUTH_AMERICA_CONTEXT_LAND_PATHS,
+        mapConfig: m.SOUTH_AMERICA_MAP_CONFIG
       };
       break;
     }
     case 'north_america': {
-      const mod = await import('./northAmericaData');
-      loaded = {
+      const m = await import('./northAmericaData');
+      pkg = {
         id: 'north_america',
         name: 'North America',
-        countries: mod.NORTH_AMERICA_COUNTRIES,
-        contextLandPaths: mod.NORTH_AMERICA_CONTEXT_LAND_PATHS,
-        mapConfig: mod.NORTH_AMERICA_MAP_CONFIG
+        countries: m.NORTH_AMERICA_COUNTRIES,
+        contextLandPaths: m.NORTH_AMERICA_CONTEXT_LAND_PATHS,
+        mapConfig: m.NORTH_AMERICA_MAP_CONFIG
       };
       break;
     }
     case 'oceania': {
-      const mod = await import('./oceaniaData');
-      loaded = {
+      const m = await import('./oceaniaData');
+      pkg = {
         id: 'oceania',
         name: 'Oceania',
-        countries: mod.OCEANIA_COUNTRIES,
-        contextLandPaths: mod.OCEANIA_CONTEXT_LAND_PATHS,
-        mapConfig: mod.OCEANIA_MAP_CONFIG
+        countries: m.OCEANIA_COUNTRIES,
+        contextLandPaths: m.OCEANIA_CONTEXT_LAND_PATHS,
+        mapConfig: m.OCEANIA_MAP_CONFIG
       };
       break;
     }
     case 'asia': {
-      const mod = await import('./asiaData');
-      loaded = {
+      const m = await import('./asiaData');
+      pkg = {
         id: 'asia',
         name: 'Asia',
-        countries: mod.ASIA_COUNTRIES,
-        contextLandPaths: mod.ASIA_CONTEXT_LAND_PATHS,
-        mapConfig: mod.ASIA_MAP_CONFIG
+        countries: m.ASIA_COUNTRIES,
+        contextLandPaths: m.ASIA_CONTEXT_LAND_PATHS,
+        mapConfig: m.ASIA_MAP_CONFIG
       };
       break;
     }
     case 'europe':
     default: {
-      const mod = await import('./europeData');
-      loaded = {
+      const m = await import('./europeData');
+      pkg = {
         id: 'europe',
         name: 'Europe',
-        countries: mod.EUROPE_COUNTRIES,
-        contextLandPaths: mod.CONTEXT_LAND_PATHS,
-        mapConfig: mod.MAP_CONFIG
+        countries: m.EUROPE_COUNTRIES,
+        contextLandPaths: m.CONTEXT_LAND_PATHS,
+        mapConfig: m.MAP_CONFIG
       };
       break;
     }
   }
 
-  continentCache.set(continentId, loaded);
-  return loaded;
+  continentCache.set(continentId, pkg);
+  return pkg;
 }

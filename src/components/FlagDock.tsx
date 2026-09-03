@@ -178,7 +178,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
         <button
           onClick={handleTriggerNameIt}
           disabled={!selectedCountry}
-          title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name (N)"}
+          title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name (Press N)"}
           className={`flex-1 h-10 px-3 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
             isCurrentFlagNamed
               ? 'bg-emerald-950/80 border border-emerald-500/70 text-emerald-300'
@@ -196,19 +196,23 @@ export const FlagDock: React.FC<FlagDockProps> = ({
               : 'Name It'}
           </span>
           {!isCurrentFlagNamed && (
-            <kbd className="hidden lg:inline text-[9px] text-zinc-500 font-mono px-1 py-0.5 bg-[#1a1a1a] rounded border border-[#333333]">N</kbd>
+            <kbd className="hidden sm:inline-block px-1.5 py-0.2 bg-[#2d2d2d] text-[10px] text-[#a1a1aa] rounded font-mono border border-[#404040] ml-0.5">
+              N
+            </kbd>
           )}
         </button>
 
         <button
           onClick={handleTriggerShowMe}
           disabled={!selectedCountry}
-          title="Place this flag on the map (0 points) (S)"
+          title="Place this flag on the map (0 points, Press S)"
           className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-[#242424] hover:bg-[#2c2c2c] text-[#f8fafc] border border-[#383838] transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <IconEye size={15} strokeWidth={2} className="text-amber-400 shrink-0" />
           <span>Show Me</span>
-          <kbd className="hidden lg:inline text-[9px] text-zinc-500 font-mono px-1 py-0.5 bg-[#1a1a1a] rounded border border-[#333333]">S</kbd>
+          <kbd className="hidden sm:inline-block px-1.5 py-0.2 bg-[#2d2d2d] text-[10px] text-[#a1a1aa] rounded font-mono border border-[#404040] ml-0.5">
+            S
+          </kbd>
         </button>
       </div>
 

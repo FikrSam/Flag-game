@@ -4,7 +4,7 @@ import { IconZoomIn, IconZoomOut, IconRotateClockwise } from './TablerIcons';
 
 export interface InteractiveMapProps {
   countries: CountryData[];
-  contextLandPaths: string[];
+  contextLandPaths?: string[];
   mapConfig: { viewBox: string; width: number; height: number };
   placedCountries: Set<string>;
   selectedFlagId: string | null;
@@ -13,13 +13,13 @@ export interface InteractiveMapProps {
   continentName?: string;
 }
 
-const DEFAULT_MAP_CONFIG = { viewBox: "0 0 1000 800", width: 1000, height: 800 };
-
 const MIN_ZOOM = 0.8;
 const MAX_ZOOM = 4.5;
 
+const DEFAULT_MAP_CONFIG = { viewBox: "0 0 1000 800", width: 1000, height: 800 };
+
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
-  countries = [],
+  countries,
   contextLandPaths = [],
   mapConfig = DEFAULT_MAP_CONFIG,
   placedCountries,

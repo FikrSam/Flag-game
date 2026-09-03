@@ -11,55 +11,39 @@ const countriesGeo = (topojson.feature(worldData, worldData.objects.countries) a
 const width = 1000;
 const height = 800;
 
-// Standard Mercator projection centered on Oceania
+// Pacific-centered Mercator projection (rotate [-165, 0] seamlessly avoids 180° antimeridian cuts)
 const projection = d3.geoMercator()
-  .center([150, -22])
-  .scale(380)
-  .translate([width / 2 - 20, height / 2]);
+  .rotate([-165, 0])
+  .center([0, -18])
+  .scale(440)
+  .translate([width / 2, height / 2 - 20]);
 
 const pathGenerator = d3.geoPath().projection(projection);
 
-function filterOceaniaGeometry(geometry: any, code: string) {
-  if (!geometry) return null;
-  if (geometry.type === 'Polygon') return geometry;
-  if (geometry.type === 'MultiPolygon') {
-    const validPolys = geometry.coordinates.filter((poly: any) => {
-      const pts = poly[0];
-      const avgLon = pts.reduce((s: number, p: number[]) => s + p[0], 0) / pts.length;
-      const avgLat = pts.reduce((s: number, p: number[]) => s + p[1], 0) / pts.length;
-      if (code === 'AU') {
-        // Main Australian continent + Tasmania
-        return avgLat >= -44 && avgLat <= -10 && avgLon >= 112 && avgLon <= 154;
-      }
-      if (code === 'NZ') {
-        // North & South Island (exclude Chatham at -176°W across 180° meridian)
-        return avgLat >= -48 && avgLat <= -34 && avgLon >= 165 && avgLon <= 179;
-      }
-      if (code === 'KI') {
-        // Kiribati: Gilbert Islands near 173°E
-        return avgLon >= 168 && avgLon <= 180;
-      }
-      if (code === 'FJ') {
-        return avgLon >= 175 && avgLon <= 180;
-      }
-      return true;
-    });
-    if (validPolys.length === 0) return null;
-    return {
-      type: 'MultiPolygon',
-      coordinates: validPolys
-    };
-  }
-  return geometry;
-}
-
-// Surrounding context landmasses (Indonesia, Philippines, Timor-Leste)
+// Surrounding context landmasses (Indonesia, Philippines, East Timor)
 const CONTEXT_NUMERICS = ['360', '608', '626'];
 const contextLandFeatures = countriesGeo.filter((f: any) => CONTEXT_NUMERICS.includes(f.id));
 const contextLandPaths = contextLandFeatures.map((f: any) => {
   const d = pathGenerator(f);
   return d;
 }).filter(Boolean);
+
+const CENTROID_OVERRIDES: Record<string, [number, number]> = {
+  'AU': [134.0, -25.0],
+  'NZ': [174.0, -41.5],
+  'PG': [144.0, -6.0],
+  'FJ': [178.0, -17.8],
+  'SB': [160.0, -9.5],
+  'VU': [168.3, -16.0],
+  'WS': [-172.1, -13.75],
+  'KI': [173.0, 1.4],
+  'TO': [-175.2, -21.17],
+  'FM': [158.2, 6.9],
+  'MH': [171.2, 7.1],
+  'PW': [134.5, 7.5],
+  'TV': [179.2, -8.5],
+  'NR': [166.9, -0.53]
+};
 
 interface CountryDef {
   numeric: string;
@@ -72,38 +56,21 @@ interface CountryDef {
 }
 
 const COUNTRY_DEFINITIONS: CountryDef[] = [
-  { numeric: '036', code: 'AU', name: 'Australia', capital: 'Canberra', region: 'Australasia', funFact: 'The world\'s only continent occupied by a single country, home to the Great Barrier Reef and unique marsupials.' },
-  { numeric: '554', code: 'NZ', name: 'New Zealand', capital: 'Wellington', region: 'Australasia', funFact: 'The first nation to grant women the right to vote (in 1893) and world-renowned for stunning fjord landscapes.' },
-  { numeric: '598', code: 'PG', name: 'Papua New Guinea', capital: 'Port Moresby', region: 'Melanesia', funFact: 'The most linguistically diverse country on Earth, with over 840 living languages spoken.' },
-  { numeric: '242', code: 'FJ', name: 'Fiji', capital: 'Suva', region: 'Melanesia', funFact: 'An archipelago of over 330 tropical islands, famed for pristine coral reefs and world-class rugby sevens.' },
-  { numeric: '090', code: 'SB', name: 'Solomon Islands', capital: 'Honiara', region: 'Melanesia', funFact: 'Home to the world\'s largest double-barrier reef system and legendary WWII Pacific battlefields like Guadalcanal.' },
-  { numeric: '548', code: 'VU', name: 'Vanuatu', capital: 'Port Vila', region: 'Melanesia', funFact: 'The birthplace of modern bungee jumping, inspired by the ancient land-diving ritual known as "Naghol."' },
-  { numeric: '882', code: 'WS', name: 'Samoa', capital: 'Apia', region: 'Polynesia', funFact: 'One of the oldest Polynesian cultures with traditional "Fa\'a Samoa" communal customs and famous ocean trenches.', isMicrostate: true },
-  { numeric: '296', code: 'KI', name: 'Kiribati', capital: 'South Tarawa', region: 'Micronesia', funFact: 'The only country situated in all four hemispheres (Northern, Southern, Eastern, and Western).', isMicrostate: true },
-  { numeric: '583', code: 'FM', name: 'Micronesia', capital: 'Palikir', region: 'Micronesia', funFact: 'Features Nan Madol, an ancient ruined city built entirely atop artificial coral reef islands.', isMicrostate: true },
-  { numeric: '776', code: 'TO', name: 'Tonga', capital: "Nuku'alofa", region: 'Polynesia', funFact: 'Known as the "Friendly Islands," it is the only Pacific nation that never completely lost its indigenous monarchy.', isMicrostate: true },
-  { numeric: '584', code: 'MH', name: 'Marshall Islands', capital: 'Majuro', region: 'Micronesia', funFact: 'Consists of 29 low-lying coral atolls and over 1,150 individual islands spanning 750,000 square miles of ocean.', isMicrostate: true },
-  { numeric: '585', code: 'PW', name: 'Palau', capital: 'Ngerulmud', region: 'Micronesia', funFact: 'Created the world\'s very first shark sanctuary in 2009 and home to the famous Jellyfish Lake.', isMicrostate: true },
-  { numeric: '798', code: 'TV', name: 'Tuvalu', capital: 'Funafuti', region: 'Polynesia', funFact: 'One of the smallest and least visited nations; famous for its sought-after internet domain extension ".tv."', isMicrostate: true },
-  { numeric: '520', code: 'NR', name: 'Nauru', capital: 'Yaren', region: 'Micronesia', funFact: 'The third-smallest sovereign country in the world (21 km²) and the smallest independent island republic.', isMicrostate: true }
+  { numeric: '036', code: 'AU', name: 'Australia', capital: 'Canberra', region: 'Australasia', funFact: 'Home to the Great Barrier Reef (largest living structure on Earth) and unique marsupials like kangaroos and koalas.' },
+  { numeric: '554', code: 'NZ', name: 'New Zealand', capital: 'Wellington', region: 'Polynesia', funFact: 'First self-governing country in the world to give all women the right to vote in parliamentary elections (1893).' },
+  { numeric: '598', code: 'PG', name: 'Papua New Guinea', capital: 'Port Moresby', region: 'Melanesia', funFact: 'The most linguistically diverse nation on Earth, with over 840 distinct living indigenous languages spoken.' },
+  { numeric: '242', code: 'FJ', name: 'Fiji', capital: 'Suva', region: 'Melanesia', funFact: 'An archipelago of more than 330 islands, celebrated worldwide for rugby sevens and warm traditional kava ceremonies.' },
+  { numeric: '090', code: 'SB', name: 'Solomon Islands', capital: 'Honiara', region: 'Melanesia', funFact: 'Site of pivotal WWII Pacific battles including Guadalcanal; houses Marovo Lagoon, the world\'s largest saltwater lagoon.' },
+  { numeric: '548', code: 'VU', name: 'Vanuatu', capital: 'Port Vila', region: 'Melanesia', funFact: 'The birthplace of modern bungee jumping, inspired by the ancient Pentecost Island land-diving (Naghol) ritual.' },
+  { numeric: '882', code: 'WS', name: 'Samoa', capital: 'Apia', region: 'Polynesia', funFact: 'Known as the "Cradle of Polynesia" where the centuries-old traditional Fa\'a Samoa (the Samoan Way) guides daily life.' },
+  { numeric: '296', code: 'KI', name: 'Kiribati', capital: 'Tarawa', region: 'Micronesia', funFact: 'The only nation in the world situated in all four hemispheres (Northern, Southern, Eastern, and Western).' },
+  { numeric: '776', code: 'TO', name: 'Tonga', capital: 'Nukuʻalofa', region: 'Polynesia', isMicrostate: true, funFact: 'The only Pacific island nation that was never formally colonized by a foreign power, maintaining its native monarchy.' },
+  { numeric: '583', code: 'FM', name: 'Micronesia', capital: 'Palikir', region: 'Micronesia', isMicrostate: true, funFact: 'Home to Nan Madol, a mysterious ancient ruined city built on artificial coral stone islets atop a lagoon.' },
+  { numeric: '584', code: 'MH', name: 'Marshall Islands', capital: 'Majuro', region: 'Micronesia', isMicrostate: true, funFact: 'Consists of 29 low-lying coral atolls and over 1,100 islets; home to the legendary Bikini Atoll marine reserve.' },
+  { numeric: '585', code: 'PW', name: 'Palau', capital: 'Ngerulmud', region: 'Micronesia', isMicrostate: true, funFact: 'Created the world\'s first shark sanctuary in 2009 and requires visitors to sign an ecological passport pledge upon entry.' },
+  { numeric: '798', code: 'TV', name: 'Tuvalu', capital: 'Funafuti', region: 'Polynesia', isMicrostate: true, funFact: 'The fourth-smallest sovereign nation in the world, famously leasing its valuable ".tv" country-code web domain.' },
+  { numeric: '520', code: 'NR', name: 'Nauru', capital: 'Yaren', region: 'Micronesia', isMicrostate: true, funFact: 'The world\'s smallest independent island nation (21 km²) and the only sovereign state without an official capital city.' }
 ];
-
-const CENTROID_OVERRIDES: Record<string, [number, number]> = {
-  'AU': [134, -25],
-  'NZ': [173, -41],
-  'PG': [144, -5.5],
-  'FJ': [178, -17.8],
-  'SB': [160, -9.5],
-  'VU': [168, -16],
-  'WS': [172.5, -13.6],
-  'KI': [173.0, 1.4],
-  'FM': [158.2, 6.9],
-  'TO': [175.2, -21.2],
-  'MH': [171.2, 7.1],
-  'PW': [134.5, 7.5],
-  'TV': [179.2, -8.5],
-  'NR': [166.9, -0.53]
-};
 
 const resultCountries: any[] = [];
 
@@ -113,20 +80,17 @@ for (const cDef of COUNTRY_DEFINITIONS) {
   let centroid: [number, number] = [0, 0];
   let bbox = { x: 0, y: 0, width: 100, height: 100 };
 
-  if (geoFeature) {
-    const filteredGeo = { ...geoFeature, geometry: filterOceaniaGeometry(geoFeature.geometry, cDef.code) };
-    if (filteredGeo.geometry) {
-      pathD = pathGenerator(filteredGeo) || '';
-      const bounds = pathGenerator.bounds(filteredGeo);
-      if (bounds) {
-        const [[x0, y0], [x1, y1]] = bounds;
-        bbox = {
-          x: Math.round(x0),
-          y: Math.round(y0),
-          width: Math.max(1, Math.round(x1 - x0)),
-          height: Math.max(1, Math.round(y1 - y0))
-        };
-      }
+  if (geoFeature && geoFeature.geometry) {
+    pathD = pathGenerator(geoFeature) || '';
+    const bounds = pathGenerator.bounds(geoFeature);
+    if (bounds) {
+      const [[x0, y0], [x1, y1]] = bounds;
+      bbox = {
+        x: Math.round(x0),
+        y: Math.round(y0),
+        width: Math.max(1, Math.round(x1 - x0)),
+        height: Math.max(1, Math.round(y1 - y0))
+      };
     }
   }
 
@@ -140,10 +104,11 @@ for (const cDef of COUNTRY_DEFINITIONS) {
     centroid = [Math.round(projected[0] * 10) / 10, Math.round(projected[1] * 10) / 10];
   }
 
-  // Accessible targeting disc for microstates & small islands
-  if (cDef.isMicrostate) {
-    const r = 10;
-    if (!pathD || bbox.width < 12 || bbox.height < 12) {
+  // Dedicated accessible beacon polygon for microstates or tiny atolls
+  const isMicrostate = !!cDef.isMicrostate;
+  if (!pathD || isMicrostate) {
+    const r = 9;
+    if (!pathD) {
       pathD = `M ${centroid[0] - r} ${centroid[1]} a ${r} ${r} 0 1 0 ${r * 2} 0 a ${r} ${r} 0 1 0 ${-r * 2} 0 Z`;
       bbox = {
         x: Math.round(centroid[0] - r),
@@ -154,7 +119,7 @@ for (const cDef of COUNTRY_DEFINITIONS) {
     }
   }
 
-  // Read SVG flag data
+  // Read raw SVG content from public/flags
   const flagSvgPath = path.resolve(`public/flags/${cDef.code.toLowerCase()}.svg`);
   let flagDataUri = `/flags/${cDef.code.toLowerCase()}.svg`;
   if (fs.existsSync(flagSvgPath)) {
@@ -174,7 +139,7 @@ for (const cDef of COUNTRY_DEFINITIONS) {
     path: pathD,
     centroid,
     bbox,
-    isMicrostate: !!cDef.isMicrostate
+    isMicrostate
   });
 }
 
@@ -193,4 +158,4 @@ export const OCEANIA_COUNTRIES: CountryData[] = ${JSON.stringify(resultCountries
 `;
 
 fs.writeFileSync(path.resolve('src/data/oceaniaData.ts'), fileContent, 'utf8');
-console.log(`Successfully generated src/data/oceaniaData.ts with all ${resultCountries.length} Oceania nations.`);
+console.log(`Successfully generated src/data/oceaniaData.ts with all 14 Oceania countries.`);
