@@ -178,7 +178,7 @@ export const FlagDock: React.FC<FlagDockProps> = ({
         <button
           onClick={handleTriggerNameIt}
           disabled={!selectedCountry}
-          title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name"}
+          title={isCurrentFlagNamed ? `Revealed: ${selectedCountry?.name}` : "Reveal selected country name (N)"}
           className={`flex-1 h-10 px-3 rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
             isCurrentFlagNamed
               ? 'bg-emerald-950/80 border border-emerald-500/70 text-emerald-300'
@@ -195,16 +195,20 @@ export const FlagDock: React.FC<FlagDockProps> = ({
               ? `${selectedCountry?.name}`
               : 'Name It'}
           </span>
+          {!isCurrentFlagNamed && (
+            <kbd className="hidden lg:inline text-[9px] text-zinc-500 font-mono px-1 py-0.5 bg-[#1a1a1a] rounded border border-[#333333]">N</kbd>
+          )}
         </button>
 
         <button
           onClick={handleTriggerShowMe}
           disabled={!selectedCountry}
-          title="Place this flag on the map (0 points)"
+          title="Place this flag on the map (0 points) (S)"
           className="flex-1 h-10 px-3 rounded-lg font-semibold text-xs bg-[#242424] hover:bg-[#2c2c2c] text-[#f8fafc] border border-[#383838] transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <IconEye size={15} strokeWidth={2} className="text-amber-400 shrink-0" />
           <span>Show Me</span>
+          <kbd className="hidden lg:inline text-[9px] text-zinc-500 font-mono px-1 py-0.5 bg-[#1a1a1a] rounded border border-[#333333]">S</kbd>
         </button>
       </div>
 

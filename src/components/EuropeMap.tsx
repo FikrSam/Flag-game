@@ -1,12 +1,11 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { EUROPE_COUNTRIES, CONTEXT_LAND_PATHS, MAP_CONFIG } from '../data/europeData';
 import type { CountryData } from '../types/game';
 import { IconZoomIn, IconZoomOut, IconRotateClockwise } from './TablerIcons';
 
 export interface InteractiveMapProps {
-  countries?: CountryData[];
-  contextLandPaths?: string[];
-  mapConfig?: { viewBox: string; width: number; height: number };
+  countries: CountryData[];
+  contextLandPaths: string[];
+  mapConfig: { viewBox: string; width: number; height: number };
   placedCountries: Set<string>;
   selectedFlagId: string | null;
   highlightedCountryId: string | null;
@@ -14,13 +13,15 @@ export interface InteractiveMapProps {
   continentName?: string;
 }
 
+const DEFAULT_MAP_CONFIG = { viewBox: "0 0 1000 800", width: 1000, height: 800 };
+
 const MIN_ZOOM = 0.8;
 const MAX_ZOOM = 4.5;
 
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
-  countries = EUROPE_COUNTRIES,
-  contextLandPaths = CONTEXT_LAND_PATHS,
-  mapConfig = MAP_CONFIG,
+  countries = [],
+  contextLandPaths = [],
+  mapConfig = DEFAULT_MAP_CONFIG,
   placedCountries,
   selectedFlagId,
   highlightedCountryId,

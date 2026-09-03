@@ -83,10 +83,11 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Restart */}
           <button
             onClick={onRestart}
-            title="Restart game"
-            className="p-1 text-[#9ca3af] hover:text-[#f8fafc] hover:bg-[#282828] rounded-md transition-colors"
+            title="Restart game (R)"
+            className="p-1 text-[#9ca3af] hover:text-[#f8fafc] hover:bg-[#282828] rounded-md transition-colors flex items-center gap-1"
           >
             <IconRotateClockwise size={15} strokeWidth={2} />
+            <kbd className="hidden lg:inline text-[9px] text-zinc-500 font-mono">R</kbd>
           </button>
         </div>
       </div>

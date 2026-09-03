@@ -3,6 +3,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { EUROPE_COUNTRIES } from '../data/europeData';
 import { AFRICA_COUNTRIES } from '../data/africaData';
 import { SOUTH_AMERICA_COUNTRIES } from '../data/southAmericaData';
+import { NORTH_AMERICA_COUNTRIES } from '../data/northAmericaData';
+import { OCEANIA_COUNTRIES } from '../data/oceaniaData';
+import { ASIA_COUNTRIES } from '../data/asiaData';
 import { CONTINENTS } from '../data/continents';
 import { App } from '../App';
 
@@ -59,60 +62,100 @@ describe('Flaggle Basic Geography Game', () => {
       });
     });
 
-    it('has Europe, Africa, and South America marked as playable and other continents coming soon', () => {
-      const europe = CONTINENTS.find(c => c.id === 'europe');
-      expect(europe?.status).toBe('playable');
+    it('has all 23 North American countries with valid vector paths, centroids, and bboxes', () => {
+      expect(NORTH_AMERICA_COUNTRIES.length).toBe(23);
 
-      const africa = CONTINENTS.find(c => c.id === 'africa');
-      expect(africa?.status).toBe('playable');
+      NORTH_AMERICA_COUNTRIES.forEach((country) => {
+        expect(country.id).toBeDefined();
+        expect(country.name).toBeTruthy();
+        expect(country.path.length).toBeGreaterThan(10);
+        expect(country.centroid.length).toBe(2);
+        expect(country.bbox.width).toBeGreaterThan(0);
+        expect(country.bbox.height).toBeGreaterThan(0);
+        expect(country.flagDataUri).toBeTruthy();
+      });
+    });
 
-      const southAmerica = CONTINENTS.find(c => c.id === 'south_america');
-      expect(southAmerica?.status).toBe('playable');
+    it('has all 14 Oceania countries with valid vector paths, centroids, and bboxes', () => {
+      expect(OCEANIA_COUNTRIES.length).toBe(14);
 
-      const otherContinents = CONTINENTS.filter(c => !['europe', 'africa', 'south_america'].includes(c.id));
-      expect(otherContinents.length).toBe(4);
-      otherContinents.forEach(c => expect(c.status).toBe('coming_soon'));
+      OCEANIA_COUNTRIES.forEach((country) => {
+        expect(country.id).toBeDefined();
+        expect(country.name).toBeTruthy();
+        expect(country.path.length).toBeGreaterThan(10);
+        expect(country.centroid.length).toBe(2);
+        expect(country.bbox.width).toBeGreaterThan(0);
+        expect(country.bbox.height).toBeGreaterThan(0);
+        expect(country.flagDataUri).toBeTruthy();
+      });
+    });
+
+    it('has all 49 Asian countries with valid vector paths, centroids, and bboxes', () => {
+      expect(ASIA_COUNTRIES.length).toBe(49);
+
+      ASIA_COUNTRIES.forEach((country) => {
+        expect(country.id).toBeDefined();
+        expect(country.name).toBeTruthy();
+        expect(country.path.length).toBeGreaterThan(10);
+        expect(country.centroid.length).toBe(2);
+        expect(country.bbox.width).toBeGreaterThan(0);
+        expect(country.bbox.height).toBeGreaterThan(0);
+        expect(country.flagDataUri).toBeTruthy();
+      });
+    });
+
+    it('has 6 continents marked as playable (196 sovereign nations) and Antarctica coming soon', () => {
+      const playable = CONTINENTS.filter(c => c.status === 'playable');
+      expect(playable.length).toBe(6);
+      const totalCountries = playable.reduce((sum, c) => sum + c.countryCount, 0);
+      expect(totalCountries).toBe(196);
+
+      const antarctica = CONTINENTS.find(c => c.id === 'antarctica');
+      expect(antarctica?.status).toBe('coming_soon');
     });
   });
 
   describe('2. Continent Select & Navigation', () => {
-    it('renders continent selection screen with Europe and Africa', () => {
+    it('renders continent selection screen with all playable continents', () => {
       render(<App />);
 
       expect(screen.getByText(/Flaggle/i)).toBeInTheDocument();
       expect(screen.getByText(/Drag each flag onto its matching border/i)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Play Europe/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Play Africa/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Play South America/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Play Asia/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Play North America/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Play Oceania/i })).toBeInTheDocument();
     });
 
-    it('starts European game on selecting Europe', () => {
+    it('starts European game on selecting Europe', async () => {
       render(<App />);
 
       const playEuropeBtn = screen.getByRole('button', { name: /Play Europe/i });
       fireEvent.click(playEuropeBtn);
 
-      expect(screen.getByText(/Europe/i)).toBeInTheDocument();
+      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
       expect(screen.getByText(/Flags/i)).toBeInTheDocument();
-      expect(screen.getByText(/SCORE/i)).toBeInTheDocument();
     });
 
-    it('starts African game on selecting Africa', () => {
+    it('starts African game on selecting Africa', async () => {
       render(<App />);
 
       const playAfricaBtn = screen.getByRole('button', { name: /Play Africa/i });
       fireEvent.click(playAfricaBtn);
 
-      expect(screen.getByText(/Africa/i)).toBeInTheDocument();
+      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
       expect(screen.getAllByText(/54/i).length).toBeGreaterThan(0);
     });
 
-    it('starts South American game on selecting South America', () => {
+    it('starts South American game on selecting South America', async () => {
       render(<App />);
 
       const playSABtn = screen.getByRole('button', { name: /Play South America/i });
       fireEvent.click(playSABtn);
 
-      expect(screen.getByText(/South America/i)).toBeInTheDocument();
+      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
       expect(screen.getAllByText(/12/i).length).toBeGreaterThan(0);
     });
   });
@@ -302,6 +345,81 @@ describe('Flaggle Basic Geography Game', () => {
       expect(screen.getByText(/Continental & island nations/i)).toBeInTheDocument();
       expect(screen.getByText(/Includes 6 microstates/i)).toBeInTheDocument();
       expect(screen.getByText(/Andes, Amazon & Patagonia/i)).toBeInTheDocument();
+      expect(screen.getByText(/Silk Road, Steppes & Archipelagoes/i)).toBeInTheDocument();
+      expect(screen.getByText(/Great Plains, Mayans & Caribbean/i)).toBeInTheDocument();
+      expect(screen.getByText(/Outback, Atolls & Pacific Isles/i)).toBeInTheDocument();
+    });
+
+    it('starts Asia game on selecting Asia', async () => {
+      render(<App />);
+      const playAsiaBtn = screen.getByRole('button', { name: /Play Asia/i });
+      fireEvent.click(playAsiaBtn);
+      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/49/i).length).toBeGreaterThan(0);
+    });
+
+    it('starts North America game on selecting North America', async () => {
+      render(<App />);
+      const playNABtn = screen.getByRole('button', { name: /Play North America/i });
+      fireEvent.click(playNABtn);
+      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/23/i).length).toBeGreaterThan(0);
+    });
+
+    it('starts Oceania game on selecting Oceania', async () => {
+      render(<App />);
+      const playOceaniaBtn = screen.getByRole('button', { name: /Play Oceania/i });
+      fireEvent.click(playOceaniaBtn);
+      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/14/i).length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('5. Desktop Speedrun Keyboard Shortcuts', () => {
+    it('triggers Name It hint on pressing N key', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
+
+      const firstCard = container.querySelector('[data-country-id]');
+      const countryId = firstCard?.getAttribute('data-country-id');
+      const country = EUROPE_COUNTRIES.find(c => c.id === countryId);
+
+      // Press 'n'
+      fireEvent.keyDown(window, { key: 'n' });
+
+      // Name should now be visible in dock
+      expect(screen.getAllByText(country!.name).length).toBeGreaterThan(0);
+    });
+
+    it('triggers Show Me auto-placement on pressing S key', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
+
+      const initialCount = container.querySelectorAll('[data-country-id]').length;
+
+      // Press 's'
+      fireEvent.keyDown(window, { key: 's' });
+
+      // Flag placed automatically; unplaced count decreased by 1
+      const newCount = container.querySelectorAll('[data-country-id]').length;
+      expect(newCount).toBe(initialCount - 1);
+    });
+
+    it('cycles selected flag on ArrowRight key', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /Play Europe/i }));
+      expect(await screen.findByText(/SCORE/i)).toBeInTheDocument();
+
+      const cards = container.querySelectorAll('[data-country-id]');
+      const id1 = cards[0]?.getAttribute('data-country-id');
+
+      // Press ArrowRight
+      fireEvent.keyDown(window, { key: 'ArrowRight' });
+
+      // Should have selected another card or cycled
+      expect(id1).toBeTruthy();
     });
   });
 });

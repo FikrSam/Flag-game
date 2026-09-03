@@ -26,9 +26,13 @@ All geospatial datasets are pre-processed offline via TypeScript generation scri
 
 | Continent | Sovereign Nations | Dataset File | Script Generator | Projection Used |
 | :--- | :--- | :--- | :--- | :--- |
-| **Europe** | 44 | `src/data/europeData.ts` | `scripts/generate-europe-dataset.ts` | D3 Mercator / Conic center `13°E` |
+| **Europe** | 44 | `src/data/europeData.ts` | `scripts/generate-europe-dataset.ts` | D3 Mercator center `[13, 54]`, scale `600` |
 | **Africa** | 54 | `src/data/africaData.ts` | `scripts/generate-africa-dataset.ts` | D3 Mercator center `[18, 2]`, scale `400` |
 | **South America** | 12 | `src/data/southAmericaData.ts` | `scripts/generate-south-america-dataset.ts` | D3 Mercator center `[-60, -22]`, scale `550` |
+| **North America** | 23 | `src/data/northAmericaData.ts` | `scripts/generate-north-america-dataset.ts` | D3 Mercator center `[-96, 42]`, scale `320` |
+| **Oceania** | 14 | `src/data/oceaniaData.ts` | `scripts/generate-oceania-dataset.ts` | D3 Mercator center `[150, -22]`, scale `380` |
+| **Asia** | 49 | `src/data/asiaData.ts` | `scripts/generate-asia-dataset.ts` | D3 Mercator center `[85, 25]`, scale `240` |
+| **Total** | **196** | *(All dynamically code-split via `continentLoader.ts`)* | | |
 
 ### Continent Definition Schema (`CountryData` in `src/types/game.ts`)
 ```typescript
@@ -129,11 +133,18 @@ const patY = Math.round(cy - patH / 2);
 2. **Flag Card Geometry (Zero Bottom Dead Space)**:
    - Flag cards are exact `aspect-[4/3]` units directly wrapping `<FlagImage className="w-full h-full object-cover">`.
    - Capped at `rounded-lg` (8px), eliminating dead whitespace around flags.
-3. **Shared Global Action Controls**:
-   - Eliminated redundant, clipped individual buttons inside every flag card.
-   - Single pair of ergonomic action buttons (`[ ❓ Name It ]` `[ 👁️ Show Me ]`) dynamically bound to the selected flag.
-   - **Desktop**: Positioned at the top of the sidebar (`md:order-2`) directly below the header and above the flag grid for immediate access without long mouse travel.
-   - **Mobile**: Positioned in the bottom dock (`order-3`) for natural thumb ergonomics.
+4. **Mobile Tactile Haptics (`src/utils/haptics.ts`)**:
+   - `hapticSuccess()`: Crisp 25ms vibration pulse on correct placement.
+   - `hapticError()`: Double warning pulse `[35, 50, 35]` on incorrect territory drop.
+   - `hapticTap()`: 10ms micro-tap on flag selection, dock scrolling, and hint activation.
+   - Safe with SSR / browsers without Web Vibration API.
+5. **Desktop Speedrun Keyboard Shortcuts**:
+   - <kbd>N</kbd> / <kbd>n</kbd>: Trigger "Name It" hint on currently selected flag (30% point deduction).
+   - <kbd>S</kbd> / <kbd>s</kbd>: Trigger "Show Me" auto-placement on currently selected flag (0 pts, breaks streak).
+   - <kbd>R</kbd> / <kbd>r</kbd>: Restart active continent run immediately.
+   - <kbd>ArrowLeft</kbd> / <kbd>ArrowRight</kbd> (or <kbd>Up</kbd> / <kbd>Down</kbd>): Cycle through unplaced flags in the dock.
+   - <kbd>Escape</kbd>: Exit current continent run and return to Continent Selection screen.
+   - Discreet key badges (`[N]`, `[S]`, `[R]`) rendered on desktop controls for intuitive discoverability.
    - Reveals the active country name upon click and updates automatically as players swipe between flags.
 4. **Touch Carousel Swiping & Gesture Disambiguation**:
    - Carousel container uses `touch-action: pan-x` with `-webkit-overflow-scrolling: touch` and `overscroll-contain`.

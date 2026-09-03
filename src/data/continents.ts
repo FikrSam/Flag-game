@@ -32,22 +32,22 @@ export const CONTINENTS: Continent[] = [
     id: 'asia',
     name: 'Asia',
     countryCount: 49,
-    status: 'coming_soon',
-    description: '49 countries'
+    status: 'playable',
+    description: '49 countries • Silk Road, Steppes & Archipelagoes'
   },
   {
     id: 'north_america',
     name: 'North America',
     countryCount: 23,
-    status: 'coming_soon',
-    description: '23 countries'
+    status: 'playable',
+    description: '23 countries • Great Plains, Mayans & Caribbean'
   },
   {
     id: 'oceania',
     name: 'Oceania',
     countryCount: 14,
-    status: 'coming_soon',
-    description: '14 countries'
+    status: 'playable',
+    description: '14 countries • Outback, Atolls & Pacific Isles'
   },
   {
     id: 'antarctica',
